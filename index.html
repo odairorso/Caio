@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Obra Fácil — Casa Caio</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#09090b;--card:#111114;--card2:#18181b;--card3:#1f1f24;
+--accent:#8b5cf6;--accent2:#a78bfa;--accent3:#c4b5fd;
+--green:#10b981;--red:#ef4444;--orange:#f59e0b;--blue:#3b82f6;--pink:#ec4899;--teal:#14b8a6;
+--text:#fafafa;--text2:#a1a1aa;--border:#27272a;
+--chart1:#8b5cf6;--chart2:#10b981;--chart3:#3b82f6;--chart4:#f59e0b;--chart5:#ef4444;
+--glow:0 0 30px rgba(139,92,246,.2);
+--radius:12px;
+}
+html{font-family:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 12px;gap:4px;z-index:100}
+.sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 8px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.sidebar .brand .icon{font-size:32px}
+.hamburger{display:none;background:none;border:none;color:var(--text);font-size:24px;cursor:pointer;padding:4px 8px}
+.nav-menu{display:flex;flex-direction:column;gap:4px}
+.sidebar .brand h2{font-size:16px;font-weight:700}
+.sidebar .brand p{font-size:11px;color:var(--text2)}
+.sidebar .section{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);padding:16px 12px 6px}
+.nav-btn{width:100%;height:44px;border-radius:var(--radius);border:none;background:transparent;color:var(--text2);font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:12px;padding:0 14px;transition:all .2s}
+.nav-btn:hover{background:var(--card3);color:var(--text)}
+.nav-btn.active{background:var(--accent);color:#fff;box-shadow:var(--glow)}
+.nav-btn .ico{font-size:18px;width:24px;text-align:center}
+.main{margin-left:240px;padding:0 0 40px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:20px 32px;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:50;backdrop-filter:blur(12px)}
+.topbar h1{font-size:20px;font-weight:700}
+.topbar .actions{display:flex;gap:10px;align-items:center}
+.btn{padding:8px 18px;border-radius:var(--radius);border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2);box-shadow:var(--glow)}
+.btn-secondary{background:var(--card3);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--accent)}
+.btn-ghost{background:transparent;color:var(--text2)}.btn-ghost:hover{background:var(--card3);color:var(--text)}
+.btn-danger{background:rgba(239,68,68,.1);color:var(--red)}.btn-danger:hover{background:var(--red);color:#fff}
+.btn-icon{width:36px;height:36px;padding:0;justify-content:center;border-radius:8px}
+.content{padding:24px 32px}
+.page{display:none}.page.active{display:block}
+/* HERO */
+.hero{background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(16,185,129,.08));border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px}
+.hero .label{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--text2);margin-bottom:8px}
+.hero .total{font-size:48px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{font-size:14px;color:var(--text2);margin-top:8px}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:all .3s}
+.stat:hover{border-color:var(--accent);box-shadow:var(--glow)}
+.stat .label{font-size:12px;color:var(--text2);margin-bottom:6px}
+.stat .value{font-size:24px;font-weight:700}
+.stat .hint{font-size:11px;color:var(--text2);margin-top:4px}
+.stat.danger .value{color:var(--red)}.stat.primary .value{color:var(--accent2)}
+/* CHARTS */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.grid3{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;height:350px;display:flex;flex-direction:column}
+.chart-box h3{font-size:14px;font-weight:600;margin-bottom:16px;color:var(--accent2)}
+.chart-box canvas{flex:1;min-height:0}
+/* TABLE */
+.table-box{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px}
+.table-box .header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px}
+.table-box .header h3{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
+.table-box .header .count{background:var(--accent);color:#fff;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
+.table-box .body{padding:0}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:12px 20px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);border-bottom:1px solid var(--border);background:var(--card2);cursor:pointer;user-select:none;position:sticky;top:0;z-index:1}
+th:hover{color:var(--accent2)}
+td{padding:14px 20px;border-bottom:1px solid rgba(39,39,42,.5);font-size:14px;vertical-align:middle}
+tr:hover{background:rgba(139,92,246,.03)}
+.table-wrap{max-height:550px;overflow-y:auto}
+.table-wrap::-webkit-scrollbar{width:5px}
+.table-wrap::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+/* BADGE */
+.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:capitalize}
+.badge.pago{background:rgba(16,185,129,.12);color:var(--green)}
+.badge.pendente{background:rgba(245,158,11,.12);color:var(--orange)}
+.badge.atrasado{background:rgba(239,68,68,.12);color:var(--red)}
+.badge.cat{background:var(--card3);color:var(--text2);font-size:10px}
+.new-badge{display:inline-block;background:var(--green);color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:4px;vertical-align:middle;font-weight:700}
+/* FILTERS */
+.filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filters input,.filters select{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:13px;outline:none;transition:border .2s;font-family:inherit}
+.filters input:focus,.filters select:focus{border-color:var(--accent)}
+.filters input{min-width:220px}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;backdrop-filter:blur(8px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.5)}
+.modal h2{font-size:20px;margin-bottom:24px;color:var(--accent2);display:flex;align-items:center;gap:10px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:5px;font-weight:600}
+.form-group input,.form-group select{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:14px;outline:none;transition:border .2s;font-family:inherit}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-group{display:flex;gap:10px;margin-top:24px;justify-content:flex-end}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#fff;padding:14px 24px;border-radius:var(--radius);font-weight:600;font-size:14px;z-index:300;transform:translateY(100px);opacity:0;transition:all .4s;display:flex;align-items:center;gap:10px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.error{background:var(--red)}
+.toast .undo{background:rgba(255,255,255,.2);border:none;color:#fff;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600}
+/* SPLIT */
+.split-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
+.split-box h3{color:var(--accent2);margin-bottom:20px;font-size:16px}
+.split-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.split-item:last-child{border:none;font-size:17px;font-weight:700;color:var(--accent2)}
+/* PARCELAS */
+.parcela-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.parcela-row:last-child{border:none}
+.parcela-check{width:32px;height:32px;border-radius:8px;border:2px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:transparent}
+.parcela-check.paid{background:var(--green);border-color:var(--green);color:#fff}
+@media(max-width:768px){
+.sidebar{width:100%;height:auto;bottom:auto;flex-direction:column;padding:0;align-items:stretch;border-right:none;border-bottom:1px solid var(--border);position:fixed;top:0}
+.sidebar .brand{border:none;margin:0;padding:12px 16px;justify-content:space-between}
+.sidebar .brand p{display:none}
+.sidebar .brand h2{display:block;font-size:18px}
+.hamburger{display:block;background:none;border:none;color:var(--text);font-size:24px;cursor:pointer;padding:4px 8px}
+.nav-menu{display:none;flex-direction:column;padding:8px;gap:2px}
+.nav-menu.open{display:flex}
+.sidebar .section{display:none}
+.nav-btn{width:100%;height:48px;padding:0 16px;font-size:14px;border-radius:10px}
+.nav-btn .ico{font-size:20px;width:28px}
+.main{margin-left:0;margin-top:64px}.content{padding:12px}.topbar{padding:12px;top:64px}
+.topbar h1{font-size:16px}
+.stats{grid-template-columns:1fr 1fr;gap:10px}
+.hero{padding:20px}.hero .total{font-size:28px}.hero .sub{font-size:12px}
+.stat{padding:14px}.stat .value{font-size:18px}
+.form-row{grid-template-columns:1fr}
+.grid2,.grid3{grid-template-columns:1fr;gap:12px}
+.chart-box{height:280px;padding:16px}
+.chart-box h3{font-size:13px}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{min-width:600px}
+th,td{padding:10px 12px;font-size:12px}
+.filters{flex-direction:column;align-items:stretch}
+.filters input,.filters select{min-width:auto;width:100%}
+.filters .btn{width:100%;justify-content:center;height:44px}
+.modal{width:100%;max-height:85vh;border-radius:16px 16px 0 0;padding:20px;position:fixed;bottom:0;left:0;right:0;max-width:100%}
+.modal-overlay{align-items:flex-end}
+.modal h2{font-size:16px;margin-bottom:16px}
+.btn{height:44px;font-size:14px}
+.btn-group{flex-direction:column}.btn-group .btn{width:100%;justify-content:center}
+.toast{left:12px;right:12px;bottom:12px;justify-content:center}
+.parcela-row{flex-wrap:wrap}
+.split-box{padding:16px}
+.split-item{font-size:13px}
+}
+@media(max-width:480px){
+.stats{grid-template-columns:1fr}
+.hero .total{font-size:24px}
+}
+</style>
+</head>
+<body>
+<div class="sidebar">
+<div class="brand"><span class="icon">🏠</span><h2>Obra Fácil</h2><button class="hamburger" onclick="document.querySelector('.nav-menu').classList.toggle('open')">☰</button></div>
+<div class="nav-menu">
+<div class="section">Menu</div>
+<button class="nav-btn active" onclick="show('dashboard',this);closeMenu()"><span class="ico">📊</span>Painel</button>
+<button class="nav-btn" onclick="show('compras',this);closeMenu()"><span class="ico">🧱</span>Compras</button>
+<button class="nav-btn" onclick="show('parcelas',this);closeMenu()"><span class="ico">💳</span>Parcelas</button>
+<button class="nav-btn" onclick="show('maoobra',this);closeMenu()"><span class="ico">👷</span>Mão de Obra</button>
+<button class="nav-btn" onclick="show('documentos',this);closeMenu()"><span class="ico">📋</span>Documentos</button>
+<div class="section">Financeiro</div>
+<button class="nav-btn" onclick="show('financiamento',this);closeMenu()"><span class="ico">🏦</span>Financiamento</button>
+<button class="nav-btn" onclick="show('divisao',this);closeMenu()"><span class="ico">🤝</span>Rateio Matheus</button>
+</div>
+</div>
+
+<div class="main">
+<div class="topbar">
+<h1 id="pageTitle">Painel</h1>
+<div class="actions">
+<button class="btn btn-secondary" onclick="exportCSV()">📥 CSV</button>
+<button class="btn btn-secondary" onclick="sbPullAll()" title="Sincronizar com Supabase">☁️ Sync</button>
+<button class="btn btn-ghost" onclick="resetAll()" title="Restaurar dados originais">🔄</button>
+</div>
+</div>
+
+<div class="content">
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+<div class="hero">
+<div class="label">Total investido (sem terreno)</div>
+<div class="total" id="heroTotal"></div>
+<div class="sub" id="heroSub"></div>
+</div>
+<div class="stats" id="statsGrid"></div>
+<div class="grid3">
+<div class="chart-box"><h3>📊 Compras de material por mês</h3><canvas id="chartMes"></canvas></div>
+<div class="chart-box"><h3>🍩 Para onde foi o dinheiro</h3><canvas id="chartCat"></canvas></div>
+</div>
+<div class="grid2">
+<div class="chart-box"><h3>💳 Forma de pagamento</h3><canvas id="chartPag"></canvas></div>
+<div class="chart-box"><h3>🏪 Fornecedores top 8</h3><canvas id="chartForn"></canvas></div>
+</div>
+</div>
+
+<!-- COMPRAS -->
+<div id="page-compras" class="page">
+<div class="filters">
+<input type="text" id="cq" placeholder="🔍 Buscar material..." oninput="renderCompras()">
+<select id="cforn" onchange="renderCompras()"><option value="">Todos fornecedores</option></select>
+<select id="ccat" onchange="renderCompras()"><option value="">Todas etapas</option></select>
+<select id="cforma" onchange="renderCompras()"><option value="">Todas formas</option></select>
+<button class="btn btn-primary" onclick="openModal('compra')">➕ Nova compra</button>
+</div>
+<div class="table-box"><div class="table-wrap"><table>
+<thead><tr><th onclick="sortC('data')">Data ↕</th><th onclick="sortC('material')">Material ↕</th><th onclick="sortC('valor')">Valor ↕</th><th>Fornecedor</th><th>Pagamento</th><th>Etapa</th><th>Status</th><th>Ações</th></tr></thead>
+<tbody id="comprasBody"></tbody></table></div></div>
+</div>
+
+<!-- PARCELAS -->
+<div id="page-parcelas" class="page">
+<div class="stats" id="parcelasStats"></div>
+<div class="grid3">
+<div class="table-box"><div class="header"><h3>💳 Parcelas a vencer</h3><span class="count" id="parcCount"></span></div>
+<div class="table-wrap" id="parcelasList"></div></div>
+<div class="chart-box"><h3>📅 Por fatura (mês)</h3><canvas id="chartParc"></canvas></div>
+</div>
+</div>
+
+<!-- MÃO DE OBRA -->
+<div id="page-maoobra" class="page">
+<div class="filters">
+<button class="btn btn-primary" onclick="openModal('maoobra')">➕ Novo pagamento</button>
+</div>
+<div class="stats" id="moStats"></div>
+<div class="grid2">
+<div class="chart-box"><h3>👷 Pagamentos por mês</h3><canvas id="chartMo"></canvas></div>
+<div class="chart-box"><h3>📈 Evolução acumulada</h3><canvas id="chartMoAcum"></canvas></div>
+</div>
+<div class="table-box"><div class="table-wrap"><table>
+<thead><tr><th>Data</th><th>Valor</th><th>Descrição</th><th>Status</th><th></th></tr></thead>
+<tbody id="moBody"></tbody></table></div></div>
+</div>
+
+<!-- DOCUMENTOS -->
+<div id="page-documentos" class="page">
+<div class="filters">
+<button class="btn btn-primary" onclick="openModal('doc')">➕ Novo serviço</button>
+</div>
+<div class="stats" id="docStats"></div>
+<div class="grid2">
+<div class="chart-box"><h3>📋 Custos por mês</h3><canvas id="chartDoc"></canvas></div>
+<div class="chart-box"><h3>🥧 Top serviços</h3><canvas id="chartDocPie"></canvas></div>
+</div>
+<div class="table-box"><div class="table-wrap"><table>
+<thead><tr><th>Serviço</th><th>Valor</th><th>Data</th><th>Pagamento</th><th></th></tr></thead>
+<tbody id="docBody"></tbody></table></div></div>
+</div>
+
+<!-- FINANCIAMENTO -->
+<div id="page-financiamento" class="page">
+<div class="stats" id="finStats"></div>
+<div class="grid2">
+<div class="chart-box"><h3>🏦 Parcelas do financiamento</h3><canvas id="chartFin"></canvas></div>
+<div class="chart-box"><h3>💡 Contas da obra</h3><canvas id="chartContas"></canvas></div>
+</div>
+<div class="table-box"><div class="header"><h3>🏦 Financiamento</h3></div><div class="table-wrap"><table>
+<thead><tr><th>Vencimento</th><th>Valor</th><th></th></tr></thead>
+<tbody id="finBody"></tbody></table></div></div>
+<div class="table-box"><div class="header"><h3>💡 Contas (Água/Luz/IPTU)</h3></div><div class="table-wrap"><table>
+<thead><tr><th>Item</th><th>Mês</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+<tbody id="contasBody"></tbody></table></div></div>
+</div>
+
+<!-- DIVISÃO -->
+<div id="page-divisao" class="page">
+<div class="grid2">
+<div class="split-box" id="splitBox"></div>
+<div class="chart-box"><h3>🤝 Composição do rateio</h3><canvas id="chartSplit"></canvas></div>
+</div>
+<div class="table-box"><div class="header"><h3>🤝 Detalhamento</h3></div><div class="table-wrap"><table>
+<thead><tr><th>Item</th><th>Valor</th><th>Data</th></tr></thead>
+<tbody id="splitBody"></tbody></table></div></div>
+</div>
+</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+<div class="modal">
+<h2 id="modalTitle"></h2>
+<div id="modalBody"></div>
+<div class="btn-group">
+<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+<button class="btn btn-primary" onclick="saveEntry()">💾 Salvar</button>
+</div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SEED={"compras": [{"id": "c0", "quantidade": "100", "material": "CIMENTO", "valor": 3690, "forma": "dinheiro", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-01-01", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c1", "quantidade": "1", "material": "LIMPEZA TERRENO ANTONIO", "valor": 150, "forma": "dinheiro", "parcelas": 1, "fornecedor": "MÃO DE OBRA", "data": "2026-01-12", "pagador": "PEDRO", "status": "pago", "categoria": "Outros"}, {"id": "c2", "quantidade": "1", "material": "CAÇAMBA", "valor": 140, "forma": "pix", "parcelas": 1, "fornecedor": "LORO", "data": "2026-01-13", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c3", "quantidade": "35", "material": "COLUNA 10mm 7x14", "valor": 4021.78, "forma": "cartao", "parcelas": 4, "fornecedor": "AÇO TELHAS DOURADOS", "data": "2026-01-26", "pagador": "CAIO BRADESCO", "status": "pago", "categoria": "Outros"}, {"id": "c4", "quantidade": "20", "material": "COLUNA 8mm 7x20", "valor": 1578.73, "forma": "cartao", "parcelas": 4, "fornecedor": "AÇO TELHAS DOURADOS", "data": "2026-01-26", "pagador": "CAIO BRADESCO", "status": "pago", "categoria": "Outros"}, {"id": "c5", "quantidade": "20", "material": "BARRA FERRO 6.3mm", "valor": 419.66, "forma": "cartao", "parcelas": 4, "fornecedor": "AÇO TELHAS DOURADOS", "data": "2026-01-26", "pagador": "CAIO BRADESCO", "status": "pago", "categoria": "Outros"}, {"id": "c6", "quantidade": "10", "material": "BARRA FERRO 4.2mm", "valor": 104.92, "forma": "cartao", "parcelas": 4, "fornecedor": "AÇO TELHAS DOURADOS", "data": "2026-01-26", "pagador": "CAIO BRADESCO", "status": "pago", "categoria": "Outros"}, {"id": "c7", "quantidade": "10kg", "material": "ARAME COZIDO", "valor": 129.9, "forma": "cartao", "parcelas": 4, "fornecedor": "AÇO TELHAS DOURADOS", "data": "2026-01-26", "pagador": "CAIO BRADESCO", "status": "pago", "categoria": "Outros"}, {"id": "c8", "quantidade": "10", "material": "TRELIÇA H8", "valor": 260, "forma": "cartao", "parcelas": 4, "fornecedor": "AÇO TELHAS DOURADOS", "data": "2026-01-26", "pagador": "CAIO BRADESCO", "status": "pago", "categoria": "Outros"}, {"id": "c9", "quantidade": "1", "material": "LINHA MARCAÇÃO ", "valor": 8.5, "forma": "dinheiro", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-01-27", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c10", "quantidade": "35", "material": "CAIBRO 1M", "valor": 245, "forma": "pix", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-01-27", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c11", "quantidade": "15", "material": "TABUA 0,15x3 ", "valor": 270, "forma": "pix", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-01-27", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c12", "quantidade": "1", "material": "PADRAO ENERGIA BIVOLT 50A", "valor": 1450, "forma": "cartao", "parcelas": 3, "fornecedor": "COMTEL", "data": "2026-02-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c13", "quantidade": "1", "material": "MÃO DE  OBRA PADRÃO", "valor": 200, "forma": "pix", "parcelas": 1, "fornecedor": "COMTEL", "data": "2026-02-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c14", "quantidade": "56", "material": "TABUA 0,25x3", "valor": 1680, "forma": "pix", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-02-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c15", "quantidade": "20", "material": "RIPA 3m", "valor": 120, "forma": "pix", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-02-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c16", "quantidade": "9m³", "material": "CONCRETO USINADO", "valor": 4200, "forma": "cartao", "parcelas": 3, "fornecedor": "CONCRENAVI", "data": "2026-02-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c17", "quantidade": "5", "material": "PEDRA", "valor": 900, "forma": "cartao", "parcelas": 4, "fornecedor": "GOIS", "data": "2026-02-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c18", "quantidade": "5", "material": "AREIA GROSSA", "valor": 720, "forma": "cartao", "parcelas": 4, "fornecedor": "GOIS", "data": "2026-02-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c19", "quantidade": "2000", "material": "LAJOTAS 8 FUROS", "valor": 1940, "forma": "cartao", "parcelas": 4, "fornecedor": "ILHA GRANDE ", "data": "2026-02-05", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c20", "quantidade": "1", "material": "NEUTROL 18l", "valor": 288, "forma": "cartao", "parcelas": 4, "fornecedor": "ILHA GRANDE ", "data": "2026-02-05", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c21", "quantidade": "1", "material": "LUVA", "valor": 13, "forma": "cartao", "parcelas": 4, "fornecedor": "ILHA GRANDE ", "data": "2026-02-05", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c22", "quantidade": "1", "material": "BROCHA", "valor": 13, "forma": "cartao", "parcelas": 4, "fornecedor": "ILHA GRANDE ", "data": "2026-02-05", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c23", "quantidade": "1", "material": "CAIXINHA AGUA", "valor": 152, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c24", "quantidade": "1", "material": "CARRIOLA", "valor": 237, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c25", "quantidade": "1", "material": "MANGUEIRA 1/2", "valor": 9.75, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c26", "quantidade": "1", "material": "PREGO 17x21", "valor": 20, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c27", "quantidade": "1", "material": "PREGO17x27", "valor": 20, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c28", "quantidade": "3", "material": "JOELHO 90 40mm", "valor": 6, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c29", "quantidade": "1", "material": "JOELHO 90 50mm", "valor": 4, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c30", "quantidade": "0,50cm", "material": "TUBO 0,50 mm", "valor": 24, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c31", "quantidade": "5", "material": "CAL HIDRATADA", "valor": 131.25, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c32", "quantidade": "5", "material": "ASSENTARITE", "valor": 70, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c33", "quantidade": "1000", "material": "LAJOTAS 8 FUROS", "valor": 970, "forma": "cartao", "parcelas": 3, "fornecedor": "ILHA GRANDE ", "data": "2026-02-12", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c34", "quantidade": "30", "material": "CONTEINER", "valor": 250, "forma": "pix", "parcelas": 1, "fornecedor": "TIDA", "data": "2026-02-13", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c35", "quantidade": "4", "material": "AREIA GROSSA", "valor": 420, "forma": "cartao", "parcelas": 4, "fornecedor": "GOIS", "data": "2026-02-16", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c36", "quantidade": "1", "material": "COLA TIGRE", "valor": 5, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-21", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c37", "quantidade": "1", "material": "ADPTADOR CURTO", "valor": 1.25, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-21", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c38", "quantidade": "1", "material": "LUVA BUCHA 1/2", "valor": 9.5, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-21", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c39", "quantidade": "1", "material": "TORNEIRA JARDIM", "valor": 6.25, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-21", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c40", "quantidade": "1", "material": "VEDA ROSCA ", "valor": 6, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-21", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c41", "quantidade": "10", "material": "CAL HIDRATADA", "valor": 156.3, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-21", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c42", "quantidade": "3", "material": "COLUNA 10mm 7x20", "valor": 381, "forma": "pix", "parcelas": 1, "fornecedor": "EURO AÇO", "data": "2026-02-24", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c43", "quantidade": "1", "material": "REGISTRO PRESSAO ", "valor": 46, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-24", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c44", "quantidade": "1", "material": "LUVA CORRER TIGRE", "valor": 22, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-02-24", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c45", "quantidade": "1000", "material": "LAJOTAS 8 FUROS", "valor": 980, "forma": "cartao", "parcelas": 3, "fornecedor": "ILHA GRANDE ", "data": "2026-02-26", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c46", "quantidade": "4", "material": "COLUNAS 7X20 5/16", "valor": 340, "forma": "pix", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c47", "quantidade": "10", "material": "CAL HIDRATADA", "valor": 262.5, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c48", "quantidade": "4", "material": "ARAME COZIDO", "valor": 100, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c49", "quantidade": "2", "material": "PREGO 17x21", "valor": 40, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c50", "quantidade": "5", "material": "PREGO 17x27", "valor": 100, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c51", "quantidade": "10", "material": "TABUA 0,30X3", "valor": 330, "forma": "pix", "parcelas": 1, "fornecedor": "GOIS", "data": "2026-03-03", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c52", "quantidade": "1000", "material": "LAJOTAS H7 LAJE", "valor": 1720, "forma": "cartao", "parcelas": 1, "fornecedor": "CAMBARU", "data": "2026-03-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c53", "quantidade": "30", "material": "RIPA 3m", "valor": 60, "forma": "pix", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-03-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c54", "quantidade": "15", "material": "SARRAFO", "valor": 90, "forma": "pix", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-03-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c55", "quantidade": "50", "material": "TRILHOS LAJE", "valor": 2000, "forma": "pix", "parcelas": 1, "fornecedor": "LAJES NAVIRAI", "data": "2026-03-12", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c56", "quantidade": "2", "material": "COLUNA 7X14 5/16", "valor": 230, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-13", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c57", "quantidade": "0.5", "material": "CANO 0,40", "valor": 24, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-13", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c58", "quantidade": "0.5", "material": "CANO 0,25", "valor": 14.25, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-13", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c59", "quantidade": "1", "material": "BOTINA", "valor": 60, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-13", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c60", "quantidade": "6,5m³", "material": "CONCRETO USINADO", "valor": 2840, "forma": "cartao", "parcelas": 2, "fornecedor": "CONCRENAVI", "data": "2026-03-17", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c61", "quantidade": "1", "material": "CONTEINER", "valor": 250, "forma": "pix", "parcelas": 1, "fornecedor": "TIDA", "data": "2026-03-17", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c62", "quantidade": "300", "material": "LAJOTAS", "valor": 300, "forma": "pix", "parcelas": 1, "fornecedor": "ILHA GRANDE ", "data": "2026-03-19", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c63", "quantidade": "5", "material": "AREIA GROSSA", "valor": 525, "forma": "cartao", "parcelas": 2, "fornecedor": "GOIS", "data": "2026-03-23", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c64", "quantidade": "5", "material": "AREIA FINA", "valor": 240, "forma": "cartao", "parcelas": 2, "fornecedor": "GOIS", "data": "2026-03-23", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c65", "quantidade": "2", "material": "ELETROUDO 2.5mm", "valor": 47.83, "forma": "cartao", "parcelas": 6, "fornecedor": "CORTE E DOBRA DDRS ", "data": "2026-03-23", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c66", "quantidade": "300", "material": "PARAFUSO BROCANTE", "valor": 154.54, "forma": "cartao", "parcelas": 6, "fornecedor": "CORTE E DOBRA DDRS ", "data": "2026-03-23", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c67", "quantidade": "26", "material": "VIGA PERFIL G  75x40x15", "valor": 2858.07, "forma": "cartao", "parcelas": 6, "fornecedor": "CORTE E DOBRA DDRS ", "data": "2026-03-23", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c68", "quantidade": "73.4", "material": "TELHA GALVALUME 25 0,43x1000", "valor": 2869.56, "forma": "cartao", "parcelas": 6, "fornecedor": "CORTE E DOBRA DDRS ", "data": "2026-03-23", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c69", "quantidade": "5", "material": "CAL HIDRATADA", "valor": 108, "forma": "cartao", "parcelas": 1, "fornecedor": "CASA NOVA", "data": "2026-03-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c70", "quantidade": "5", "material": "ASSENTARITE", "valor": 77, "forma": "pix", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c71", "quantidade": "5", "material": "CAL HIDRATADA", "valor": 151, "forma": "pix", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c72", "quantidade": "3", "material": "DISCO DE CORTE GRANDE", "valor": 28.05, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c73", "quantidade": "2", "material": "LUVA LATEX", "valor": 27.5, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-03-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c74", "quantidade": "10", "material": "CAL HIDRATADA", "valor": 216, "forma": "cartao", "parcelas": 1, "fornecedor": "CASA NOVA", "data": "2026-03-27", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c75", "quantidade": "1", "material": "CALHAS", "valor": 3000, "forma": "pix", "parcelas": 1, "fornecedor": "NEI CALHAS", "data": "2026-04-01", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c76", "quantidade": "10", "material": "CAL CEM", "valor": 216, "forma": "cartao", "parcelas": 1, "fornecedor": "CASA NOVA", "data": "2026-04-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c77", "quantidade": "20", "material": "ELETRODUTO ", "valor": 44, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c78", "quantidade": "2", "material": "DESEMPENADEIRA", "valor": 51.48, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c79", "quantidade": "1", "material": "PENEIRA ", "valor": 33, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-07", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c80", "quantidade": "1", "material": "BROXA", "valor": 10.63, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-07", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c81", "quantidade": "3", "material": "AREIA FINA", "valor": 270, "forma": "cartao", "parcelas": 2, "fornecedor": "GOIS", "data": "2026-04-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c82", "quantidade": "2", "material": "BATENTE 10X70", "valor": 440, "forma": "pix", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-04-10", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c83", "quantidade": "3", "material": "BATENTE 10X80", "valor": 660, "forma": "pix", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-04-10", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c84", "quantidade": "2", "material": "PREGO 19X36", "valor": 40, "forma": "pix", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-04-10", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c85", "quantidade": "2", "material": "CAL ", "valor": 51.75, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-10", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c86", "quantidade": "3", "material": "CAL", "valor": 77.63, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-11", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c87", "quantidade": "1", "material": "QUADRO DISTRIBUIÇÃO 12", "valor": 60, "forma": "cartao", "parcelas": 1, "fornecedor": "COMTEL", "data": "2026-04-13", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c88", "quantidade": "1", "material": "FITA LARGA", "valor": 14, "forma": "cartao", "parcelas": 1, "fornecedor": "SÃO JOSE TINTAS", "data": "2026-04-13", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c89", "quantidade": "3", "material": "CAL", "valor": 77.63, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-13", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c90", "quantidade": "6,5m³", "material": "CONCRETO USINADO", "valor": 1400, "forma": "pix", "parcelas": 1, "fornecedor": "CONCRENAVI", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c91", "quantidade": "5", "material": "CAL CEM", "valor": 129.38, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c92", "quantidade": "10", "material": "CIMENTO", "valor": 430, "forma": "cartao", "parcelas": 1, "fornecedor": "ILHA GRANDE ", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c93", "quantidade": "5", "material": "BARRAO CANO 3/4 25MM", "valor": 120, "forma": "cartao", "parcelas": 1, "fornecedor": "ILHA GRANDE ", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c94", "quantidade": "1", "material": "BARRA CANO 50MM", "valor": 76, "forma": "cartao", "parcelas": 1, "fornecedor": "ILHA GRANDE ", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c95", "quantidade": "5", "material": "CAL HIDRATADA", "valor": 150, "forma": "cartao", "parcelas": 1, "fornecedor": "ILHA GRANDE ", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c96", "quantidade": "200", "material": "FIO 2.5mm", "valor": 474.62, "forma": "cartao", "parcelas": 3, "fornecedor": "ELETROLUZ", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c97", "quantidade": "100", "material": "FIO 2.5mm", "valor": 240.9, "forma": "cartao", "parcelas": 3, "fornecedor": "ELETROLUZ", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c98", "quantidade": "20", "material": "ESPELHO TOMADA", "valor": 94.26, "forma": "cartao", "parcelas": 3, "fornecedor": "ELETROLUZ", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c99", "quantidade": "10", "material": "ESPELHO TOMADA", "valor": 51.39, "forma": "cartao", "parcelas": 3, "fornecedor": "ELETROLUZ", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c100", "quantidade": "30", "material": "MODULO TOMADA", "valor": 189.33, "forma": "cartao", "parcelas": 3, "fornecedor": "ELETROLUZ", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c101", "quantidade": "6", "material": "MODULO INTERRUPTOR ", "valor": 33.44, "forma": "cartao", "parcelas": 3, "fornecedor": "ELETROLUZ", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c102", "quantidade": "5", "material": "CAL", "valor": 129.38, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-14", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c103", "quantidade": "1", "material": "CAIXA D AGUA 310L", "valor": 248, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-16", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c104", "quantidade": "1", "material": "BOIA", "valor": 16, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-16", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c105", "quantidade": "8", "material": "CAL CEM", "valor": 172, "forma": "cartao", "parcelas": 1, "fornecedor": "CASA NOVA", "data": "2026-04-16", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c106", "quantidade": "2", "material": "FLANGE 3/4", "valor": 20, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-16", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c107", "quantidade": "1", "material": "FLANGE 50", "valor": 20.8, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-16", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c108", "quantidade": "1", "material": "REGISTRO ESFERA", "valor": 26.4, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-16", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c109", "quantidade": "2", "material": "REGISTRO PRESSAO 3/4", "valor": 120, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c110", "quantidade": "3", "material": "REGISTRO PRESSAO 3/4", "valor": 180, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c111", "quantidade": "1", "material": "REGISTRO ESFERA 0,50", "valor": 33, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c112", "quantidade": "1", "material": "REGISTRO ESFERA 0,25", "valor": 11.69, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c113", "quantidade": "1", "material": "COLA TIGRE", "valor": 57.2, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c114", "quantidade": "5", "material": "T SOLDAVEL", "valor": 8.25, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c115", "quantidade": "2", "material": "LUVA BUCHA 3/4", "valor": 21.26, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c116", "quantidade": "3", "material": "T SOLDAVEL", "valor": 31.89, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c117", "quantidade": "2", "material": "LUVA BUCHA LATAO 1/2", "valor": 16, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c118", "quantidade": "8", "material": "PLUG ROSCAVEL", "valor": 10, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c119", "quantidade": "10", "material": "JOELHO DE 90 25MM", "valor": 12.5, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c120", "quantidade": "9", "material": "ADPTADOR CURTO", "valor": 12.42, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c121", "quantidade": "2", "material": "T REDUÇÃO", "valor": 20.9, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c122", "quantidade": "1", "material": "FLANGE", "valor": 26, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c123", "quantidade": "2", "material": "FLANGE", "valor": 25, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c124", "quantidade": "1", "material": "VEDA ROSCA ", "valor": 12.5, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c125", "quantidade": "1", "material": "BUCHA REDUÇÃO 0,50 X 0,25", "valor": 7.15, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c126", "quantidade": "6", "material": "JOELHO 90", "valor": 49.5, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-18", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c127", "quantidade": "600", "material": "LAJOTAS", "valor": 600, "forma": "cartao", "parcelas": 2, "fornecedor": "ILHA GRANDE ", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c128", "quantidade": "10", "material": "CIMENTO", "valor": 430, "forma": "cartao", "parcelas": 2, "fornecedor": "ILHA GRANDE ", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c129", "quantidade": "1", "material": "DESPESAS", "valor": 220, "forma": "cartao", "parcelas": 2, "fornecedor": "ILHA GRANDE ", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c130", "quantidade": "1", "material": "BARRA CANO 40MM", "valor": 52.8, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c131", "quantidade": "2026-02-01 00:00:00", "material": "BARRA CANO 50MM", "valor": 41.25, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c132", "quantidade": "4", "material": "JOELHO 90MM", "valor": 33, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c133", "quantidade": "1", "material": "T ESG 100 X 0,50MM", "valor": 17.6, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c134", "quantidade": "2", "material": "LUVA ESG 100M", "valor": 17, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c135", "quantidade": "3", "material": "LUVA 040MM", "valor": 6.6, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c136", "quantidade": "2", "material": "JOELHO 45 ESG", "valor": 6, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c137", "quantidade": "6", "material": "JOELHO 90 040MM", "valor": 12, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c138", "quantidade": "6", "material": "JOELHO 90 025MM", "valor": 7.5, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c139", "quantidade": "2", "material": "CAIXA SIFONA 10X12 GR", "valor": 60, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c140", "quantidade": "1", "material": "SERRA BIMETAL", "valor": 19.8, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c141", "quantidade": "1", "material": "CAIXA GORDURA 18Lts", "valor": 319, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-24", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c142", "quantidade": "0.5", "material": "CANO 10MM", "valor": 57.5, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-24", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c143", "quantidade": "4", "material": "JOELHO 90 ESGOTO ", "valor": 33, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-24", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c144", "quantidade": "1", "material": "JUNÇÃO 40", "valor": 7, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-24", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c145", "quantidade": "4", "material": "CURVA 90", "valor": 91.08, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-24", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c146", "quantidade": "2", "material": "JOELHO", "valor": 9, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c147", "quantidade": "1", "material": "CADEADO 60", "valor": 68.64, "forma": "cartao", "parcelas": 2, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-04-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c148", "quantidade": "10", "material": "CIMENTO", "valor": 415, "forma": "pix", "parcelas": 1, "fornecedor": "TAPAJOS", "data": "2026-04-29", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c149", "quantidade": "1", "material": "PRANCHA ", "valor": 130, "forma": "cartao", "parcelas": 1, "fornecedor": "ALUGA MAQUINA", "data": "2026-04-29", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c150", "quantidade": "1", "material": "CALHAS", "valor": 2500, "forma": "pix", "parcelas": 1, "fornecedor": "NEI CALHAS", "data": "2026-05-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c151", "quantidade": "3", "material": "CIMENTO ", "valor": 124.5, "forma": "pix", "parcelas": 1, "fornecedor": "TAPAJOS", "data": "2026-05-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c152", "quantidade": "10", "material": "CIMENTO", "valor": 410, "forma": "pix", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-05-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c153", "quantidade": "1", "material": "CONTEINER", "valor": 250, "forma": "pix", "parcelas": 1, "fornecedor": "TIDA", "data": "2026-05-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c154", "quantidade": "35", "material": "CAIXINHA 4X2 ELETRICA", "valor": 59, "forma": "cartao", "parcelas": 1, "fornecedor": "COMTEL", "data": "2026-05-02", "pagador": "CAIO BRADESCO", "status": "pago", "categoria": "Outros"}, {"id": "c155", "quantidade": "3", "material": "PEDRA", "valor": 570, "forma": "cartao", "parcelas": 2, "fornecedor": "GOIS", "data": "2026-04-29", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c156", "quantidade": "3", "material": "AREIA GROSSA", "valor": 315, "forma": "cartao", "parcelas": 2, "fornecedor": "GOIS", "data": "2026-04-29", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c157", "quantidade": "45.78", "material": "PISO KARINA 60x1,20", "valor": 2375.98, "forma": "cartao", "parcelas": 8, "fornecedor": "DESTRO", "data": "2026-05-08", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c158", "quantidade": "82.88", "material": "PORCELANATO VIA ROSA GRAFITE", "valor": 4052.83, "forma": "cartao", "parcelas": 8, "fornecedor": "DESTRO", "data": "2026-05-08", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c159", "quantidade": "50", "material": "ARGAMASSA 20KG", "valor": 1345, "forma": "cartao", "parcelas": 8, "fornecedor": "DESTRO", "data": "2026-05-08", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c160", "quantidade": "6", "material": "REJUNTE CINZA 2KG", "valor": 300, "forma": "cartao", "parcelas": 8, "fornecedor": "DESTRO", "data": "2026-05-08", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c161", "quantidade": "1", "material": "CUNHAS/NIVELADORES", "valor": 295.02, "forma": "cartao", "parcelas": 3, "fornecedor": "DESTRO", "data": "2026-02-11", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c162", "quantidade": "7", "material": "COLUNA 8mm 7x14", "valor": 581, "forma": "cartao", "parcelas": 4, "fornecedor": "ACO TELHAS", "data": "2026-05-16", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c163", "quantidade": "5", "material": "COLUNA 10mm 7x20", "valor": 590, "forma": "cartao", "parcelas": 4, "fornecedor": "ACO TELHAS", "data": "2026-05-17", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c164", "quantidade": "1", "material": "SOLEIRAS", "valor": 800, "forma": "pix", "parcelas": 1, "fornecedor": "JOAO", "data": "2026-05-20", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c165", "quantidade": "6", "material": "PISO 0,60 X 0,60 COZINHA ", "valor": 195, "forma": "cartao", "parcelas": 2, "fornecedor": "DESTRO", "data": "2026-05-22", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c166", "quantidade": "2", "material": "JANELAS BLINDEX 1,00x1,00", "valor": 550, "forma": "cartao", "parcelas": 1, "fornecedor": "GREIZIEL", "data": "2026-06-23", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c167", "quantidade": "2", "material": "JANELAS BLINDEX 1,50x1,00", "valor": 580, "forma": "cartao", "parcelas": 1, "fornecedor": "GREIZIEL", "data": "2026-06-23", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c168", "quantidade": "2", "material": "JANELAS 0,60x0,40", "valor": 560, "forma": "cartao", "parcelas": 1, "fornecedor": "GREIZIEL", "data": "2026-06-23", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c169", "quantidade": "1", "material": "JANELA 0,94x1,00", "valor": 550, "forma": "cartao", "parcelas": 1, "fornecedor": "GREIZIEL", "data": "2026-06-23", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c170", "quantidade": "1", "material": "PORTA 0,98x2,10", "valor": 930, "forma": "cartao", "parcelas": 1, "fornecedor": "GREIZIEL", "data": "2026-06-23", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c171", "quantidade": "1000", "material": "LAJOTAS 8 FUROS", "valor": 980, "forma": "cartao", "parcelas": 3, "fornecedor": "ILHA GRANDE ", "data": "2026-05-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c172", "quantidade": "5", "material": "DOBRADICA PORTA", "valor": 71.8, "forma": "cartao", "parcelas": 3, "fornecedor": "ILHA GRANDE ", "data": "2026-05-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c173", "quantidade": "3", "material": "FECHADURA ALIANCA", "valor": 252.38, "forma": "cartao", "parcelas": 3, "fornecedor": "ILHA GRANDE ", "data": "2026-05-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c174", "quantidade": "2", "material": "FECHADURA ALIANCA BANHEIRO", "valor": 135.82, "forma": "cartao", "parcelas": 3, "fornecedor": "ILHA GRANDE ", "data": "2026-05-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c175", "quantidade": "8", "material": "CABO ALUMINIO TRIPLEX", "valor": 78.35, "forma": "cartao", "parcelas": 2, "fornecedor": "COMTEL", "data": "2026-05-26", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c176", "quantidade": "6", "material": "PERFURANTE", "valor": 75.09, "forma": "cartao", "parcelas": 2, "fornecedor": "COMTEL", "data": "2026-05-26", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c177", "quantidade": "1", "material": "CURVA ENTRADA ENERGIA", "valor": 3.02, "forma": "cartao", "parcelas": 2, "fornecedor": "COMTEL", "data": "2026-05-26", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c178", "quantidade": "1", "material": "ISOLADOR PIMENTAO", "valor": 8, "forma": "cartao", "parcelas": 2, "fornecedor": "COMTEL", "data": "2026-05-26", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c179", "quantidade": "1", "material": "BUCHA 10MM", "valor": 0.67, "forma": "cartao", "parcelas": 2, "fornecedor": "COMTEL", "data": "2026-05-26", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c180", "quantidade": "70", "material": "FIO 6mm", "valor": 504, "forma": "cartao", "parcelas": 3, "fornecedor": "COMTEL", "data": "2026-05-27", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c181", "quantidade": "6", "material": "FIO 6mm", "valor": 43.2, "forma": "cartao", "parcelas": 1, "fornecedor": "COMTEL", "data": "2026-05-28", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c182", "quantidade": "2", "material": "CIMENTO", "valor": 82, "forma": "pix", "parcelas": 1, "fornecedor": "TAPAJOS", "data": "2026-05-28", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c183", "quantidade": "4", "material": "BARRA CANO 100mm 2 CURVA LONGA", "valor": 472, "forma": "cartao", "parcelas": 2, "fornecedor": "ILHA GRANDE ", "data": "2026-09-29", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c184", "quantidade": "1", "material": "PORTA FRISADA 0,80 x 2,10 ", "valor": 280, "forma": "dinheiro", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-06-01", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c185", "quantidade": "2", "material": "PORTA 0,80 x 2,10 MADEIRA", "valor": 480, "forma": "dinheiro", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-06-01", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c186", "quantidade": "2", "material": "PORTA 0,70 x 2,10", "valor": 480, "forma": "pix", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-06-01", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c187", "quantidade": "2", "material": "VASOS ACOPLADOS ", "valor": 840, "forma": "cartao", "parcelas": 7, "fornecedor": "QUERO QUERO", "data": "2026-06-01", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c188", "quantidade": "5", "material": "GUARNICOES", "valor": 500, "forma": "pix", "parcelas": 1, "fornecedor": "SERGIO RS MADEIRAS", "data": "2026-06-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c189", "quantidade": "4", "material": "COLUNA 8mm 7x14", "valor": 320, "forma": "pix", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-02", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c190", "quantidade": "2", "material": "DISJUNTOR DIN 32", "valor": 50.8, "forma": "cartao", "parcelas": 1, "fornecedor": "ELETROLUZ", "data": "2026-06-06", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c191", "quantidade": "2", "material": "DISJUNTOR DIN 40", "valor": 59.47, "forma": "cartao", "parcelas": 1, "fornecedor": "ELETROLUZ", "data": "2026-06-06", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c192", "quantidade": "1", "material": "DISJUNTOR DIN 50", "valor": 29.73, "forma": "cartao", "parcelas": 1, "fornecedor": "ELETROLUZ", "data": "2026-06-06", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c193", "quantidade": "1", "material": "PORTAO ELEVACAO 3,10x2.50/SOCIAL", "valor": 3900, "forma": "pix", "parcelas": 1, "fornecedor": "TIDA", "data": null, "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c194", "quantidade": "1", "material": "DISCO DE CORTE GRANDE", "valor": 49.5, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c195", "quantidade": "1", "material": "RODEL PISO", "valor": 13.75, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c196", "quantidade": "2", "material": "LAMPADA LED 30W", "valor": 35.2, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c197", "quantidade": "1", "material": "DISCO PORCELANATO", "valor": 40, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c198", "quantidade": "20", "material": "PALHA DE ACO", "valor": 55, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c199", "quantidade": "50", "material": "ELETROUDO 2.5mm", "valor": 137.5, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c200", "quantidade": "2", "material": "CURVA 0,90", "valor": 57.2, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c201", "quantidade": "1", "material": "JOELHO 0,90", "valor": 8.25, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c202", "quantidade": "0.5", "material": "BARRA CANO TIGRE", "valor": 75, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c203", "quantidade": "1", "material": "SERRA BIMETAL", "valor": 19.8, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c204", "quantidade": "1", "material": "FITA ISOLANTE", "valor": 8.25, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c205", "quantidade": "2", "material": "CURVA 100mm", "valor": 57.2, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c206", "quantidade": "1", "material": "ENGATE FLEXIVEL", "valor": 9.35, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c207", "quantidade": "1", "material": "ALCAPAO", "valor": 198, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c208", "quantidade": "1", "material": "JOELHO 45 ESG", "valor": 10.63, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c209", "quantidade": "1", "material": "REGISTRO PRESSAO 3/4", "valor": 50, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c210", "quantidade": "1", "material": "CABO CAVADEIRA", "valor": 26.4, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c211", "quantidade": "1", "material": "DISCO PARA MADEIRA", "valor": 23.1, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c212", "quantidade": "2", "material": "ENGATE FLEXIVEL", "valor": 88, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c213", "quantidade": "1", "material": "ESGUICHO", "valor": 36.25, "forma": "cartao", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-09", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c214", "quantidade": "1", "material": "CONTEINER", "valor": 250, "forma": "pix", "parcelas": 1, "fornecedor": "TIDA", "data": "2026-06-10", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c215", "quantidade": "1", "material": "PEDRA BALCAO MARMORE", "valor": 500, "forma": "pix", "parcelas": 1, "fornecedor": "JOAO MARMORE", "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c216", "quantidade": "1", "material": "MOLDURA GESSO", "valor": 3550, "forma": "pix", "parcelas": 1, "fornecedor": "PRIMEIRA LINHA GESSO", "data": "2026-06-11", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c217", "quantidade": "2", "material": "BANCADA MARMORE BANHEIROS", "valor": 1500, "forma": "pix", "parcelas": 1, "fornecedor": "JOAO MARMORE", "data": "2026-06-11", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c218", "quantidade": "3", "material": "AREIA GROSSA", "valor": 315, "forma": "cartao", "parcelas": 2, "fornecedor": "GOIS", "data": "2026-06-12", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c219", "quantidade": "3", "material": "CAL CEM", "valor": 60, "forma": "cartao", "parcelas": 1, "fornecedor": "CASA NOVA", "data": "2026-06-15", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c220", "quantidade": "4", "material": "CIMENTO", "valor": 160, "forma": "pix", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-06-17", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c221", "quantidade": "2.5", "material": "PEDRA", "valor": 500, "forma": "cartao", "parcelas": 2, "fornecedor": "GOIS", "data": "2026-06-17", "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c222", "quantidade": "2", "material": "AREIA GROSSA", "valor": 0, "forma": "outro", "parcelas": 1, "fornecedor": "GOIS", "data": "2026-08-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c223", "quantidade": "9", "material": "CIMENTO", "valor": 405, "forma": "pix", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-08-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c224", "quantidade": "2", "material": "CANO 100MM", "valor": 225, "forma": "pix", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-08-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c225", "quantidade": "1", "material": "JOELHO 45 ESG", "valor": 60, "forma": "pix", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-08-25", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c226", "quantidade": "5", "material": "CIMENTO", "valor": 210, "forma": "pix", "parcelas": 1, "fornecedor": "IMPERIO CONSTRUÇÕES", "data": "2026-09-04", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c227", "quantidade": "26", "material": "PISO TATIL", "valor": 81, "forma": "pix", "parcelas": 1, "fornecedor": "AV PANTANAL", "data": "2026-09-04", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c228", "quantidade": "10", "material": "MASSA CORRIDA", "valor": 499, "forma": "cartao", "parcelas": 6, "fornecedor": "SERTAO", "data": "2026-09-21", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c229", "quantidade": "2", "material": "SELADOR", "valor": 189, "forma": "cartao", "parcelas": 6, "fornecedor": "SERTAO", "data": "2026-09-21", "pagador": "CAIO", "status": "pago", "categoria": "Outros"}, {"id": "c230", "quantidade": "2", "material": "SUPORTE TANQUE", "valor": 75, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c231", "quantidade": "2", "material": "ENGATE FLEXIVEL", "valor": 88, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c232", "quantidade": "1", "material": "SIFAO", "valor": 11, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c233", "quantidade": "2", "material": "SIFAO", "valor": 70, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c234", "quantidade": "3", "material": "VALVULA ", "valor": 51, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c235", "quantidade": "4", "material": "BUCHA PLASTICA", "valor": 0.72, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c236", "quantidade": "4", "material": "PARAFUSO DE ROSCA", "valor": 3, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c237", "quantidade": "1", "material": "VEDA ROSCA ", "valor": 8.5, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c238", "quantidade": "1", "material": "TORNEIRA TANQUE", "valor": 44, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c239", "quantidade": "2", "material": "TORNEIRA LAVATORIO", "valor": 90, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c240", "quantidade": "1", "material": "TORNEIRA COZINHA", "valor": 45, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c241", "quantidade": "1", "material": "TANQUE LAVAR", "valor": 202, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}, {"id": "c242", "quantidade": "10", "material": "CIMENTO", "valor": 439, "forma": "outro", "parcelas": 1, "fornecedor": null, "data": null, "pagador": null, "status": "pago", "categoria": "Outros"}], "maoDeObra": [{"id": "m0", "data": "2026-02-06", "valor": 4500, "descricao": "DINHEIRO", "status": "pago"}, {"id": "m1", "data": "2026-02-09", "valor": 326.15, "descricao": "PAGAMENTO GUIAFIRMA", "status": "pago"}, {"id": "m2", "data": "2026-02-16", "valor": 2000, "descricao": "DINHEIRO", "status": "pago"}, {"id": "m3", "data": "2026-02-16", "valor": 1000, "descricao": "PIX", "status": "pago"}, {"id": "m4", "data": "2026-02-21", "valor": 2000, "descricao": "PIX", "status": "pago"}, {"id": "m5", "data": "2026-02-28", "valor": 2000, "descricao": "PIX", "status": "pago"}, {"id": "m6", "data": "2026-03-02", "valor": 1500, "descricao": "PIX", "status": "pago"}, {"id": "m7", "data": "2026-03-07", "valor": 5000, "descricao": "PIX", "status": "pago"}, {"id": "m8", "data": "2026-03-14", "valor": 3000, "descricao": "PIX", "status": "pago"}, {"id": "m9", "data": "2026-03-19", "valor": 3000, "descricao": "PIX", "status": "pago"}, {"id": "m10", "data": "2026-03-31", "valor": 329.42, "descricao": "GUIA FIRMA", "status": "pago"}, {"id": "m11", "data": "2026-04-02", "valor": 6000, "descricao": "PIX", "status": "pago"}, {"id": "m12", "data": "2026-04-11", "valor": 4000, "descricao": "NICE", "status": "pago"}, {"id": "m13", "data": "2026-04-18", "valor": 2000, "descricao": "NICE", "status": "pago"}, {"id": "m14", "data": "2026-04-25", "valor": 2000, "descricao": "NICE", "status": "pago"}, {"id": "m15", "data": "2026-05-02", "valor": 2500, "descricao": "CAIO ", "status": "pago"}, {"id": "m16", "data": "2026-05-09", "valor": 2500, "descricao": "CAIO ", "status": "pago"}, {"id": "m17", "data": "2026-05-16", "valor": 2000, "descricao": "CAIO ", "status": "pago"}, {"id": "m18", "data": "2026-05-23", "valor": 2000, "descricao": "PIX", "status": "pago"}, {"id": "m19", "data": "2026-05-30", "valor": 1500, "descricao": "PIX", "status": "pago"}, {"id": "m20", "data": "2026-06-15", "valor": 1825, "descricao": "MULTA CARTEIRA", "status": "pago"}, {"id": "m21", "data": "2026-06-19", "valor": 900, "descricao": "PIX", "status": "pago"}, {"id": "m22", "data": "2026-06-21", "valor": 2000, "descricao": "PIX", "status": "pago"}, {"id": "m23", "data": "2026-06-24", "valor": 340, "descricao": "PIX", "status": "pago"}, {"id": "m24", "data": "2026-07-11", "valor": 344, "descricao": "PIX", "status": "pago"}, {"id": "m25", "data": "2026-07-11", "valor": 344, "descricao": "PIX", "status": "pago"}, {"id": "m26", "data": "2026-07-28", "valor": 1150, "descricao": "PIX", "status": "pago"}, {"id": "m27", "data": "2026-09-01", "valor": 2000, "descricao": "PIX", "status": "pago"}, {"id": "m28", "data": "2026-09-09", "valor": 351.59, "descricao": "PIX", "status": "pago"}, {"id": "m29", "data": "2026-09-22", "valor": 190, "descricao": "FRETE BICOS", "status": "pago"}, {"id": "m30", "data": "2026-09-22", "valor": 3321.16, "descricao": "BICOS", "status": "pago"}, {"id": "m31", "data": "2026-10-01", "valor": 86, "descricao": "FRETE BICOS", "status": "pago"}, {"id": "m32", "data": "TOTAL", "valor": 62007.31999999999, "descricao": "", "status": "pago"}, {"id": "m33", "data": "SALDO", "valor": -13257.319999999992, "descricao": "", "status": "pago"}], "documentos": [{"id": "d0", "servico": "TOPOGRAFIA", "valor": 300, "data": "2025-02-05", "forma": "PIX", "obs": "MATHEUS REMBOLSOU"}, {"id": "d1", "servico": "MATRICULA TERRENO", "valor": 56.21, "data": "2025-01-30", "forma": "PIX", "obs": null}, {"id": "d2", "servico": "TERRAPLANAGEM E LIMPEZA TERRENO", "valor": 680, "data": null, "forma": null, "obs": null}, {"id": "d3", "servico": "ITBI 1 ESCRITURA", "valor": 659.92, "data": "2025-03-06", "forma": "BB CAIO", "obs": null}, {"id": "d4", "servico": "FUNREJUS ESCRITURA", "valor": 64.69, "data": "2025-03-12", "forma": null, "obs": null}, {"id": "d5", "servico": "Certidão Debitos RODONELLO", "valor": 36, "data": "2025-02-27", "forma": null, "obs": null}, {"id": "d6", "servico": "ESCRITURA PARANÁ", "valor": 1000, "data": "2025-03-13", "forma": "SICREDI CAIO", "obs": null}, {"id": "d7", "servico": "REGISTRO ESCRITURA COMPRA E VENDA", "valor": 1189, "data": "2025-03-17", "forma": "BRADESCO CAIO", "obs": null}, {"id": "d8", "servico": "ART (PROJETO,EXECUÇÃO,ESTRUTURAL,ELETRICO, HIDROSANITARIO E IMPERMEABILIZAÇÃO)", "valor": 282.3, "data": "2025-05-03", "forma": "99 pay caio", "obs": null}, {"id": "d9", "servico": "Taxa Aprovação Projeto", "valor": 93.8, "data": "2025-05-19", "forma": "INDY CAIXA", "obs": null}, {"id": "d10", "servico": "Taxa Fiscalização OBRA", "valor": 93.8, "data": "2025-05-19", "forma": "INDY CAIXA", "obs": null}, {"id": "d11", "servico": "Certidão Numeração", "valor": 56.28, "data": "2025-05-19", "forma": "INDY CAIXA", "obs": null}, {"id": "d12", "servico": "Alvara Construção", "valor": 175.61, "data": "2025-05-19", "forma": "INDY CAIXA", "obs": null}, {"id": "d13", "servico": "TAXA AVALIAÇÃO  TERRENO CAIXA", "valor": 750, "data": "2025-06-02", "forma": "PEDRO SICREDI", "obs": null}, {"id": "d14", "servico": "REGISTRO ESCRITURA CONTRATO CAIXA", "valor": 2337, "data": null, "forma": null, "obs": null}, {"id": "d15", "servico": "ISSQN", "valor": 957.06, "data": "2025-05-19", "forma": "INDY CAIXA", "obs": null}, {"id": "d16", "servico": "IPTU RESIDUO", "valor": 115.6, "data": "2025-05-19", "forma": "INDY CAIXA", "obs": null}, {"id": "d17", "servico": "PLOTAGEM PASTA", "valor": 45, "data": "2025-05-16", "forma": "BB CAIO", "obs": null}, {"id": "d18", "servico": "PLACAS OBRA", "valor": 0, "data": null, "forma": null, "obs": null}, {"id": "d19", "servico": "ADIANTAMENTO MATHEUS ", "valor": 2000, "data": "2025-05-12", "forma": "PIX INDY ", "obs": null}, {"id": "d20", "servico": "PROJETO VITINHO", "valor": 500, "data": "2025-05-17", "forma": "PIX CAIO BRADESCO", "obs": null}, {"id": "d21", "servico": "MATRICULA TERRENO E AÇÕES REAIS", "valor": 136.92, "data": "2025-07-16", "forma": "PIX CAIO BRADESCO", "obs": null}, {"id": "d22", "servico": "2 VIA CERTIDÃO NASCIMENTO CAIO", "valor": 137.13, "data": "2025-07-23", "forma": "CARTÃO BB CAIO", "obs": null}, {"id": "d23", "servico": "SEGURO CAIXA", "valor": 1422.29, "data": "2025-08-12", "forma": "SICREDI CAIO", "obs": null}, {"id": "d24", "servico": "VITINHO", "valor": 250, "data": "2025-08-13", "forma": null, "obs": null}, {"id": "d25", "servico": "ITBI 2 ESCRITURA", "valor": 360, "data": "2025-08-22", "forma": "BB CAIO", "obs": null}, {"id": "d26", "servico": "ITBI 2 ESCRITURA", "valor": 9.38, "data": "2025-08-22", "forma": "BB CAIO", "obs": null}, {"id": "d27", "servico": "IPTU RESIDUO", "valor": 115.08, "data": "2025-08-26", "forma": "SICREDI CAIO", "obs": null}, {"id": "d28", "servico": "IPTU  SETEMBRO ", "valor": 37.9, "data": "2025-09-09", "forma": "SICREDI CAIO", "obs": null}, {"id": "d29", "servico": "TOTAL:", "valor": 13860.97, "data": null, "forma": null, "obs": null}], "parcelasPagas": [], "juros": [{"data": "2025-09-10", "valor": 315.83}, {"data": "2025-10-10", "valor": 316.5}, {"data": "2025-11-10", "valor": 317.04}, {"data": "2025-12-10", "valor": 313.07}, {"data": "2026-01-12", "valor": 316.58}, {"data": "2026-02-10", "valor": 318}, {"data": "2026-03-10", "valor": 299}, {"data": "2026-04-10", "valor": 690}, {"data": "2026-05-10", "valor": 613}, {"data": "2026-06-10", "valor": 1082}, {"data": "2026-07-10", "valor": 1281.67}, {"data": "2026-08-10", "valor": 1284}, {"data": "2026-09-10", "valor": 1285}, {"data": "2026-10-10", "valor": 1285}], "contas": [{"item": "AGUA/LUZ", "mes": "FEV", "valor": 150, "status": "PAGO"}, {"item": "IPTU", "mes": "MARÇO", "valor": 332, "status": "PAGO"}, {"item": "LUZ", "mes": "MARÇO", "valor": 46, "status": "PAGO"}, {"item": "AGUA ", "mes": "ABRIL", "valor": 150, "status": "PAGO"}, {"item": "ENERGIA", "mes": "ABRIL", "valor": 77.05, "status": "PAGO"}, {"item": "AGUA ", "mes": "MAIO", "valor": 206, "status": "PAGO"}, {"item": "ENERGIA", "mes": "MAIO", "valor": 51.11, "status": "PAGO"}, {"item": "AGUA", "mes": "JUNHO", "valor": 184.61, "status": "PAGO"}, {"item": "ENERGIA", "mes": "JUNHO", "valor": 56.32, "status": "PAGO"}, {"item": "AGUA", "mes": "JULHO", "valor": 68.87, "status": "PAGO"}, {"item": "ENERGIA", "mes": "JULHO", "valor": 55.38, "status": "PAGO"}, {"item": "AGUA", "mes": "AGOSTO", "valor": 79.41, "status": "PAGO"}, {"item": "ENERGIA", "mes": "AGOSTO", "valor": 56.76, "status": "PAGO"}], "rateio": [{"item": "MATRICULA TERRENO", "valor": 56.21, "data": "2025-01-30"}, {"item": "ITBI 1 ESCRITURA", "valor": 659.92, "data": "2025-03-06"}, {"item": "FUNREJUS ESCRITURA", "valor": 64.69, "data": "2025-03-12"}, {"item": "Certidão Debitos RODONELLO", "valor": 36, "data": "2025-02-27"}, {"item": "ESCRITURA PARANÁ", "valor": 1000, "data": "2025-03-13"}, {"item": "REGISTRO ESCRITURA COMPRA E VENDA", "valor": 1189, "data": "2025-03-17"}, {"item": "IPTU RESIDUO", "valor": 153.5, "data": "2025-03-18"}], "resumoDivisao": {"VALOR TERRENO": 35000, "DESPESAS ESCRITURA": 1579.66, "ADIANTAMENTO": 2000, "VALOR DEVIDO": 31420.339999999997, "RETORNO": 579.6600000000035}, "obra": {"area": 72, "valorM2": 1800}};
+
+// ============================================
+// SUPABASE CONFIG — Cole sua URL e anon key aqui
+// ============================================
+const SUPABASE_URL='SUA_URL_SUPABASE'; // ex: https://xxxx.supabase.co
+const SUPABASE_KEY='SUA_ANON_KEY_SUPABASE';
+const SB=typeof supabase!=='undefined'&&SUPABASE_URL!=='SUA_URL_SUPABASE'?supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
+async function sbPush(table,payload){
+if(!SB)return null;
+try{const{data,error}=await SB.from(table).insert(payload);if(error)throw error;return data}catch(e){console.warn('Supabase push error:',e.message);return null}}
+async function sbUpdate(table,id,payload){
+if(!SB)return null;
+try{const{data,error}=await SB.from(table).update(payload).eq('id',id);if(error)throw error;return data}catch(e){console.warn('Supabase update error:',e.message);return null}}
+async function sbDelete(table,id){
+if(!SB)return null;
+try{const{error}=await SB.from(table).delete().eq('id',id);if(error)throw error;return true}catch(e){console.warn('Supabase delete error:',e.message);return null}}
+async function sbPullAll(){
+if(!SB)return;
+try{
+const[rc,rm,rd,rp,rj,rc2]=await Promise.all([
+SB.from('compras').select('*'),SB.from('mao_de_obra').select('*'),SB.from('documentos').select('*'),
+SB.from('parcelas_pagas').select('*'),SB.from('juros').select('*'),SB.from('contas').select('*')]);
+if(rc.data)S.compras=rc.data.map(r=>({id:r.id,quantidade:r.quantidade,material:r.material,valor:Number(r.valor),forma:r.forma,parcelas:r.parcelas,fornecedor:r.fornecedor,data:r.data,pagador:r.pagador,status:r.status,categoria:r.categoria}));
+if(rm.data)S.maoDeObra=rm.data.map(r=>({id:r.id,data:r.data,valor:Number(r.valor),descricao:r.descricao,status:r.status}));
+if(rd.data)S.documentos=rd.data.map(r=>({id:r.id,servico:r.servico,valor:Number(r.valor),data:r.data,forma:r.forma,obs:r.obs}));
+if(rp.data)S.parcelasPagas=rp.data.map(r=>r.parcela_id);
+if(rj.data)S.juros=rj.data.map(r=>({id:r.id,data:r.data,valor:Number(r.valor)}));
+if(rc2.data)S.contas=rc2.data.map(r=>({id:r.id,item:r.item,mes:r.mes,valor:Number(r.valor),status:r.status}));
+save();toast('☁️ Dados sincronizados!');show('dashboard');
+}catch(e){console.warn('Supabase pull error:',e.message);toast('Erro ao sincronizar: '+e.message,true)}}
+// ============================================
+let S=JSON.parse(JSON.stringify(SEED));
+let SAVED=JSON.parse(localStorage.getItem('obra-facil-v2')||'null')||{};
+if(SAVED.compras)S.compras=SAVED.compras;
+if(SAVED.maoDeObra)S.maoDeObra=SAVED.maoDeObra;
+if(SAVED.documentos)S.documentos=SAVED.documentos;
+if(SAVED.parcelasPagas)S.parcelasPagas=SAVED.parcelasPagas;
+
+const CATEGORIAS=["Fundação","Estrutura","Alvenaria","Laje","Cobertura","Madeira/Formas","Elétrica","Hidráulica","Acabamento","Pintura","Serviços","Outros"];
+const FORMAS={cartao:"Cartão",pix:"PIX",dinheiro:"Dinheiro",boleto:"Boleto",outro:"Outro"};
+const uid=()=>Math.random().toString(36).slice(2,10);
+function closeMenu(){document.querySelector('.nav-menu')?.classList.remove('open')}
+const save=()=>localStorage.setItem('obra-facil-v2',JSON.stringify({compras:S.compras,maoDeObra:S.maoDeObra,documentos:S.documentos,parcelasPagas:S.parcelasPagas}));
+const brl=v=>'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const brlS=v=>v>=1000?'R$ '+(v/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil':brl(v);
+const dataBR=d=>d?new Date(d+'T12:00:00').toLocaleDateString('pt-BR'):'—';
+function toast(msg,err,undo){const t=document.getElementById('toast');t.innerHTML=msg+(undo?' <button class="undo" onclick="'+undo+'()">Desfazer</button>':'');t.className='toast show'+(err?' error':'');setTimeout(()=>t.className='toast',4000)}
+function show(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
+const titles={dashboard:'Painel',compras:'Compras',parcelas:'Parcelas',maoobra:'Mão de Obra',documentos:'Documentos',financiamento:'Financiamento',divisao:'Rateio Matheus'};document.getElementById('pageTitle').textContent=titles[id]||id;
+setTimeout(()=>{destroyAll();if(id==='dashboard')renderDash();else if(id==='compras')renderCompras();else if(id==='parcelas')renderParcelas();else if(id==='maoobra')renderMO();else if(id==='documentos')renderDocs();else if(id==='financiamento')renderFin();else if(id==='divisao')renderSplit()},50)}
+
+// CHART MANAGEMENT
+let _ch={};
+function mk(id,cfg){if(_ch[id]){try{_ch[id].destroy()}catch(e){}}_ch[id]=new Chart(document.getElementById(id),cfg)}
+function destroyAll(){Object.values(_ch).forEach(c=>{try{c.destroy()}catch(e){}});_ch={}}
+
+// PARCELAS
+function addMonths(iso,n){const d=new Date(iso+'T12:00:00');d.setMonth(d.getMonth()+n);return d.toISOString().slice(0,10)}
+function gerarParcelas(){
+const out=[];const hoje=new Date().toISOString().slice(0,10);
+for(const c of S.compras){if(c.forma!=='cartao'||!c.data)continue;const n=Math.max(1,c.parcelas||1);const base=Math.floor((c.valor/n)*100)/100;
+for(let i=1;i<=n;i++){const val=i===n?Math.round((c.valor-base*(n-1))*100)/100:base;const venc=addMonths(c.data,i);const id=c.id+'-'+i;const paga=S.parcelasPagas.includes(id)||venc<hoje;
+out.push({id,compraId:c.id,desc:c.material,forn:c.fornecedor,num:i,total:n,valor:val,venc,status:paga?'pago':(venc<hoje?'atrasado':'pendente')})}}
+return out.sort((a,b)=>a.venc.localeCompare(b.venc))}
+
+function somaPor(arr,fn,val){const m=new Map();for(const i of arr)m.set(fn(i),(m.get(fn(i))||0)+val(i));return[...m.entries()].map(([nome,total])=>({nome,total})).sort((a,b)=>b.total-a.total)}
+
+// RENDER DASHBOARD
+function renderDash(){
+const mat=S.compras.reduce((a,c)=>a+c.valor,0),mao=S.maoDeObra.reduce((a,c)=>a+c.valor,0),docs=S.documentos.reduce((a,c)=>a+c.valor,0);
+const juros=(S.juros||[]).reduce((a,c)=>a+(c.valor||0),0)+(S.contas||[]).reduce((a,c)=>a+(c.valor||0),0);
+const total=mat+mao+docs+juros;
+const parc=gerarParcelas();const aPagar=parc.filter(p=>p.status!=='pago');const totPagar=aPagar.reduce((a,p)=>a+p.valor,0);
+const ref=S.obra.area*S.obra.valorM2;
+document.getElementById('heroTotal').textContent=brl(total);
+document.getElementById('heroSub').textContent=S.obra.area+' m² · obra financiada · '+S.compras.length+' compras · '+S.maoDeObra.length+' pagamentos';
+document.getElementById('statsGrid').innerHTML=`
+<div class="stat"><div class="label">🧱 Materiais</div><div class="value">${brlS(mat)}</div><div class="hint">${S.compras.length} lançamentos</div></div>
+<div class="stat ${mao>ref?'danger':''}"><div class="label">👷 Mão de obra</div><div class="value">${brlS(mao)}</div><div class="hint">Ref. ${brlS(ref)} · saldo ${brlS(ref-mao)}</div></div>
+<div class="stat primary"><div class="label">💳 A pagar no cartão</div><div class="value">${brlS(totPagar)}</div><div class="hint">${aPagar.length} parcelas futuras</div></div>
+<div class="stat"><div class="label">📋 Docs + Juros</div><div class="value">${brlS(docs+juros)}</div><div class="hint">financiamento, taxas e contas</div></div>`;
+
+const porMes=somaPor(S.compras.filter(c=>c.data),c=>c.data.slice(0,7),c=>c.valor).sort((a,b)=>a.nome.localeCompare(b.nome));
+const lbl=porMes.map(m=>{const[y,mo]=m.nome.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(mo)-1]+'/'+y.slice(2)});
+mk('chartMes',{type:'bar',data:{labels:lbl,datasets:[{data:porMes.map(m=>m.total),backgroundColor:'var(--chart1)',borderRadius:[6,6,0,0]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
+
+mk('chartCat',{type:'doughnut',data:{labels:['Materiais','Mão de obra','Documentação','Juros/Contas'],datasets:[{data:[mat,mao,docs,juros],backgroundColor:['var(--chart1)','var(--chart2)','var(--chart3)','var(--chart4)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},cutout:'60%'}});
+
+const pag=somaPor(S.compras,c=>FORMAS[c.forma]||'Outro',c=>c.valor).slice(0,6);
+mk('chartPag',{type:'bar',data:{labels:pag.map(p=>p.nome),datasets:[{data:pag.map(p=>p.total),backgroundColor:'var(--chart3)',borderRadius:8}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>brlS(v)}}}}});
+
+const forn=somaPor(S.compras,c=>c.fornecedor||'Sem fornecedor',c=>c.valor).slice(0,8);
+mk('chartForn',{type:'bar',data:{labels:forn.map(f=>f.nome),datasets:[{data:forn.map(f=>f.total),backgroundColor:'var(--chart2)',borderRadius:8}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>brlS(v)}}}}});
+}
+
+// RENDER COMPRAS
+let _sortC={col:'data',asc:false};
+function sortC(col){_sortC.asc=_sortC.col===col?!_sortC.asc:true;_sortC.col=col;renderCompras()}
+function renderCompras(){
+const q=(document.getElementById('cq').value||'').toLowerCase(),forn=document.getElementById('cforn').value,cat=document.getElementById('ccat').value,forma=document.getElementById('cforma').value;
+const fornOpts=[...new Set(S.compras.map(c=>c.fornecedor).filter(Boolean))].sort();
+document.getElementById('cforn').innerHTML='<option value="">Todos fornecedores</option>'+fornOpts.map(f=>`<option>${f}</option>`).join('');
+document.getElementById('ccat').innerHTML='<option value="">Todas etapas</option>'+CATEGORIAS.map(c=>`<option>${c}</option>`).join('');
+document.getElementById('cforma').innerHTML='<option value="">Todas formas</option>'+Object.entries(FORMAS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+
+let items=S.compras.map((c,i)=>({...c,_i:i})).filter(c=>(!q||c.material.toLowerCase().includes(q))&&(!forn||c.fornecedor===forn)&&(!cat||c.categoria===cat)&&(!forma||c.forma===forma));
+items.sort((a,b)=>{let va=a[_sortC.col],vb=b[_sortC.col];if(_sortC.col==='valor'){va=Number(va)||0;vb=Number(vb)||0}else{va=String(va||'');vb=String(vb||'')}return _sortC.asc?(va>vb?1:-1):(va<vb?1:-1)});
+const total=items.reduce((s,c)=>s+c.valor,0);
+document.getElementById('comprasBody').innerHTML=items.map(c=>`<tr>
+<td>${dataBR(c.data)}${c._new?'<span class="new-badge">NOVO</span>':''}</td>
+<td><b>${c.material}</b>${c.quantidade?' <span style="color:var(--text2)">· '+c.quantidade+'</span>':''}</td>
+<td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td>
+<td>${c.fornecedor||'—'}</td>
+<td>${FORMAS[c.forma]||c.forma}${c.forma==='cartao'&&c.parcelas>1?' '+c.parcelas+'x':''}</td>
+<td><span class="badge cat">${c.categoria}</span></td>
+<td><span class="badge ${c.status}">${c.status}</span></td>
+<td><div style="display:flex;gap:4px">
+<button class="btn btn-ghost btn-icon" onclick="dupCompra(${c._i})" title="Duplicar">📋</button>
+<button class="btn btn-ghost btn-icon" onclick="delCompra(${c._i})" title="Excluir">🗑️</button></div></td></tr>`).join('');
+}
+
+function dupCompra(i){const c={...S.compras[i],id:uid(),data:new Date().toISOString().slice(0,10),_new:true};S.compras.unshift(c);save();renderCompras();toast('📋 Compra duplicada!')}
+let _lastDeleted=null;
+function delCompra(i){const c=S.compras[i];_lastDeleted={arr:'compras',item:JSON.parse(JSON.stringify(c))};S.compras.splice(i,1);save();renderCompras();toast('🗑️ Excluído!',false,'undoLast')}
+
+// RENDER PARCELAS
+function renderParcelas(){
+const parc=gerarParcelas();const abertas=parc.filter(p=>p.status!=='pago');const pagas=parc.filter(p=>p.status==='pago');
+const hoje=new Date();const em=d=>{const lim=new Date(hoje.getTime()+d*864e5).toISOString().slice(0,10);return abertas.filter(p=>p.venc<=lim).reduce((a,p)=>a+p.valor,0)};
+document.getElementById('parcelasStats').innerHTML=`
+<div class="stat primary"><div class="label">⏰ Próx. 7 dias</div><div class="value">${brl(em(7))}</div></div>
+<div class="stat"><div class="label">📅 Próx. 30 dias</div><div class="value">${brl(em(30))}</div></div>
+<div class="stat"><div class="label">📆 Próx. 90 dias</div><div class="value">${brl(em(90))}</div></div>`;
+document.getElementById('parcCount').textContent=abertas.length+' abertas';
+document.getElementById('parcelasList').innerHTML=abertas.length===0?'<p style="padding:20px;color:var(--text2)">Tudo quitado! 🎉</p>':abertas.map(p=>`
+<div class="parcela-row">
+<button class="parcela-check" onclick="pagarParc('${p.id}')" title="Marcar como paga">✓</button>
+<div style="flex:1"><b>${p.desc}</b><br><span style="font-size:12px;color:var(--text2)">${dataBR(p.venc)} · ${p.num}/${p.total} · ${p.forn||''}</span></div>
+<b style="color:var(--accent2)">${brl(p.valor)}</b>
+<span class="badge ${p.status}">${p.status}</span></div>`).join('');
+
+const porMes=somaPor(abertas,p=>p.venc.slice(0,7),p=>p.valor).sort((a,b)=>a.nome.localeCompare(b.nome));
+const lbl=porMes.map(m=>{const[y,mo]=m.nome.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(mo)-1]});
+mk('chartParc',{type:'bar',data:{labels:lbl,datasets:[{data:porMes.map(m=>m.total),backgroundColor:'var(--chart4)',borderRadius:[6,6,0,0]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
+}
+function pagarParc(id){if(!S.parcelasPagas.includes(id)){S.parcelasPagas.push(id);sbPush('parcelas_pagas',{parcela_id:id})}save();renderParcelas();toast('✅ Parcela quitada!')}
+
+// RENDER MÃO DE OBRA
+function renderMO(){
+const tot=S.maoDeObra.reduce((a,c)=>a+c.valor,0);const ref=S.obra.area*S.obra.valorM2;
+document.getElementById('moStats').innerHTML=`
+<div class="stat ${tot>ref?'danger':''}"><div class="label">👷 Total pago</div><div class="value">${brlS(tot)}</div><div class="hint">${S.maoDeObra.length} pagamentos</div></div>
+<div class="stat"><div class="label">📐 Referência (m²)</div><div class="value">${brlS(ref)}</div><div class="hint">${S.obra.area}m² × ${brl(S.obra.valorM2)}</div></div>
+<div class="stat ${tot>ref?'danger':''}"><div class="label">💵 Saldo</div><div class="value">${brlS(ref-tot)}</div><div class="hint">${tot>ref?'Acima da referência':'Dentro do orçamento'}</div></div>`;
+
+const porMes=somaPor(S.maoDeObra.filter(c=>c.data),c=>c.data.slice(0,7),c=>c.valor).sort((a,b)=>a.nome.localeCompare(b.nome));
+const lbl=porMes.map(m=>{const[y,mo]=m.nome.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(mo)-1]});
+let cum=0;const acum=porMes.map(m=>{cum+=m.total;return cum});
+mk('chartMo',{type:'bar',data:{labels:lbl,datasets:[{data:porMes.map(m=>m.total),backgroundColor:'var(--chart4)',borderRadius:[6,6,0,0]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
+mk('chartMoAcum',{type:'line',data:{labels:lbl,datasets:[{data:acum,borderColor:'var(--chart2)',backgroundColor:'rgba(16,185,129,.1)',fill:true,tension:.4,pointBackgroundColor:'var(--chart2)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
+
+document.getElementById('moBody').innerHTML=S.maoDeObra.slice().reverse().map((c,ri)=>{const i=S.maoDeObra.length-1-ri;return`<tr><td>${dataBR(c.data)}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td><td>${c.descricao||'—'}</td><td><span class="badge ${c.status}">${c.status}</span></td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('maoDeObra',${i})">🗑️</button></td></tr>`}).join('');
+}
+
+// RENDER DOCS
+function renderDocs(){
+const tot=S.documentos.reduce((a,c)=>a+c.valor,0);
+document.getElementById('docStats').innerHTML=`<div class="stat"><div class="label">📋 Total documentação</div><div class="value">${brlS(tot)}</div><div class="hint">${S.documentos.length} serviços</div></div>`;
+const porMes=somaPor(S.documentos.filter(c=>c.data),c=>c.data.slice(0,7),c=>c.valor).sort((a,b)=>a.nome.localeCompare(b.nome));
+const lbl=porMes.map(m=>{const[y,mo]=m.nome.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(mo)-1]});
+mk('chartDoc',{type:'bar',data:{labels:lbl,datasets:[{data:porMes.map(m=>m.total),backgroundColor:'var(--chart3)',borderRadius:[6,6,0,0]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
+const top=S.documentos.filter(c=>c.valor).sort((a,b)=>b.valor-a.valor).slice(0,8);
+mk('chartDocPie',{type:'pie',data:{labels:top.map(c=>(c.servico||'').substring(0,20)),datasets:[{data:top.map(c=>c.valor),backgroundColor:['var(--chart1)','var(--chart2)','var(--chart3)','var(--chart4)','var(--chart5)','#ec4899','#14b8a6','#f97316'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}}});
+document.getElementById('docBody').innerHTML=S.documentos.map((c,i)=>`<tr><td><b>${c.servico}</b></td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td><td>${dataBR(c.data)}</td><td>${c.forma||'—'}</td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></td></tr>`).join('');
+}
+
+// RENDER FIN
+function renderFin(){
+const juros=S.juros||[],contas=S.contas||[];
+const totJ=juros.reduce((a,c)=>a+(c.valor||0),0),totC=contas.reduce((a,c)=>a+(c.valor||0),0);
+document.getElementById('finStats').innerHTML=`
+<div class="stat"><div class="label">🏦 Financiamento</div><div class="value">${brlS(totJ)}</div><div class="hint">${juros.length} parcelas</div></div>
+<div class="stat"><div class="label">💡 Contas</div><div class="value">${brlS(totC)}</div><div class="hint">${contas.length} contas</div></div>
+<div class="stat primary"><div class="label">📊 Total fixo</div><div class="value">${brlS(totJ+totC)}</div><div class="hint">custos mensais da obra</div></div>`;
+
+const jl=juros.map(c=>{if(!c.data)return'-';const[,m,d]=c.data.split('-');return d+'/'+m});
+mk('chartFin',{type:'line',data:{labels:jl,datasets:[{label:'Parcela',data:juros.map(c=>c.valor||0),borderColor:'var(--chart5)',backgroundColor:'rgba(239,68,68,.1)',fill:true,tension:.3,pointBackgroundColor:'var(--chart5)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brl(v)}}}}});
+
+const uc={};contas.forEach(c=>{uc[c.item]=(uc[c.item]||0)+(c.valor||0)});
+mk('chartContas',{type:'bar',data:{labels:Object.keys(uc),datasets:[{data:Object.values(uc),backgroundColor:['var(--chart3)','var(--chart4)','var(--chart2)','var(--chart1)'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brl(v)}}}}});
+
+document.getElementById('finBody').innerHTML=juros.map((c,i)=>`<tr><td>${dataBR(c.data)}</td><td style="font-weight:600;color:var(--red)">${brl(c.valor||0)}</td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('juros',${i})">🗑️</button></td></tr>`).join('');
+document.getElementById('contasBody').innerHTML=contas.map((c,i)=>`<tr><td>${c.item}</td><td>${c.mes||'—'}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td><span class="badge ${c.status||'pago'}">${c.status||'pago'}</span></td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('contas',${i})">🗑️</button></td></tr>`).join('');
+}
+
+// RENDER SPLIT
+function renderSplit(){
+const rd=S.resumoDivisao||{};
+document.getElementById('splitBox').innerHTML=`<h3>🤝 Resumo do Rateio</h3>
+<div class="split-item"><span>💰 Valor do Terreno</span><strong>${brl(rd['VALOR TERRENO']||35000)}</strong></div>
+<div class="split-item"><span>📋 Despesas Escritura</span><strong>${brl(rd['DESPESAS ESCRITURA']||1579.66)}</strong></div>
+<div class="split-item"><span>🤝 Adiantamento</span><strong>${brl(rd['ADIANTAMENTO']||2000)}</strong></div>
+<div class="split-item"><span>💵 Caio Deve</span><strong>${brl(rd['VALOR DEVIDO']||31420.34)}</strong></div>
+<div class="split-item"><span>🔄 Retorno Matheus</span><strong style="color:var(--green)">${brl(rd['RETORNO']||579.66)}</strong></div>`;
+mk('chartSplit',{type:'doughnut',data:{labels:['Terreno (Caio)','Metade Escritura','Adiantamento'],datasets:[{data:[17500,1579.66/2,2000],backgroundColor:['var(--chart1)','var(--chart4)','var(--chart2)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},cutout:'60%'}});
+document.getElementById('splitBody').innerHTML=(S.rateio||[]).map(c=>`<tr><td>${c.item||'—'}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td>${dataBR(c.data)}</td></tr>`).join('');
+}
+
+// MODAL
+let modalType=null;
+function openModal(type){modalType=type;const m=document.getElementById('modal');const t=document.getElementById('modalTitle');const b=document.getElementById('modalBody');
+if(type==='compra'){t.innerHTML='🧱 Nova compra';b.innerHTML=`
+<div class="form-group"><label>Material</label><input id="f_material" placeholder="Ex: Cimento CP-II"></div>
+<div class="form-row"><div class="form-group"><label>Quantidade</label><input id="f_quantidade" placeholder="Ex: 10 sacos"></div>
+<div class="form-group"><label>Valor (R$)</label><input id="f_valor" type="number" step="0.01"></div></div>
+<div class="form-row"><div class="form-group"><label>Forma de pagamento</label><select id="f_forma">${Object.entries(FORMAS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+<div class="form-group"><label>Nº Parcelas (se cartão)</label><input id="f_parcelas" type="number" value="1" min="1"></div></div>
+<div class="form-row"><div class="form-group"><label>Fornecedor</label><input id="f_fornecedor" placeholder="Ex: Imperio Construções"></div>
+<div class="form-group"><label>Data</label><input id="f_data" type="date" value="${new Date().toISOString().slice(0,10)}"></div></div>
+<div class="form-row"><div class="form-group"><label>Etapa</label><select id="f_categoria">${CATEGORIAS.map(c=>`<option>${c}</option>`).join('')}</select></div>
+<div class="form-group"><label>Status</label><select id="f_status"><option value="pago">Pago</option><option value="pendente">Pendente</option></select></div></div>`}
+else if(type==='maoobra'){t.innerHTML='👷 Novo pagamento';b.innerHTML=`
+<div class="form-row"><div class="form-group"><label>Data</label><input id="f_data" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+<div class="form-group"><label>Valor (R$)</label><input id="f_valor" type="number" step="0.01"></div></div>
+<div class="form-group"><label>Descrição</label><input id="f_descricao" placeholder="Ex: ROGERIO, PINTURA..."></div>
+<div class="form-group"><label>Status</label><select id="f_status"><option value="pago">Pago</option><option value="pendente">Pendente</option></select></div>`}
+else if(type==='doc'){t.innerHTML='📋 Novo serviço';b.innerHTML=`
+<div class="form-group"><label>Serviço</label><input id="f_servico" placeholder="Ex: ITBI, Alvará..."></div>
+<div class="form-row"><div class="form-group"><label>Valor (R$)</label><input id="f_valor" type="number" step="0.01"></div>
+<div class="form-group"><label>Data</label><input id="f_data" type="date" value="${new Date().toISOString().slice(0,10)}"></div></div>
+<div class="form-group"><label>Forma de pagamento</label><input id="f_forma" placeholder="Ex: PIX CAIO, BB..."></div>`}
+m.classList.add('open')}
+function closeModal(){document.getElementById('modal').classList.remove('open');modalType=null}
+
+function saveEntry(){
+const g=id=>{const e=document.getElementById('f_'+id);return e?e.value.trim():''};
+const v=id=>{const e=document.getElementById('f_'+id);return e?Number(e.value)||0:0};
+try{
+if(modalType==='compra'){const mat=g('material');if(!mat)return toast('Informe o material!',true);
+const item={id:uid(),quantidade:g('quantidade'),material:mat,valor:v('valor'),forma:g('forma'),parcelas:v('parcelas')||1,fornecedor:g('fornecedor'),data:g('data'),pagador:'CAIO',status:g('status'),categoria:g('categoria'),_new:true};
+S.compras.unshift(item);sbPush('compras',{id:item.id,quantidade:item.quantidade,material:item.material,valor:item.valor,forma:item.forma,parcelas:item.parcelas,fornecedor:item.fornecedor,data:item.data,pagador:item.pagador,status:item.status,categoria:item.categoria});toast('✅ Compra salva!')}
+else if(modalType==='maoobra'){const val=v('valor');if(!val)return toast('Informe o valor!',true);
+const item={id:uid(),data:g('data'),valor:val,descricao:g('descricao'),status:g('status'),_new:true};
+S.maoDeObra.unshift(item);sbPush('mao_de_obra',{id:item.id,data:item.data,valor:item.valor,descricao:item.descricao,status:item.status});toast('✅ Pagamento salvo!')}
+else if(modalType==='doc'){const srv=g('servico');if(!srv)return toast('Informe o serviço!',true);
+const item={id:uid(),servico:srv,valor:v('valor'),data:g('data'),forma:g('forma'),obs:null,_new:true};
+S.documentos.unshift(item);sbPush('documentos',{id:item.id,servico:item.servico,valor:item.valor,data:item.data,forma:item.forma,obs:item.obs});toast('✅ Serviço salvo!')}
+save();closeModal();const pages={compra:'compras',maoobra:'maoobra',doc:'documentos'};
+const cur=document.querySelector('.page.active')?.id?.replace('page-','');if(cur==='compras')renderCompras();else if(cur==='maoobra')renderMO();else if(cur==='documentos')renderDocs();
+}catch(e){toast('Erro: '+e.message,true)}
+}
+
+function delEntry(arr,i){const item=S[arr][i];_lastDeleted={arr:arr,idx:i,item:JSON.parse(JSON.stringify(item))};S[arr].splice(i,1);save();
+const sbTable={maoDeObra:'mao_de_obra',documentos:'documentos',juros:'juros',contas:'contas',compras:'compras'};
+if(sbTable[arr]&&item.id)sbDelete(sbTable[arr],item.id);
+const renders={maoDeObra:renderMO,documentos:renderDocs,juros:renderFin,contas:renderFin};(renders[arr]||renderCompras)();
+toast('🗑️ Excluído!',false,'undoLast')}
+function undoLast(){if(!_lastDeleted)return;const{arr,item}=_lastDeleted;if(arr==='compras')S.compras.unshift(item);else S[arr].splice(_lastDeleted.idx,0,item);_lastDeleted=null;save();
+const renders={maoDeObra:renderMO,documentos:renderDocs,juros:renderFin,contas:renderFin};(renders[arr]||renderCompras)();toast('↩️ Restaurado!')}
+
+function resetAll(){if(!confirm('Restaurar dados originais da planilha?'))return;localStorage.removeItem('obra-facil-v2');S=JSON.parse(JSON.stringify(SEED));toast('🔄 Dados restaurados!');const cur=document.querySelector('.page.active')?.id?.replace('page-','')||'dashboard';show(cur)}
+
+function exportCSV(){let csv='Categoria;Material;Valor;Forma;Data;Fornecedor;Status;Etapa\n';
+S.compras.forEach(c=>{csv+=`Compra;${c.material};${c.valor};${c.forma}${c.parcelas>1?c.parcelas+'x':''};${c.data||''};${c.fornecedor||''};${c.status};${c.categoria}\n`});
+S.maoDeObra.forEach(c=>{csv+=`MaoObra;;;${c.valor};;${c.data};${c.status};;${c.descricao||''}\n`});
+S.documentos.forEach(c=>{csv+=`Doc;${c.servico};${c.valor};;${c.data||''};;;${c.forma||''}\n`});
+const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='obra_casa_caio.csv';a.click();toast('📥 CSV exportado!')}
+
+// INIT
+show('dashboard');
+if(SB)setTimeout(()=>sbPullAll(),500);
+</script>
+</body>
+</html>

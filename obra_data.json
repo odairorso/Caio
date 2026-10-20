@@ -1,0 +1,3068 @@
+{
+  "custos": [
+    {
+      "qtd": 100,
+      "material": "CIMENTO",
+      "preco": 3690,
+      "pagamento": "DINHEIRO",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-01-01",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "LIMPEZA TERRENO ANTONIO",
+      "preco": 150,
+      "pagamento": "DINHEIRO",
+      "local": "MÃO DE OBRA",
+      "data": "2026-01-12",
+      "realizou": "PEDRO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "CAÇAMBA",
+      "preco": 140,
+      "pagamento": "PIX",
+      "local": "LORO",
+      "data": "2026-01-13",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 35,
+      "material": "COLUNA 10mm 7x14",
+      "preco": 4021.78,
+      "pagamento": "CARTÃO 4x",
+      "local": "AÇO TELHAS DOURADOS",
+      "data": "2026-01-26",
+      "realizou": "CAIO BRADESCO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 20,
+      "material": "COLUNA 8mm 7x20",
+      "preco": 1578.73,
+      "pagamento": "CARTÃO 4x",
+      "local": "AÇO TELHAS DOURADOS",
+      "data": "2026-01-26",
+      "realizou": "CAIO BRADESCO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 20,
+      "material": "BARRA FERRO 6.3mm",
+      "preco": 419.66,
+      "pagamento": "CARTÃO 4x",
+      "local": "AÇO TELHAS DOURADOS",
+      "data": "2026-01-26",
+      "realizou": "CAIO BRADESCO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 10,
+      "material": "BARRA FERRO 4.2mm",
+      "preco": 104.92,
+      "pagamento": "CARTÃO 4x",
+      "local": "AÇO TELHAS DOURADOS",
+      "data": "2026-01-26",
+      "realizou": "CAIO BRADESCO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": "10kg",
+      "material": "ARAME COZIDO",
+      "preco": 129.9,
+      "pagamento": "CARTÃO 4x",
+      "local": "AÇO TELHAS DOURADOS",
+      "data": "2026-01-26",
+      "realizou": "CAIO BRADESCO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 10,
+      "material": "TRELIÇA H8",
+      "preco": 260,
+      "pagamento": "CARTÃO 4x",
+      "local": "AÇO TELHAS DOURADOS",
+      "data": "2026-01-26",
+      "realizou": "CAIO BRADESCO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "LINHA MARCAÇÃO ",
+      "preco": 8.5,
+      "pagamento": "DINHEIRO",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-01-27",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 35,
+      "material": "CAIBRO 1M",
+      "preco": 245,
+      "pagamento": "PIX",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-01-27",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 15,
+      "material": "TABUA 0,15x3 ",
+      "preco": 270,
+      "pagamento": "PIX",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-01-27",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "PADRAO ENERGIA BIVOLT 50A",
+      "preco": 1450,
+      "pagamento": "CARTÃO 3x",
+      "local": "COMTEL",
+      "data": "2026-02-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "MÃO DE  OBRA PADRÃO",
+      "preco": 200,
+      "pagamento": "PIX",
+      "local": "COMTEL",
+      "data": "2026-02-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 56,
+      "material": "TABUA 0,25x3",
+      "preco": 1680,
+      "pagamento": "PIX",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-02-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 20,
+      "material": "RIPA 3m",
+      "preco": 120,
+      "pagamento": "PIX",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-02-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": "9m³",
+      "material": "CONCRETO USINADO",
+      "preco": 4200,
+      "pagamento": "CARTÃO 3x",
+      "local": "CONCRENAVI",
+      "data": "2026-02-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "PEDRA",
+      "preco": 900,
+      "pagamento": "CARTÃO 4x",
+      "local": "GOIS",
+      "data": "2026-02-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "AREIA GROSSA",
+      "preco": 720,
+      "pagamento": "CARTÃO 4x",
+      "local": "GOIS",
+      "data": "2026-02-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2000,
+      "material": "LAJOTAS 8 FUROS",
+      "preco": 1940,
+      "pagamento": "CARTÃO 4x",
+      "local": "ILHA GRANDE ",
+      "data": "2026-02-05",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "NEUTROL 18l",
+      "preco": 288,
+      "pagamento": "CARTÃO 4x",
+      "local": "ILHA GRANDE ",
+      "data": "2026-02-05",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "LUVA",
+      "preco": 13,
+      "pagamento": "CARTÃO 4x",
+      "local": "ILHA GRANDE ",
+      "data": "2026-02-05",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "BROCHA",
+      "preco": 13,
+      "pagamento": "CARTÃO 4x",
+      "local": "ILHA GRANDE ",
+      "data": "2026-02-05",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "CAIXINHA AGUA",
+      "preco": 152,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "CARRIOLA",
+      "preco": 237,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "MANGUEIRA 1/2",
+      "preco": 9.75,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "PREGO 17x21",
+      "preco": 20,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "PREGO17x27",
+      "preco": 20,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 3,
+      "material": "JOELHO 90 40mm",
+      "preco": 6,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "JOELHO 90 50mm",
+      "preco": 4,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": "0,50cm",
+      "material": "TUBO 0,50 mm",
+      "preco": 24,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "CAL HIDRATADA",
+      "preco": 131.25,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "ASSENTARITE",
+      "preco": 70,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1000,
+      "material": "LAJOTAS 8 FUROS",
+      "preco": 970,
+      "pagamento": "CARTÃO 3x",
+      "local": "ILHA GRANDE ",
+      "data": "2026-02-12",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 30,
+      "material": "CONTEINER",
+      "preco": 250,
+      "pagamento": "PIX",
+      "local": "TIDA",
+      "data": "2026-02-13",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 4,
+      "material": "AREIA GROSSA",
+      "preco": 420,
+      "pagamento": "CARTÃO 4x",
+      "local": "GOIS",
+      "data": "2026-02-16",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "COLA TIGRE",
+      "preco": 5,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-21",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "ADPTADOR CURTO",
+      "preco": 1.25,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-21",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "LUVA BUCHA 1/2",
+      "preco": 9.5,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-21",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "TORNEIRA JARDIM",
+      "preco": 6.25,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-21",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "VEDA ROSCA ",
+      "preco": 6,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-21",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 10,
+      "material": "CAL HIDRATADA",
+      "preco": 156.3,
+      "pagamento": "CARTÃO  1x",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-21",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 3,
+      "material": "COLUNA 10mm 7x20",
+      "preco": 381,
+      "pagamento": "PIX",
+      "local": "EURO AÇO",
+      "data": "2026-02-24",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "REGISTRO PRESSAO ",
+      "preco": 46,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-24",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "LUVA CORRER TIGRE",
+      "preco": 22,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-02-24",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1000,
+      "material": "LAJOTAS 8 FUROS",
+      "preco": 980,
+      "pagamento": "CARTÃO 3X ",
+      "local": "ILHA GRANDE ",
+      "data": "2026-02-26",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 4,
+      "material": "COLUNAS 7X20 5/16",
+      "preco": 340,
+      "pagamento": "PIX",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 10,
+      "material": "CAL HIDRATADA",
+      "preco": 262.5,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 4,
+      "material": "ARAME COZIDO",
+      "preco": 100,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "PREGO 17x21",
+      "preco": 40,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "PREGO 17x27",
+      "preco": 100,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 10,
+      "material": "TABUA 0,30X3",
+      "preco": 330,
+      "pagamento": "PIX",
+      "local": "GOIS",
+      "data": "2026-03-03",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1000,
+      "material": "LAJOTAS H7 LAJE",
+      "preco": 1720,
+      "pagamento": "CARTÃO 1X",
+      "local": "CAMBARU",
+      "data": "2026-03-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 30,
+      "material": "RIPA 3m",
+      "preco": 60,
+      "pagamento": "PIX",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-03-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 15,
+      "material": "SARRAFO",
+      "preco": 90,
+      "pagamento": "PIX",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-03-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 50,
+      "material": "TRILHOS LAJE",
+      "preco": 2000,
+      "pagamento": "PIX",
+      "local": "LAJES NAVIRAI",
+      "data": "2026-03-12",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "COLUNA 7X14 5/16",
+      "preco": 230,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-13",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 0.5,
+      "material": "CANO 0,40",
+      "preco": 24,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-13",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 0.5,
+      "material": "CANO 0,25",
+      "preco": 14.25,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-13",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "BOTINA",
+      "preco": 60,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-13",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": "6,5m³",
+      "material": "CONCRETO USINADO",
+      "preco": 2840,
+      "pagamento": "CARTÃO 2X",
+      "local": "CONCRENAVI",
+      "data": "2026-03-17",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "CONTEINER",
+      "preco": 250,
+      "pagamento": "PIX",
+      "local": "TIDA",
+      "data": "2026-03-17",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 300,
+      "material": "LAJOTAS",
+      "preco": 300,
+      "pagamento": "PIX",
+      "local": "ILHA GRANDE ",
+      "data": "2026-03-19",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "AREIA GROSSA",
+      "preco": 525,
+      "pagamento": "CARTÃO 2X",
+      "local": "GOIS",
+      "data": "2026-03-23",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "AREIA FINA",
+      "preco": 240,
+      "pagamento": "CARTÃO 2X",
+      "local": "GOIS",
+      "data": "2026-03-23",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "ELETROUDO 2.5mm",
+      "preco": 47.83,
+      "pagamento": "CARTÃO 6X",
+      "local": "CORTE E DOBRA DDRS ",
+      "data": "2026-03-23",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 300,
+      "material": "PARAFUSO BROCANTE",
+      "preco": 154.54,
+      "pagamento": "CARTÃO 6X",
+      "local": "CORTE E DOBRA DDRS ",
+      "data": "2026-03-23",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 26,
+      "material": "VIGA PERFIL G  75x40x15",
+      "preco": 2858.07,
+      "pagamento": "CARTÃO 6X",
+      "local": "CORTE E DOBRA DDRS ",
+      "data": "2026-03-23",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 73.4,
+      "material": "TELHA GALVALUME 25 0,43x1000",
+      "preco": 2869.56,
+      "pagamento": "CARTÃO 6X",
+      "local": "CORTE E DOBRA DDRS ",
+      "data": "2026-03-23",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 5,
+      "material": "CAL HIDRATADA",
+      "preco": 108,
+      "pagamento": "CARTÃO 1X",
+      "local": "CASA NOVA",
+      "data": "2026-03-25",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "ASSENTARITE",
+      "preco": 77,
+      "pagamento": "PIX",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-25",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "CAL HIDRATADA",
+      "preco": 151,
+      "pagamento": "PIX",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-25",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 3,
+      "material": "DISCO DE CORTE GRANDE",
+      "preco": 28.05,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-25",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "LUVA LATEX",
+      "preco": 27.5,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-03-25",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 10,
+      "material": "CAL HIDRATADA",
+      "preco": 216,
+      "pagamento": "CARTÃO 1x",
+      "local": "CASA NOVA",
+      "data": "2026-03-27",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "CALHAS",
+      "preco": 3000,
+      "pagamento": "PIX",
+      "local": "NEI CALHAS",
+      "data": "2026-04-01",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 10,
+      "material": "CAL CEM",
+      "preco": 216,
+      "pagamento": "CARTÃO 1X ",
+      "local": "CASA NOVA",
+      "data": "2026-04-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 20,
+      "material": "ELETRODUTO ",
+      "preco": 44,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "DESEMPENADEIRA",
+      "preco": 51.48,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "PENEIRA ",
+      "preco": 33,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-07",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "BROXA",
+      "preco": 10.63,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-07",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 3,
+      "material": "AREIA FINA",
+      "preco": 270,
+      "pagamento": "CARTÃO 2X",
+      "local": "GOIS",
+      "data": "2026-04-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "BATENTE 10X70",
+      "preco": 440,
+      "pagamento": "PIX",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-04-10",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 3,
+      "material": "BATENTE 10X80",
+      "preco": 660,
+      "pagamento": "PIX",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-04-10",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "PREGO 19X36",
+      "preco": 40,
+      "pagamento": "PIX",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-04-10",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "CAL ",
+      "preco": 51.75,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-10",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 3,
+      "material": "CAL",
+      "preco": 77.63,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-11",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "QUADRO DISTRIBUIÇÃO 12",
+      "preco": 60,
+      "pagamento": "CARTÃO 1X",
+      "local": "COMTEL",
+      "data": "2026-04-13",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "FITA LARGA",
+      "preco": 14,
+      "pagamento": "CARTÃO 1X",
+      "local": "SÃO JOSE TINTAS",
+      "data": "2026-04-13",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 3,
+      "material": "CAL",
+      "preco": 77.63,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-13",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": "6,5m³",
+      "material": "CONCRETO USINADO",
+      "preco": 1400,
+      "pagamento": "PIX",
+      "local": "CONCRENAVI",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "CAL CEM",
+      "preco": 129.38,
+      "pagamento": "CARTÃO 2X ",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 10,
+      "material": "CIMENTO",
+      "preco": 430,
+      "pagamento": "CARTÃO 1X",
+      "local": "ILHA GRANDE ",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "BARRAO CANO 3/4 25MM",
+      "preco": 120,
+      "pagamento": "CARTÃO 1X",
+      "local": "ILHA GRANDE ",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "BARRA CANO 50MM",
+      "preco": 76,
+      "pagamento": "CARTÃO 1X ",
+      "local": "ILHA GRANDE ",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "CAL HIDRATADA",
+      "preco": 150,
+      "pagamento": "CARTÃO 1X",
+      "local": "ILHA GRANDE ",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 200,
+      "material": "FIO 2.5mm",
+      "preco": 474.62,
+      "pagamento": "CARTÃO 3X",
+      "local": "ELETROLUZ",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 100,
+      "material": "FIO 2.5mm",
+      "preco": 240.9,
+      "pagamento": "CARTÃO 3X",
+      "local": "ELETROLUZ",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 20,
+      "material": "ESPELHO TOMADA",
+      "preco": 94.26,
+      "pagamento": "CARTÃO 3X",
+      "local": "ELETROLUZ",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 10,
+      "material": "ESPELHO TOMADA",
+      "preco": 51.39,
+      "pagamento": "CARTÃO 3X",
+      "local": "ELETROLUZ",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 30,
+      "material": "MODULO TOMADA",
+      "preco": 189.33,
+      "pagamento": "CARTÃO 3X",
+      "local": "ELETROLUZ",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 6,
+      "material": "MODULO INTERRUPTOR ",
+      "preco": 33.44,
+      "pagamento": "CARTÃO 3X",
+      "local": "ELETROLUZ",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 5,
+      "material": "CAL",
+      "preco": 129.38,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-14",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "CAIXA D AGUA 310L",
+      "preco": 248,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-16",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "BOIA",
+      "preco": 16,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-16",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 8,
+      "material": "CAL CEM",
+      "preco": 172,
+      "pagamento": "CARTÃO 1X",
+      "local": "CASA NOVA",
+      "data": "2026-04-16",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "FLANGE 3/4",
+      "preco": 20,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-16",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "FLANGE 50",
+      "preco": 20.8,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-16",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "REGISTRO ESFERA",
+      "preco": 26.4,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-16",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "REGISTRO PRESSAO 3/4",
+      "preco": 120,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 3,
+      "material": "REGISTRO PRESSAO 3/4",
+      "preco": 180,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "REGISTRO ESFERA 0,50",
+      "preco": 33,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "REGISTRO ESFERA 0,25",
+      "preco": 11.69,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "COLA TIGRE",
+      "preco": 57.2,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 5,
+      "material": "T SOLDAVEL",
+      "preco": 8.25,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "LUVA BUCHA 3/4",
+      "preco": 21.26,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 3,
+      "material": "T SOLDAVEL",
+      "preco": 31.89,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "LUVA BUCHA LATAO 1/2",
+      "preco": 16,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 8,
+      "material": "PLUG ROSCAVEL",
+      "preco": 10,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 10,
+      "material": "JOELHO DE 90 25MM",
+      "preco": 12.5,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 9,
+      "material": "ADPTADOR CURTO",
+      "preco": 12.42,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "T REDUÇÃO",
+      "preco": 20.9,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "FLANGE",
+      "preco": 26,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "FLANGE",
+      "preco": 25,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "VEDA ROSCA ",
+      "preco": 12.5,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "BUCHA REDUÇÃO 0,50 X 0,25",
+      "preco": 7.15,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 6,
+      "material": "JOELHO 90",
+      "preco": 49.5,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-18",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 600,
+      "material": "LAJOTAS",
+      "preco": 600,
+      "pagamento": "CARTÃO 2X",
+      "local": "ILHA GRANDE ",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 10,
+      "material": "CIMENTO",
+      "preco": 430,
+      "pagamento": "CARTÃO 2X",
+      "local": "ILHA GRANDE ",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "DESPESAS",
+      "preco": 220,
+      "pagamento": "CARTÃO 2X",
+      "local": "ILHA GRANDE ",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "BARRA CANO 40MM",
+      "preco": 52.8,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": "2026-02-01 00:00:00",
+      "material": "BARRA CANO 50MM",
+      "preco": 41.25,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 4,
+      "material": "JOELHO 90MM",
+      "preco": 33,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "T ESG 100 X 0,50MM",
+      "preco": 17.6,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "LUVA ESG 100M",
+      "preco": 17,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 3,
+      "material": "LUVA 040MM",
+      "preco": 6.6,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "JOELHO 45 ESG",
+      "preco": 6,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 6,
+      "material": "JOELHO 90 040MM",
+      "preco": 12,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 6,
+      "material": "JOELHO 90 025MM",
+      "preco": 7.5,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "CAIXA SIFONA 10X12 GR",
+      "preco": 60,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "SERRA BIMETAL",
+      "preco": 19.8,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-22",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "CAIXA GORDURA 18Lts",
+      "preco": 319,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-24",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 0.5,
+      "material": "CANO 10MM",
+      "preco": 57.5,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-24",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 4,
+      "material": "JOELHO 90 ESGOTO ",
+      "preco": 33,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-24",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "JUNÇÃO 40",
+      "preco": 7,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-24",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 4,
+      "material": "CURVA 90",
+      "preco": 91.08,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-24",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "JOELHO",
+      "preco": 9,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-25",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "CADEADO 60",
+      "preco": 68.64,
+      "pagamento": "CARTÃO 2X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-04-25",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 10,
+      "material": "CIMENTO",
+      "preco": 415,
+      "pagamento": "PIX",
+      "local": "TAPAJOS",
+      "data": "2026-04-29",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "PRANCHA ",
+      "preco": 130,
+      "pagamento": "CARTÃO 1X ",
+      "local": "ALUGA MAQUINA",
+      "data": "2026-04-29",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "CALHAS",
+      "preco": 2500,
+      "pagamento": "PIX",
+      "local": "NEI CALHAS",
+      "data": "2026-05-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 3,
+      "material": "CIMENTO ",
+      "preco": 124.5,
+      "pagamento": "PIX",
+      "local": "TAPAJOS",
+      "data": "2026-05-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 10,
+      "material": "CIMENTO",
+      "preco": 410,
+      "pagamento": "PIX",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-05-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "CONTEINER",
+      "preco": 250,
+      "pagamento": "PIX",
+      "local": "TIDA",
+      "data": "2026-05-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 35,
+      "material": "CAIXINHA 4X2 ELETRICA",
+      "preco": 59,
+      "pagamento": "CARTAO",
+      "local": "COMTEL",
+      "data": "2026-05-02",
+      "realizou": "CAIO BRADESCO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 3,
+      "material": "PEDRA",
+      "preco": 570,
+      "pagamento": "CARTÃO 2X",
+      "local": "GOIS",
+      "data": "2026-04-29",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 3,
+      "material": "AREIA GROSSA",
+      "preco": 315,
+      "pagamento": "CARTÃO 2X",
+      "local": "GOIS",
+      "data": "2026-04-29",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 45.78,
+      "material": "PISO KARINA 60x1,20",
+      "preco": 2375.98,
+      "pagamento": "CARTÃO 8X",
+      "local": "DESTRO",
+      "data": "2026-05-08",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 82.88,
+      "material": "PORCELANATO VIA ROSA GRAFITE",
+      "preco": 4052.83,
+      "pagamento": "CARTÃO 8X",
+      "local": "DESTRO",
+      "data": "2026-05-08",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 50,
+      "material": "ARGAMASSA 20KG",
+      "preco": 1345,
+      "pagamento": "CARTÃO 8X",
+      "local": "DESTRO",
+      "data": "2026-05-08",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 6,
+      "material": "REJUNTE CINZA 2KG",
+      "preco": 300,
+      "pagamento": "CARTÃO 8X",
+      "local": "DESTRO",
+      "data": "2026-05-08",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "CUNHAS/NIVELADORES",
+      "preco": 295.02,
+      "pagamento": "CARTÃO 3X ",
+      "local": "DESTRO",
+      "data": "2026-02-11",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 7,
+      "material": "COLUNA 8mm 7x14",
+      "preco": 581,
+      "pagamento": "CARTÃO 4X ",
+      "local": "ACO TELHAS",
+      "data": "2026-05-16",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 5,
+      "material": "COLUNA 10mm 7x20",
+      "preco": 590,
+      "pagamento": "CARTÃO 4X ",
+      "local": "ACO TELHAS",
+      "data": "2026-05-17",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "SOLEIRAS",
+      "preco": 800,
+      "pagamento": "PIX",
+      "local": "JOAO",
+      "data": "2026-05-20",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 6,
+      "material": "PISO 0,60 X 0,60 COZINHA ",
+      "preco": 195,
+      "pagamento": "CARTÃO 2X",
+      "local": "DESTRO",
+      "data": "2026-05-22",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "JANELAS BLINDEX 1,00x1,00",
+      "preco": 550,
+      "pagamento": "CARTÃO 1X",
+      "local": "GREIZIEL",
+      "data": "2026-06-23",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "JANELAS BLINDEX 1,50x1,00",
+      "preco": 580,
+      "pagamento": "CARTÃO 1X",
+      "local": "GREIZIEL",
+      "data": "2026-06-23",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "JANELAS 0,60x0,40",
+      "preco": 560,
+      "pagamento": "CARTÃO 1X",
+      "local": "GREIZIEL",
+      "data": "2026-06-23",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "JANELA 0,94x1,00",
+      "preco": 550,
+      "pagamento": "CARTÃO 1X",
+      "local": "GREIZIEL",
+      "data": "2026-06-23",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "PORTA 0,98x2,10",
+      "preco": 930,
+      "pagamento": "CARTÃO 1X",
+      "local": "GREIZIEL",
+      "data": "2026-06-23",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1000,
+      "material": "LAJOTAS 8 FUROS",
+      "preco": 980,
+      "pagamento": "CARTÃO 3X",
+      "local": "ILHA GRANDE ",
+      "data": "2026-05-25",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 5,
+      "material": "DOBRADICA PORTA",
+      "preco": 71.8,
+      "pagamento": "CARTÃO 3X ",
+      "local": "ILHA GRANDE ",
+      "data": "2026-05-25",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 3,
+      "material": "FECHADURA ALIANCA",
+      "preco": 252.38,
+      "pagamento": "CARTÃO 3X ",
+      "local": "ILHA GRANDE ",
+      "data": "2026-05-25",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "FECHADURA ALIANCA BANHEIRO",
+      "preco": 135.82,
+      "pagamento": "CARTÃO 3X",
+      "local": "ILHA GRANDE ",
+      "data": "2026-05-25",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 8,
+      "material": "CABO ALUMINIO TRIPLEX",
+      "preco": 78.35,
+      "pagamento": "CARTÁO 2X",
+      "local": "COMTEL",
+      "data": "2026-05-26",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 6,
+      "material": "PERFURANTE",
+      "preco": 75.09,
+      "pagamento": "CARTÁO 2X",
+      "local": "COMTEL",
+      "data": "2026-05-26",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "CURVA ENTRADA ENERGIA",
+      "preco": 3.02,
+      "pagamento": "CARTÁO 2X",
+      "local": "COMTEL",
+      "data": "2026-05-26",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "ISOLADOR PIMENTAO",
+      "preco": 8,
+      "pagamento": "CARTÁO 2X",
+      "local": "COMTEL",
+      "data": "2026-05-26",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "BUCHA 10MM",
+      "preco": 0.67,
+      "pagamento": "CARTÁO 2X",
+      "local": "COMTEL",
+      "data": "2026-05-26",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 70,
+      "material": "FIO 6mm",
+      "preco": 504,
+      "pagamento": "CARTAO 3x",
+      "local": "COMTEL",
+      "data": "2026-05-27",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 6,
+      "material": "FIO 6mm",
+      "preco": 43.2,
+      "pagamento": "CARTÃO 1X",
+      "local": "COMTEL",
+      "data": "2026-05-28",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "CIMENTO",
+      "preco": 82,
+      "pagamento": "PIX",
+      "local": "TAPAJOS",
+      "data": "2026-05-28",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 4,
+      "material": "BARRA CANO 100mm 2 CURVA LONGA",
+      "preco": 472,
+      "pagamento": "CARTÃO 2X",
+      "local": "ILHA GRANDE ",
+      "data": "2026-09-29",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "PORTA FRISADA 0,80 x 2,10 ",
+      "preco": 280,
+      "pagamento": "DINHEIRO",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-06-01",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "PORTA 0,80 x 2,10 MADEIRA",
+      "preco": 480,
+      "pagamento": "DINHEIRO",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-06-01",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "PORTA 0,70 x 2,10",
+      "preco": 480,
+      "pagamento": "PIX",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-06-01",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "VASOS ACOPLADOS ",
+      "preco": 840,
+      "pagamento": "CARTAO 7x",
+      "local": "QUERO QUERO",
+      "data": "2026-06-01",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 5,
+      "material": "GUARNICOES",
+      "preco": 500,
+      "pagamento": "PIX",
+      "local": "SERGIO RS MADEIRAS",
+      "data": "2026-06-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 4,
+      "material": "COLUNA 8mm 7x14",
+      "preco": 320,
+      "pagamento": "PIX",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-02",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "DISJUNTOR DIN 32",
+      "preco": 50.8,
+      "pagamento": "CARTÃO 1X",
+      "local": "ELETROLUZ",
+      "data": "2026-06-06",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "DISJUNTOR DIN 40",
+      "preco": 59.47,
+      "pagamento": "CARTÃO 1X",
+      "local": "ELETROLUZ",
+      "data": "2026-06-06",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "DISJUNTOR DIN 50",
+      "preco": 29.73,
+      "pagamento": "CARTÃO 1X",
+      "local": "ELETROLUZ",
+      "data": "2026-06-06",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "PORTAO ELEVACAO 3,10x2.50/SOCIAL",
+      "preco": 3900,
+      "pagamento": "PIX",
+      "local": "TIDA",
+      "data": null,
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "DISCO DE CORTE GRANDE",
+      "preco": 49.5,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "RODEL PISO",
+      "preco": 13.75,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "LAMPADA LED 30W",
+      "preco": 35.2,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "DISCO PORCELANATO",
+      "preco": 40,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 20,
+      "material": "PALHA DE ACO",
+      "preco": 55,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 50,
+      "material": "ELETROUDO 2.5mm",
+      "preco": 137.5,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "CURVA 0,90",
+      "preco": 57.2,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "JOELHO 0,90",
+      "preco": 8.25,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 0.5,
+      "material": "BARRA CANO TIGRE",
+      "preco": 75,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "SERRA BIMETAL",
+      "preco": 19.8,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "FITA ISOLANTE",
+      "preco": 8.25,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "CURVA 100mm",
+      "preco": 57.2,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "ENGATE FLEXIVEL",
+      "preco": 9.35,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "ALCAPAO",
+      "preco": 198,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "JOELHO 45 ESG",
+      "preco": 10.63,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "REGISTRO PRESSAO 3/4",
+      "preco": 50,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "CABO CAVADEIRA",
+      "preco": 26.4,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "DISCO PARA MADEIRA",
+      "preco": 23.1,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "ENGATE FLEXIVEL",
+      "preco": 88,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "ESGUICHO",
+      "preco": 36.25,
+      "pagamento": "CARTÃO 1X",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-09",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "CONTEINER",
+      "preco": 250,
+      "pagamento": "PIX",
+      "local": "TIDA",
+      "data": "2026-06-10",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "PEDRA BALCAO MARMORE",
+      "preco": 500,
+      "pagamento": "PIX",
+      "local": "JOAO MARMORE",
+      "data": null,
+      "realizou": null,
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "MOLDURA GESSO",
+      "preco": 3550,
+      "pagamento": "PIX",
+      "local": "PRIMEIRA LINHA GESSO",
+      "data": "2026-06-11",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "BANCADA MARMORE BANHEIROS",
+      "preco": 1500,
+      "pagamento": "PIX",
+      "local": "JOAO MARMORE",
+      "data": "2026-06-11",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 3,
+      "material": "AREIA GROSSA",
+      "preco": 315,
+      "pagamento": "CARTÁO 2X",
+      "local": "GOIS",
+      "data": "2026-06-12",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 3,
+      "material": "CAL CEM",
+      "preco": 60,
+      "pagamento": "CARTÃO 1X",
+      "local": "CASA NOVA",
+      "data": "2026-06-15",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 4,
+      "material": "CIMENTO",
+      "preco": 160,
+      "pagamento": "PIX",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-06-17",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2.5,
+      "material": "PEDRA",
+      "preco": 500,
+      "pagamento": "CARTÁO 2X",
+      "local": "GOIS",
+      "data": "2026-06-17",
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "AREIA GROSSA",
+      "preco": null,
+      "pagamento": null,
+      "local": "GOIS",
+      "data": "2026-08-25",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 9,
+      "material": "CIMENTO",
+      "preco": 405,
+      "pagamento": "PIX",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-08-25",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 2,
+      "material": "CANO 100MM",
+      "preco": 225,
+      "pagamento": "PIX",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-08-25",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 1,
+      "material": "JOELHO 45 ESG",
+      "preco": 60,
+      "pagamento": "PIX",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-08-25",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 5,
+      "material": "CIMENTO",
+      "preco": 210,
+      "pagamento": "PIX",
+      "local": "IMPERIO CONSTRUÇÕES",
+      "data": "2026-09-04",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 26,
+      "material": "PISO TATIL",
+      "preco": 81,
+      "pagamento": "PIX",
+      "local": "AV PANTANAL",
+      "data": "2026-09-04",
+      "realizou": "CAIO",
+      "status": "PAGO"
+    },
+    {
+      "qtd": 10,
+      "material": "MASSA CORRIDA",
+      "preco": 499,
+      "pagamento": "CARTÃO 6X",
+      "local": "SERTAO",
+      "data": "2026-09-21",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "SELADOR",
+      "preco": 189,
+      "pagamento": "CARTAO 6X",
+      "local": "SERTAO",
+      "data": "2026-09-21",
+      "realizou": "CAIO",
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "SUPORTE TANQUE",
+      "preco": 75,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "ENGATE FLEXIVEL",
+      "preco": 88,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "SIFAO",
+      "preco": 11,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "SIFAO",
+      "preco": 70,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 3,
+      "material": "VALVULA ",
+      "preco": 51,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 4,
+      "material": "BUCHA PLASTICA",
+      "preco": 0.72,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 4,
+      "material": "PARAFUSO DE ROSCA",
+      "preco": 3,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "VEDA ROSCA ",
+      "preco": 8.5,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "TORNEIRA TANQUE",
+      "preco": 44,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 2,
+      "material": "TORNEIRA LAVATORIO",
+      "preco": 90,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "TORNEIRA COZINHA",
+      "preco": 45,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 1,
+      "material": "TANQUE LAVAR",
+      "preco": 202,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    },
+    {
+      "qtd": 10,
+      "material": "CIMENTO",
+      "preco": 439,
+      "pagamento": null,
+      "local": null,
+      "data": null,
+      "realizou": null,
+      "status": null
+    }
+  ],
+  "mao_obra": [
+    {
+      "data": "2026-02-06",
+      "valor": 4500,
+      "forma": "DINHEIRO",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-02-09",
+      "valor": 326.15,
+      "forma": "PAGAMENTO GUIAFIRMA",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-02-16",
+      "valor": 2000,
+      "forma": "DINHEIRO",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-02-16",
+      "valor": 1000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-02-21",
+      "valor": 2000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-02-28",
+      "valor": 2000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-03-02",
+      "valor": 1500,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-03-07",
+      "valor": 5000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-03-14",
+      "valor": 3000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-03-19",
+      "valor": 3000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-03-31",
+      "valor": 329.42,
+      "forma": "GUIA FIRMA",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-04-02",
+      "valor": 6000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-04-11",
+      "valor": 4000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": "NICE"
+    },
+    {
+      "data": "2026-04-18",
+      "valor": 2000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": "NICE"
+    },
+    {
+      "data": "2026-04-25",
+      "valor": 2000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": "NICE"
+    },
+    {
+      "data": "2026-05-02",
+      "valor": 2500,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": "CAIO "
+    },
+    {
+      "data": "2026-05-09",
+      "valor": 2500,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": "CAIO "
+    },
+    {
+      "data": "2026-05-16",
+      "valor": 2000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": "CAIO "
+    },
+    {
+      "data": "2026-05-23",
+      "valor": 2000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-05-30",
+      "valor": 1500,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-06-15",
+      "valor": 1825,
+      "forma": "MULTA CARTEIRA",
+      "status": "PAGO",
+      "quem": null
+    },
+    {
+      "data": "2026-06-19",
+      "valor": 900,
+      "forma": "CONSERTO CAMIONETE",
+      "status": "PAGO",
+      "quem": "PIX"
+    },
+    {
+      "data": "2026-06-21",
+      "valor": 2000,
+      "forma": "PIX",
+      "status": "PAGO",
+      "quem": "PIX"
+    },
+    {
+      "data": "2026-06-24",
+      "valor": 340,
+      "forma": "GUIA FIRMA",
+      "status": "PAGO",
+      "quem": "PIX"
+    },
+    {
+      "data": "2026-07-11",
+      "valor": 344,
+      "forma": "GUIA FIRMA",
+      "status": "PAGO",
+      "quem": "PIX"
+    },
+    {
+      "data": "2026-07-11",
+      "valor": 344,
+      "forma": "GUIA FIRMA",
+      "status": "PAGO",
+      "quem": "PIX"
+    },
+    {
+      "data": "2026-07-28",
+      "valor": 1150,
+      "forma": "PECA CAMIONETE",
+      "status": "PAGO",
+      "quem": "PIX"
+    },
+    {
+      "data": "2026-09-01",
+      "valor": 2000,
+      "forma": "SARDINHA ",
+      "status": "PAGO",
+      "quem": "PIX"
+    },
+    {
+      "data": "2026-09-09",
+      "valor": 351.59,
+      "forma": "GUIA FIRMA",
+      "status": "PAGO",
+      "quem": "PIX"
+    },
+    {
+      "data": "2026-09-22",
+      "valor": 190,
+      "forma": "FRETE BICOS",
+      "status": null,
+      "quem": null
+    },
+    {
+      "data": "2026-09-22",
+      "valor": 3321.16,
+      "forma": "BICOS",
+      "status": null,
+      "quem": null
+    },
+    {
+      "data": "2026-10-01",
+      "valor": 86,
+      "forma": "FRETE BICOS",
+      "status": null,
+      "quem": null
+    },
+    {
+      "data": "TOTAL",
+      "valor": 62007.31999999999,
+      "forma": null,
+      "status": null,
+      "quem": null
+    },
+    {
+      "data": "SALDO",
+      "valor": -13257.319999999992,
+      "forma": null,
+      "status": null,
+      "quem": null
+    }
+  ],
+  "documentacao": [
+    {
+      "servico": "TOPOGRAFIA",
+      "valor": 300,
+      "data": "2025-02-05",
+      "pagamento": "PIX",
+      "obs": "MATHEUS REMBOLSOU"
+    },
+    {
+      "servico": "MATRICULA TERRENO",
+      "valor": 56.21,
+      "data": "2025-01-30",
+      "pagamento": "PIX",
+      "obs": null
+    },
+    {
+      "servico": "TERRAPLANAGEM E LIMPEZA TERRENO",
+      "valor": 680,
+      "data": null,
+      "pagamento": null,
+      "obs": null
+    },
+    {
+      "servico": "ITBI 1 ESCRITURA",
+      "valor": 659.92,
+      "data": "2025-03-06",
+      "pagamento": "BB CAIO",
+      "obs": null
+    },
+    {
+      "servico": "FUNREJUS ESCRITURA",
+      "valor": 64.69,
+      "data": "2025-03-12",
+      "pagamento": null,
+      "obs": null
+    },
+    {
+      "servico": "Certidão Debitos RODONELLO",
+      "valor": 36,
+      "data": "2025-02-27",
+      "pagamento": null,
+      "obs": null
+    },
+    {
+      "servico": "ESCRITURA PARANÁ",
+      "valor": 1000,
+      "data": "2025-03-13",
+      "pagamento": "SICREDI CAIO",
+      "obs": null
+    },
+    {
+      "servico": "REGISTRO ESCRITURA COMPRA E VENDA",
+      "valor": 1189,
+      "data": "2025-03-17",
+      "pagamento": "BRADESCO CAIO",
+      "obs": null
+    },
+    {
+      "servico": "ART (PROJETO,EXECUÇÃO,ESTRUTURAL,ELETRICO, HIDROSANITARIO E IMPERMEABILIZAÇÃO)",
+      "valor": 282.3,
+      "data": "2025-05-03",
+      "pagamento": "99 pay caio",
+      "obs": null
+    },
+    {
+      "servico": "Taxa Aprovação Projeto",
+      "valor": 93.8,
+      "data": "2025-05-19",
+      "pagamento": "INDY CAIXA",
+      "obs": null
+    },
+    {
+      "servico": "Taxa Fiscalização OBRA",
+      "valor": 93.8,
+      "data": "2025-05-19",
+      "pagamento": "INDY CAIXA",
+      "obs": null
+    },
+    {
+      "servico": "Certidão Numeração",
+      "valor": 56.28,
+      "data": "2025-05-19",
+      "pagamento": "INDY CAIXA",
+      "obs": null
+    },
+    {
+      "servico": "Alvara Construção",
+      "valor": 175.61,
+      "data": "2025-05-19",
+      "pagamento": "INDY CAIXA",
+      "obs": null
+    },
+    {
+      "servico": "TAXA AVALIAÇÃO  TERRENO CAIXA",
+      "valor": 750,
+      "data": "2025-06-02",
+      "pagamento": "PEDRO SICREDI",
+      "obs": null
+    },
+    {
+      "servico": "REGISTRO ESCRITURA CONTRATO CAIXA",
+      "valor": 2337,
+      "data": null,
+      "pagamento": null,
+      "obs": null
+    },
+    {
+      "servico": "ISSQN",
+      "valor": 957.06,
+      "data": "2025-05-19",
+      "pagamento": "INDY CAIXA",
+      "obs": null
+    },
+    {
+      "servico": "IPTU RESIDUO",
+      "valor": 115.6,
+      "data": "2025-05-19",
+      "pagamento": "INDY CAIXA",
+      "obs": null
+    },
+    {
+      "servico": "PLOTAGEM PASTA",
+      "valor": 45,
+      "data": "2025-05-16",
+      "pagamento": "BB CAIO",
+      "obs": null
+    },
+    {
+      "servico": "PLACAS OBRA",
+      "valor": null,
+      "data": null,
+      "pagamento": null,
+      "obs": null
+    },
+    {
+      "servico": "ADIANTAMENTO MATHEUS ",
+      "valor": 2000,
+      "data": "2025-05-12",
+      "pagamento": "PIX INDY ",
+      "obs": null
+    },
+    {
+      "servico": "PROJETO VITINHO",
+      "valor": 500,
+      "data": "2025-05-17",
+      "pagamento": "PIX CAIO BRADESCO",
+      "obs": null
+    },
+    {
+      "servico": "MATRICULA TERRENO E AÇÕES REAIS",
+      "valor": 136.92,
+      "data": "2025-07-16",
+      "pagamento": "PIX CAIO BRADESCO",
+      "obs": null
+    },
+    {
+      "servico": "2 VIA CERTIDÃO NASCIMENTO CAIO",
+      "valor": 137.13,
+      "data": "2025-07-23",
+      "pagamento": "CARTÃO BB CAIO",
+      "obs": null
+    },
+    {
+      "servico": "SEGURO CAIXA",
+      "valor": 1422.29,
+      "data": "2025-08-12",
+      "pagamento": "SICREDI CAIO",
+      "obs": null
+    },
+    {
+      "servico": "VITINHO",
+      "valor": 250,
+      "data": "2025-08-13",
+      "pagamento": null,
+      "obs": null
+    },
+    {
+      "servico": "ITBI 2 ESCRITURA",
+      "valor": 360,
+      "data": "2025-08-22",
+      "pagamento": "BB CAIO",
+      "obs": null
+    },
+    {
+      "servico": "ITBI 2 ESCRITURA",
+      "valor": 9.38,
+      "data": "2025-08-22",
+      "pagamento": "BB CAIO",
+      "obs": null
+    },
+    {
+      "servico": "IPTU RESIDUO",
+      "valor": 115.08,
+      "data": "2025-08-26",
+      "pagamento": "SICREDI CAIO",
+      "obs": null
+    },
+    {
+      "servico": "IPTU  SETEMBRO ",
+      "valor": 37.9,
+      "data": "2025-09-09",
+      "pagamento": "SICREDI CAIO",
+      "obs": null
+    },
+    {
+      "servico": "TOTAL:",
+      "valor": 13860.97,
+      "data": null,
+      "pagamento": null,
+      "obs": null
+    }
+  ],
+  "divisao": [
+    {
+      "item": "MATRICULA TERRENO",
+      "valor": 56.21,
+      "data": "2025-01-30"
+    },
+    {
+      "item": "ITBI 1 ESCRITURA",
+      "valor": 659.92,
+      "data": "2025-03-06"
+    },
+    {
+      "item": "FUNREJUS ESCRITURA",
+      "valor": 64.69,
+      "data": "2025-03-12"
+    },
+    {
+      "item": "Certidão Debitos RODONELLO",
+      "valor": 36,
+      "data": "2025-02-27"
+    },
+    {
+      "item": "ESCRITURA PARANÁ",
+      "valor": 1000,
+      "data": "2025-03-13"
+    },
+    {
+      "item": "REGISTRO ESCRITURA COMPRA E VENDA",
+      "valor": 1189,
+      "data": "2025-03-17"
+    },
+    {
+      "item": "IPTU RESIDUO",
+      "valor": 153.5,
+      "data": "2025-03-18"
+    }
+  ],
+  "resumo_divisao": {
+    "VALOR TERRENO": 35000,
+    "DESPESAS ESCRITURA": 1579.66,
+    "ADIANTAMENTO": 2000,
+    "VALOR DEVIDO": 31420.339999999997,
+    "RETORNO": 579.6600000000035
+  },
+  "juros": [
+    {
+      "data": "2025-09-10",
+      "valor": 315.83
+    },
+    {
+      "data": "2025-10-10",
+      "valor": 316.5
+    },
+    {
+      "data": "2025-11-10",
+      "valor": 317.04
+    },
+    {
+      "data": "2025-12-10",
+      "valor": 313.07
+    },
+    {
+      "data": "2026-01-12",
+      "valor": 316.58
+    },
+    {
+      "data": "2026-02-10",
+      "valor": 318
+    },
+    {
+      "data": "2026-03-10",
+      "valor": 299
+    },
+    {
+      "data": "2026-04-10",
+      "valor": 690
+    },
+    {
+      "data": "2026-05-10",
+      "valor": 613
+    },
+    {
+      "data": "2026-06-10",
+      "valor": 1082
+    },
+    {
+      "data": "2026-07-10",
+      "valor": 1281.67
+    },
+    {
+      "data": "2026-08-10",
+      "valor": 1284
+    },
+    {
+      "data": "2026-09-10",
+      "valor": 1285
+    },
+    {
+      "data": "2026-10-10",
+      "valor": 1285
+    }
+  ],
+  "utilidades": [
+    {
+      "item": "AGUA/LUZ",
+      "mes": "FEV",
+      "valor": 150,
+      "status": "PAGO"
+    },
+    {
+      "item": "IPTU",
+      "mes": "MARÇO",
+      "valor": 332,
+      "status": "PAGO"
+    },
+    {
+      "item": "LUZ",
+      "mes": "MARÇO",
+      "valor": 46,
+      "status": "PAGO"
+    },
+    {
+      "item": "AGUA ",
+      "mes": "ABRIL",
+      "valor": 150,
+      "status": "PAGO"
+    },
+    {
+      "item": "ENERGIA",
+      "mes": "ABRIL",
+      "valor": 77.05,
+      "status": "PAGO"
+    },
+    {
+      "item": "AGUA ",
+      "mes": "MAIO",
+      "valor": 206,
+      "status": "PAGO"
+    },
+    {
+      "item": "ENERGIA",
+      "mes": "MAIO",
+      "valor": 51.11,
+      "status": "PAGO"
+    },
+    {
+      "item": "AGUA",
+      "mes": "JUNHO",
+      "valor": 184.61,
+      "status": "PAGO"
+    },
+    {
+      "item": "ENERGIA",
+      "mes": "JUNHO",
+      "valor": 56.32,
+      "status": "PAGO"
+    },
+    {
+      "item": "AGUA",
+      "mes": "JULHO",
+      "valor": 68.87,
+      "status": "PAGO"
+    },
+    {
+      "item": "ENERGIA",
+      "mes": "JULHO",
+      "valor": 55.38,
+      "status": "PAGO"
+    },
+    {
+      "item": "AGUA",
+      "mes": "AGOSTO",
+      "valor": 79.41,
+      "status": "PAGO"
+    },
+    {
+      "item": "ENERGIA",
+      "mes": "AGOSTO",
+      "valor": 56.76,
+      "status": "PAGO"
+    }
+  ]
+}

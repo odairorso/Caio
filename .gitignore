@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+.bun/
+
+# Build
+dist/
+build/
+
+# Lovable
+.lovable/
+src/
+public/
+*.tsx
+*.ts
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env
+.env
+.env.local
