@@ -23,6 +23,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh}
 .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 8px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
 .sidebar .brand .icon{font-size:32px}
 .hamburger{display:none;background:none;border:none;color:var(--text);font-size:24px;cursor:pointer;padding:4px 8px}
+.dots-menu{display:none;background:var(--card3);border:1px solid var(--border);color:var(--text);font-size:22px;cursor:pointer;padding:0 12px;height:40px;border-radius:10px;line-height:1;font-weight:700}
 .nav-menu{display:flex;flex-direction:column;gap:4px}
 .sidebar .brand h2{font-size:16px;font-weight:700}
 .sidebar .brand p{font-size:11px;color:var(--text2)}
@@ -75,6 +76,7 @@ th:hover{color:var(--accent2)}
 td{padding:14px 20px;border-bottom:1px solid rgba(39,39,42,.5);font-size:14px;vertical-align:middle}
 tr:hover{background:rgba(139,92,246,.03)}
 .table-wrap{max-height:550px;overflow-y:auto}
+.mobile-list{display:none}
 .table-wrap::-webkit-scrollbar{width:5px}
 .table-wrap::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
 /* BADGE */
@@ -127,6 +129,7 @@ tr:hover{background:rgba(139,92,246,.03)}
 .nav-btn{width:100%;height:48px;padding:0 16px;font-size:14px;border-radius:10px}
 .nav-btn .ico{font-size:20px;width:28px}
 .main{margin-left:0;margin-top:64px}.content{padding:12px}.topbar{padding:12px;top:64px}
+.dots-menu{display:block}
 .topbar h1{font-size:16px}
 .stats{grid-template-columns:1fr 1fr;gap:10px}
 .hero{padding:20px}.hero .total{font-size:28px}.hero .sub{font-size:12px}
@@ -135,7 +138,16 @@ tr:hover{background:rgba(139,92,246,.03)}
 .grid2,.grid3{grid-template-columns:1fr;gap:12px}
 .chart-box{height:280px;padding:16px}
 .chart-box h3{font-size:13px}
-.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;display:none}
+.mobile-list{display:block}
+.mcard{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(39,39,42,.6)}
+.mcard:last-child{border-bottom:none}
+.mcard .mi{flex:1;min-width:0}
+.mcard .mt{font-size:14px;font-weight:600;line-height:1.3;word-break:break-word}
+.mcard .ms{font-size:11.5px;color:var(--text2);margin-top:4px;line-height:1.4}
+.mcard .mr{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.mcard .mv{font-size:15px;font-weight:700;color:var(--accent2)}
+.mcard .ma{display:flex;gap:6px}
 table{min-width:600px}
 th,td{padding:10px 12px;font-size:12px}
 .filters{flex-direction:column;align-items:stretch}
@@ -175,6 +187,7 @@ th,td{padding:10px 12px;font-size:12px}
 
 <div class="main">
 <div class="topbar">
+<button class="dots-menu" onclick="toggleNav()" title="Menu">⋮</button>
 <h1 id="pageTitle">Painel</h1>
 <div class="actions">
 <button class="btn btn-secondary" onclick="exportCSV()">📥 CSV</button>
@@ -214,7 +227,7 @@ th,td{padding:10px 12px;font-size:12px}
 </div>
 <div class="table-box"><div class="table-wrap"><table>
 <thead><tr><th onclick="sortC('data')">Data ↕</th><th onclick="sortC('material')">Material ↕</th><th onclick="sortC('valor')">Valor ↕</th><th>Fornecedor</th><th>Pagamento</th><th>Etapa</th><th>Status</th><th>Ações</th></tr></thead>
-<tbody id="comprasBody"></tbody></table></div></div>
+<tbody id="comprasBody"></tbody></table></div><div class="mobile-list" id="comprasCards"></div></div>
 </div>
 
 <!-- PARCELAS -->
@@ -239,7 +252,7 @@ th,td{padding:10px 12px;font-size:12px}
 </div>
 <div class="table-box"><div class="table-wrap"><table>
 <thead><tr><th>Data</th><th>Valor</th><th>Descrição</th><th>Status</th><th></th></tr></thead>
-<tbody id="moBody"></tbody></table></div></div>
+<tbody id="moBody"></tbody></table></div><div class="mobile-list" id="moCards"></div></div>
 </div>
 
 <!-- DOCUMENTOS -->
@@ -254,7 +267,7 @@ th,td{padding:10px 12px;font-size:12px}
 </div>
 <div class="table-box"><div class="table-wrap"><table>
 <thead><tr><th>Serviço</th><th>Valor</th><th>Data</th><th>Pagamento</th><th></th></tr></thead>
-<tbody id="docBody"></tbody></table></div></div>
+<tbody id="docBody"></tbody></table></div><div class="mobile-list" id="docCards"></div></div>
 </div>
 
 <!-- FINANCIAMENTO -->
@@ -266,10 +279,10 @@ th,td{padding:10px 12px;font-size:12px}
 </div>
 <div class="table-box"><div class="header"><h3>🏦 Financiamento</h3></div><div class="table-wrap"><table>
 <thead><tr><th>Vencimento</th><th>Valor</th><th></th></tr></thead>
-<tbody id="finBody"></tbody></table></div></div>
+<tbody id="finBody"></tbody></table></div><div class="mobile-list" id="finCards"></div></div>
 <div class="table-box"><div class="header"><h3>💡 Contas (Água/Luz/IPTU)</h3></div><div class="table-wrap"><table>
 <thead><tr><th>Item</th><th>Mês</th><th>Valor</th><th>Status</th><th></th></tr></thead>
-<tbody id="contasBody"></tbody></table></div></div>
+<tbody id="contasBody"></tbody></table></div><div class="mobile-list" id="contasCards"></div></div>
 </div>
 
 <!-- DIVISÃO -->
@@ -280,7 +293,7 @@ th,td{padding:10px 12px;font-size:12px}
 </div>
 <div class="table-box"><div class="header"><h3>🤝 Detalhamento</h3></div><div class="table-wrap"><table>
 <thead><tr><th>Item</th><th>Valor</th><th>Data</th></tr></thead>
-<tbody id="splitBody"></tbody></table></div></div>
+<tbody id="splitBody"></tbody></table></div><div class="mobile-list" id="splitCards"></div></div>
 </div>
 </div>
 </div>
@@ -357,6 +370,7 @@ const CATEGORIAS=["Fundação","Estrutura","Alvenaria","Laje","Cobertura","Madei
 const FORMAS={cartao:"Cartão",pix:"PIX",dinheiro:"Dinheiro",boleto:"Boleto",outro:"Outro"};
 const uid=()=>Math.random().toString(36).slice(2,10);
 function closeMenu(){document.querySelector('.nav-menu')?.classList.remove('open')}
+function toggleNav(){const n=document.querySelector('.nav-menu');if(n)n.classList.toggle('open')}
 const save=()=>localStorage.setItem('obra-facil-v2',JSON.stringify({compras:S.compras,maoDeObra:S.maoDeObra,documentos:S.documentos,parcelasPagas:S.parcelasPagas}));
 const brl=v=>'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const brlS=v=>v>=1000?'R$ '+(v/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil':brl(v);
@@ -434,6 +448,12 @@ document.getElementById('comprasBody').innerHTML=items.map(c=>`<tr>
 <td><div style="display:flex;gap:4px">
 <button class="btn btn-ghost btn-icon" onclick="dupCompra(${c._i})" title="Duplicar">📋</button>
 <button class="btn btn-ghost btn-icon" onclick="delCompra(${c._i})" title="Excluir">🗑️</button></div></td></tr>`).join('');
+document.getElementById('comprasCards').innerHTML=items.length===0?'<div style="padding:24px;color:var(--text2);text-align:center">Nenhuma compra encontrada</div>':items.map(c=>`<div class="mcard">
+<div class="mi"><div class="mt">${c.material}${c._new?' <span class="new-badge">NOVO</span>':''}</div>
+<div class="ms">${dataBR(c.data)}${c.quantidade?' · '+c.quantidade:''}<br>${c.fornecedor||'Sem fornecedor'} · ${FORMAS[c.forma]||c.forma}${c.forma==='cartao'&&c.parcelas>1?' '+c.parcelas+'x':''} · <span class="badge cat">${c.categoria}</span></div></div>
+<div class="mr"><div class="mv">${brl(c.valor)}</div>
+<div class="ma"><span class="badge ${c.status}">${c.status}</span>
+<button class="btn btn-ghost btn-icon" onclick="delCompra(${c._i})">🗑️</button></div></div></div>`).join('');
 }
 
 function dupCompra(i){const c={...S.compras[i],id:uid(),data:new Date().toISOString().slice(0,10),_new:true};S.compras.unshift(c);save();renderCompras();toast('📋 Compra duplicada!')}
@@ -477,6 +497,7 @@ mk('chartMo',{type:'bar',data:{labels:lbl,datasets:[{data:porMes.map(m=>m.total)
 mk('chartMoAcum',{type:'line',data:{labels:lbl,datasets:[{data:acum,borderColor:'var(--chart2)',backgroundColor:'rgba(16,185,129,.1)',fill:true,tension:.4,pointBackgroundColor:'var(--chart2)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
 
 document.getElementById('moBody').innerHTML=S.maoDeObra.slice().reverse().map((c,ri)=>{const i=S.maoDeObra.length-1-ri;return`<tr><td>${dataBR(c.data)}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td><td>${c.descricao||'—'}</td><td><span class="badge ${c.status}">${c.status}</span></td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('maoDeObra',${i})">🗑️</button></td></tr>`}).join('');
+document.getElementById('moCards').innerHTML=S.maoDeObra.slice().reverse().map((c,ri)=>{const i=S.maoDeObra.length-1-ri;return`<div class="mcard"><div class="mi"><div class="mt">${c.descricao||'Pagamento'}</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv">${brl(c.valor)}</div><div class="ma"><span class="badge ${c.status}">${c.status}</span><button class="btn btn-ghost btn-icon" onclick="delEntry('maoDeObra',${i})">🗑️</button></div></div></div>`}).join('');
 }
 
 // RENDER DOCS
@@ -489,6 +510,7 @@ mk('chartDoc',{type:'bar',data:{labels:lbl,datasets:[{data:porMes.map(m=>m.total
 const top=S.documentos.filter(c=>c.valor).sort((a,b)=>b.valor-a.valor).slice(0,8);
 mk('chartDocPie',{type:'pie',data:{labels:top.map(c=>(c.servico||'').substring(0,20)),datasets:[{data:top.map(c=>c.valor),backgroundColor:['var(--chart1)','var(--chart2)','var(--chart3)','var(--chart4)','var(--chart5)','#ec4899','#14b8a6','#f97316'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}}});
 document.getElementById('docBody').innerHTML=S.documentos.map((c,i)=>`<tr><td><b>${c.servico}</b></td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td><td>${dataBR(c.data)}</td><td>${c.forma||'—'}</td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></td></tr>`).join('');
+document.getElementById('docCards').innerHTML=S.documentos.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">${c.servico}</div><div class="ms">${dataBR(c.data)}${c.forma?' · '+c.forma:''}</div></div><div class="mr"><div class="mv">${brl(c.valor)}</div><div class="ma"><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></div></div></div>`).join('');
 }
 
 // RENDER FIN
@@ -507,7 +529,9 @@ const uc={};contas.forEach(c=>{uc[c.item]=(uc[c.item]||0)+(c.valor||0)});
 mk('chartContas',{type:'bar',data:{labels:Object.keys(uc),datasets:[{data:Object.values(uc),backgroundColor:['var(--chart3)','var(--chart4)','var(--chart2)','var(--chart1)'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brl(v)}}}}});
 
 document.getElementById('finBody').innerHTML=juros.map((c,i)=>`<tr><td>${dataBR(c.data)}</td><td style="font-weight:600;color:var(--red)">${brl(c.valor||0)}</td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('juros',${i})">🗑️</button></td></tr>`).join('');
+document.getElementById('finCards').innerHTML=juros.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">Parcela</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv" style="color:var(--red)">${brl(c.valor||0)}</div><div class="ma"><button class="btn btn-ghost btn-icon" onclick="delEntry('juros',${i})">🗑️</button></div></div></div>`).join('');
 document.getElementById('contasBody').innerHTML=contas.map((c,i)=>`<tr><td>${c.item}</td><td>${c.mes||'—'}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td><span class="badge ${c.status||'pago'}">${c.status||'pago'}</span></td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('contas',${i})">🗑️</button></td></tr>`).join('');
+document.getElementById('contasCards').innerHTML=contas.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">${c.item}</div><div class="ms">${c.mes||'—'}</div></div><div class="mr"><div class="mv">${brl(c.valor||0)}</div><div class="ma"><span class="badge ${c.status||'pago'}">${c.status||'pago'}</span><button class="btn btn-ghost btn-icon" onclick="delEntry('contas',${i})">🗑️</button></div></div></div>`).join('');
 }
 
 // RENDER SPLIT
@@ -521,6 +545,7 @@ document.getElementById('splitBox').innerHTML=`<h3>🤝 Resumo do Rateio</h3>
 <div class="split-item"><span>🔄 Retorno Matheus</span><strong style="color:var(--green)">${brl(rd['RETORNO']||579.66)}</strong></div>`;
 mk('chartSplit',{type:'doughnut',data:{labels:['Terreno (Caio)','Metade Escritura','Adiantamento'],datasets:[{data:[17500,1579.66/2,2000],backgroundColor:['var(--chart1)','var(--chart4)','var(--chart2)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},cutout:'60%'}});
 document.getElementById('splitBody').innerHTML=(S.rateio||[]).map(c=>`<tr><td>${c.item||'—'}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td>${dataBR(c.data)}</td></tr>`).join('');
+document.getElementById('splitCards').innerHTML=(S.rateio||[]).map(c=>`<div class="mcard"><div class="mi"><div class="mt">${c.item||'—'}</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv">${brl(c.valor||0)}</div></div></div>`).join('');
 }
 
 // MODAL
