@@ -171,7 +171,7 @@ th,td{padding:10px 12px;font-size:12px}
 </head>
 <body>
 <div class="sidebar">
-<div class="brand"><span class="icon">🏠</span><h2>Obra Fácil</h2><button class="hamburger" onclick="document.querySelector('.nav-menu').classList.toggle('open')">☰</button></div>
+<div class="brand"><span class="icon">🏠</span><h2>Obra Fácil</h2></div>
 <div class="nav-menu">
 <div class="section">Menu</div>
 <button class="nav-btn active" onclick="show('dashboard',this);closeMenu()"><span class="ico">📊</span>Painel</button>
@@ -182,6 +182,8 @@ th,td{padding:10px 12px;font-size:12px}
 <div class="section">Financeiro</div>
 <button class="nav-btn" onclick="show('financiamento',this);closeMenu()"><span class="ico">🏦</span>Financiamento</button>
 <button class="nav-btn" onclick="show('divisao',this);closeMenu()"><span class="ico">🤝</span>Rateio Matheus</button>
+<div class="section">Dados</div>
+<button class="nav-btn" onclick="resetAll();closeMenu()"><span class="ico">♻️</span>Restaurar original</button>
 </div>
 </div>
 
@@ -189,11 +191,6 @@ th,td{padding:10px 12px;font-size:12px}
 <div class="topbar">
 <button class="dots-menu" onclick="toggleNav()" title="Menu">⋮</button>
 <h1 id="pageTitle">Painel</h1>
-<div class="actions">
-<button class="btn btn-secondary" onclick="exportCSV()">📥 CSV</button>
-<button class="btn btn-secondary" onclick="sbPullAll()" title="Baixar do Supabase">☁️ Sync</button>
-<button class="btn btn-secondary" onclick="sbSeedAll()" title="Enviar dados da planilha ao Supabase">⬆️ Enviar</button>
-<button class="btn btn-ghost" onclick="resetAll()" title="Restaurar dados originais">🔄</button>
 </div>
 </div>
 
@@ -330,7 +327,7 @@ try{const{data,error}=await SB.from(table).update(payload).eq('id',id);if(error)
 async function sbDelete(table,id){
 if(!SB)return null;
 try{const{error}=await SB.from(table).delete().eq('id',id);if(error)throw error;return true}catch(e){console.warn('Supabase delete error:',e.message);return null}}
-async function sbPullAll(){
+async function sbPullAll(silent){
 if(!SB)return;
 try{
 const[rc,rm,rd,rp,rj,rc2]=await Promise.all([
@@ -342,12 +339,12 @@ if(rd.data&&rd.data.length)S.documentos=rd.data.map(r=>({id:r.id,servico:r.servi
 if(rp.data)S.parcelasPagas=rp.data.map(r=>r.parcela_id);
 if(rj.data&&rj.data.length)S.juros=rj.data.map(r=>({id:r.id,data:r.data,valor:Number(r.valor)}));
 if(rc2.data&&rc2.data.length)S.contas=rc2.data.map(r=>({id:r.id,item:r.item,mes:r.mes,valor:Number(r.valor),status:r.status}));
-save();toast('☁️ Dados sincronizados!');show('dashboard');
-}catch(e){console.warn('Supabase pull error:',e.message);toast('Erro ao sincronizar: '+e.message,true)}}
-async function sbSeedAll(){
-if(!SB)return toast('Supabase não configurado!',true);
-if(!confirm('Enviar todos os dados da planilha para o Supabase?'))return;
-toast('☁️ Enviando dados...');
+save();if(!silent)toast('☁️ Dados sincronizados!');show('dashboard');
+}catch(e){console.warn('Supabase pull error:',e.message);if(!silent)toast('Erro ao sincronizar: '+e.message,true)}}
+async function sbSeedAll(silent){
+if(!SB)return silent?0:toast('Supabase não configurado!',true);
+if(!silent&&!confirm('Enviar todos os dados da planilha para o Supabase?'))return;
+if(!silent)toast('☁️ Enviando dados...');
 try{
 const up=(t,rows)=>SB.from(t).upsert(rows,{onConflict:'id'});
 await Promise.all([
@@ -356,8 +353,16 @@ up('mao_de_obra',S.maoDeObra.map(c=>({id:c.id,data:c.data,valor:c.valor,descrica
 up('documentos',S.documentos.map(c=>({id:c.id,servico:c.servico,valor:c.valor,data:c.data,forma:c.forma,obs:c.obs}))),
 up('juros',S.juros.map(c=>({id:c.id||uid(),data:c.data,valor:c.valor}))),
 up('contas',S.contas.map(c=>({id:c.id||uid(),item:c.item,mes:c.mes,valor:c.valor,status:c.status})))]);
-toast('✅ Dados enviados ao Supabase!');
-}catch(e){toast('Erro: '+e.message,true)}}
+if(!silent)toast('✅ Dados enviados ao Supabase!');
+return 1;
+}catch(e){if(!silent)toast('Erro: '+e.message,true);return 0}}
+async function sbAutoSeed(){
+if(!SB)return;
+try{
+const r=await SB.from('compras').select('id',{count:'exact',head:true});
+if(r.count===0){console.log('Supabase vazio — enviando dados iniciais...');await sbSeedAll(true)}
+else{await sbPullAll(true)}
+}catch(e){console.warn('autoSeed:',e.message)}}
 // ============================================
 let S=JSON.parse(JSON.stringify(SEED));
 let SAVED=JSON.parse(localStorage.getItem('obra-facil-v2')||'null')||{};
@@ -610,7 +615,7 @@ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});const a=docu
 
 // INIT
 show('dashboard');
-if(SB)setTimeout(()=>sbPullAll(),500);
+if(SB){setTimeout(()=>sbAutoSeed(),800)}
 </script>
 </body>
 </html>
