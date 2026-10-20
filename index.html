@@ -18,7 +18,7 @@
 --radius:12px;
 }
 html{font-family:'Inter',system-ui,sans-serif}
-body{background:var(--bg);color:var(--text);min-height:100vh}
+body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 .sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 12px;gap:4px;z-index:100}
 .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 8px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
 .sidebar .brand .icon{font-size:32px}
@@ -32,7 +32,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh}
 .nav-btn:hover{background:var(--card3);color:var(--text)}
 .nav-btn.active{background:var(--accent);color:#fff;box-shadow:var(--glow)}
 .nav-btn .ico{font-size:18px;width:24px;text-align:center}
-.main{margin-left:240px;padding:0 0 40px}
+.main{margin-left:240px;padding:0 0 40px;min-width:0;max-width:calc(100vw - 240px)}
 .topbar{display:flex;justify-content:space-between;align-items:center;padding:20px 32px;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:50;backdrop-filter:blur(12px)}
 .topbar h1{font-size:20px;font-weight:700}
 .topbar .actions{display:flex;gap:10px;align-items:center}
@@ -51,6 +51,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh}
 .hero .sub{font-size:14px;color:var(--text2);margin-top:8px}
 /* STATS */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stats>*{min-width:0}
 .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:all .3s}
 .stat:hover{border-color:var(--accent);box-shadow:var(--glow)}
 .stat .label{font-size:12px;color:var(--text2);margin-bottom:6px}
@@ -58,14 +59,16 @@ body{background:var(--bg);color:var(--text);min-height:100vh}
 .stat .hint{font-size:11px;color:var(--text2);margin-top:4px}
 .stat.danger .value{color:var(--red)}.stat.primary .value{color:var(--accent2)}
 /* CHARTS */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
-.grid3{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;min-width:0}
+.grid2>*{min-width:0}
+.grid3{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px;min-width:0}
+.grid3>*{min-width:0}
 @media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
-.chart-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;height:350px;display:flex;flex-direction:column}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;height:350px;display:flex;flex-direction:column;min-width:0;overflow:hidden}
 .chart-box h3{font-size:14px;font-weight:600;margin-bottom:16px;color:var(--accent2)}
-.chart-box canvas{flex:1;min-height:0}
+.chart-box canvas{flex:1;min-height:0;max-width:100%}
 /* TABLE */
-.table-box{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px}
+.table-box{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px;min-width:0;max-width:100%}
 .table-box .header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px}
 .table-box .header h3{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
 .table-box .header .count{background:var(--accent);color:#fff;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
@@ -76,6 +79,9 @@ th:hover{color:var(--accent2)}
 td{padding:14px 20px;border-bottom:1px solid rgba(39,39,42,.5);font-size:14px;vertical-align:middle}
 tr:hover{background:rgba(139,92,246,.03)}
 .table-wrap{max-height:550px;overflow-y:auto}
+.parcela-list{max-height:550px;overflow-y:auto;padding:8px 20px}
+.parcela-list::-webkit-scrollbar{width:5px}
+.parcela-list::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
 .mobile-list{display:none}
 .table-wrap::-webkit-scrollbar{width:5px}
 .table-wrap::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
@@ -189,7 +195,7 @@ th,td{padding:10px 12px;font-size:12px}
 
 <div class="main">
 <div class="topbar">
-<button class="dots-menu" onclick="toggleNav()" title="Menu">⋮</button>
+<button class="dots-menu" onclick="toggleNav()" title="Menu">☰</button>
 <h1 id="pageTitle">Painel</h1>
 </div>
 </div>
@@ -232,7 +238,7 @@ th,td{padding:10px 12px;font-size:12px}
 <div class="stats" id="parcelasStats"></div>
 <div class="grid3">
 <div class="table-box"><div class="header"><h3>💳 Parcelas a vencer</h3><span class="count" id="parcCount"></span></div>
-<div class="table-wrap" id="parcelasList"></div></div>
+<div class="parcela-list" id="parcelasList"></div></div>
 <div class="chart-box"><h3>📅 Por fatura (mês)</h3><canvas id="chartParc"></canvas></div>
 </div>
 </div>
