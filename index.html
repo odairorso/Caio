@@ -377,6 +377,10 @@ if(SAVED.maoDeObra)S.maoDeObra=SAVED.maoDeObra;
 if(SAVED.documentos)S.documentos=SAVED.documentos;
 if(SAVED.parcelasPagas)S.parcelasPagas=SAVED.parcelasPagas;
 
+// Limpeza automática: remove linhas de resumo antigas (TOTAL, SALDO) salvas no navegador
+const _badRow=r=>!!(r&&r.data&&typeof r.data==='string'&&r.data.trim()!==''&&!/^\d{4}-\d{2}-\d{2}$/.test(r.data.trim()));
+['compras','maoDeObra','documentos'].forEach(k=>{S[k]=(S[k]||[]).filter(r=>!_badRow(r))});
+
 const CATEGORIAS=["Fundação","Estrutura","Alvenaria","Laje","Cobertura","Madeira/Formas","Elétrica","Hidráulica","Acabamento","Pintura","Serviços","Outros"];
 const FORMAS={cartao:"Cartão",pix:"PIX",dinheiro:"Dinheiro",boleto:"Boleto",outro:"Outro"};
 const uid=()=>Math.random().toString(36).slice(2,10);
@@ -459,6 +463,7 @@ document.getElementById('comprasBody').innerHTML=items.map(c=>`<tr>
 <td><span class="badge cat">${c.categoria}</span></td>
 <td><span class="badge ${c.status}">${c.status}</span></td>
 <td><div style="display:flex;gap:4px">
+<button class="btn btn-ghost btn-icon" onclick="editEntry('compra',${c._i})" title="Editar">✏️</button>
 <button class="btn btn-ghost btn-icon" onclick="dupCompra(${c._i})" title="Duplicar">📋</button>
 <button class="btn btn-ghost btn-icon" onclick="delCompra(${c._i})" title="Excluir">🗑️</button></div></td></tr>`).join('');
 document.getElementById('comprasCards').innerHTML=items.length===0?'<div style="padding:24px;color:var(--text2);text-align:center">Nenhuma compra encontrada</div>':items.map(c=>`<div class="mcard">
@@ -466,6 +471,7 @@ document.getElementById('comprasCards').innerHTML=items.length===0?'<div style="
 <div class="ms">${dataBR(c.data)}${c.quantidade?' · '+c.quantidade:''}<br>${c.fornecedor||'Sem fornecedor'} · ${FORMAS[c.forma]||c.forma}${c.forma==='cartao'&&c.parcelas>1?' '+c.parcelas+'x':''} · <span class="badge cat">${c.categoria}</span></div></div>
 <div class="mr"><div class="mv">${brl(c.valor)}</div>
 <div class="ma"><span class="badge ${c.status}">${c.status}</span>
+<button class="btn btn-ghost btn-icon" onclick="editEntry('compra',${c._i})">✏️</button>
 <button class="btn btn-ghost btn-icon" onclick="delCompra(${c._i})">🗑️</button></div></div></div>`).join('');
 }
 
@@ -509,8 +515,8 @@ let cum=0;const acum=porMes.map(m=>{cum+=m.total;return cum});
 mk('chartMo',{type:'bar',data:{labels:lbl,datasets:[{data:porMes.map(m=>m.total),backgroundColor:barGrad('#ef4444'),borderRadius:[6,6,0,0]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
 mk('chartMoAcum',{type:'line',data:{labels:lbl,datasets:[{data:acum,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.1)',fill:true,tension:.4,pointBackgroundColor:'#10b981'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
 
-document.getElementById('moBody').innerHTML=S.maoDeObra.slice().reverse().map((c,ri)=>{const i=S.maoDeObra.length-1-ri;return`<tr><td>${dataBR(c.data)}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td><td>${c.descricao||'—'}</td><td><span class="badge ${c.status}">${c.status}</span></td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('maoDeObra',${i})">🗑️</button></td></tr>`}).join('');
-document.getElementById('moCards').innerHTML=S.maoDeObra.slice().reverse().map((c,ri)=>{const i=S.maoDeObra.length-1-ri;return`<div class="mcard"><div class="mi"><div class="mt">${c.descricao||'Pagamento'}</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv">${brl(c.valor)}</div><div class="ma"><span class="badge ${c.status}">${c.status}</span><button class="btn btn-ghost btn-icon" onclick="delEntry('maoDeObra',${i})">🗑️</button></div></div></div>`}).join('');
+document.getElementById('moBody').innerHTML=S.maoDeObra.slice().reverse().map((c,ri)=>{const i=S.maoDeObra.length-1-ri;return`<tr><td>${dataBR(c.data)}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td><td>${c.descricao||'—'}</td><td><span class="badge ${c.status}">${c.status}</span></td><td><button class="btn btn-ghost btn-icon" onclick="editEntry('maoobra',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('maoDeObra',${i})">🗑️</button></td></tr>`}).join('');
+document.getElementById('moCards').innerHTML=S.maoDeObra.slice().reverse().map((c,ri)=>{const i=S.maoDeObra.length-1-ri;return`<div class="mcard"><div class="mi"><div class="mt">${c.descricao||'Pagamento'}</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv">${brl(c.valor)}</div><div class="ma"><span class="badge ${c.status}">${c.status}</span><button class="btn btn-ghost btn-icon" onclick="editEntry('maoobra',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('maoDeObra',${i})">🗑️</button></div></div></div>`}).join('');
 }
 
 // RENDER DOCS
@@ -522,8 +528,8 @@ const lbl=porMes.map(m=>{const[y,mo]=m.nome.split('-');return['Jan','Fev','Mar',
 mk('chartDoc',{type:'bar',data:{labels:lbl,datasets:[{data:porMes.map(m=>m.total),backgroundColor:barGrad('#6366f1'),borderRadius:[6,6,0,0]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
 const top=S.documentos.filter(c=>c.valor).sort((a,b)=>b.valor-a.valor).slice(0,8);
 mk('chartDocPie',{type:'pie',data:{labels:top.map(c=>(c.servico||'').substring(0,20)),datasets:[{data:top.map(c=>c.valor),backgroundColor:['#8b5cf6','#10b981','#3b82f6','#f59e0b','#ef4444','#ec4899','#14b8a6','#f97316'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}}});
-document.getElementById('docBody').innerHTML=S.documentos.map((c,i)=>`<tr><td><b>${c.servico}</b></td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td><td>${dataBR(c.data)}</td><td>${c.forma||'—'}</td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></td></tr>`).join('');
-document.getElementById('docCards').innerHTML=S.documentos.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">${c.servico}</div><div class="ms">${dataBR(c.data)}${c.forma?' · '+c.forma:''}</div></div><div class="mr"><div class="mv">${brl(c.valor)}</div><div class="ma"><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></div></div></div>`).join('');
+document.getElementById('docBody').innerHTML=S.documentos.map((c,i)=>`<tr><td><b>${c.servico}</b></td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td><td>${dataBR(c.data)}</td><td>${c.forma||'—'}</td><td><button class="btn btn-ghost btn-icon" onclick="editEntry('doc',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></td></tr>`).join('');
+document.getElementById('docCards').innerHTML=S.documentos.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">${c.servico}</div><div class="ms">${dataBR(c.data)}${c.forma?' · '+c.forma:''}</div></div><div class="mr"><div class="mv">${brl(c.valor)}</div><div class="ma"><button class="btn btn-ghost btn-icon" onclick="editEntry('doc',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></div></div></div>`).join('');
 }
 
 // RENDER FIN
@@ -562,9 +568,13 @@ document.getElementById('splitCards').innerHTML=(S.rateio||[]).map(c=>`<div clas
 }
 
 // MODAL
-let modalType=null;
-function openModal(type){modalType=type;const m=document.getElementById('modal');const t=document.getElementById('modalTitle');const b=document.getElementById('modalBody');
-if(type==='compra'){t.innerHTML='🧱 Nova compra';b.innerHTML=`
+let modalType=null,editIdx=null;
+const MAP={compra:'compras',maoobra:'maoDeObra',doc:'documentos'};
+function openModal(type,ref){
+modalType=type;editIdx=(ref===undefined||ref===null)?null:Number(ref);
+const ed=editIdx!==null;
+const m=document.getElementById('modal');const t=document.getElementById('modalTitle');const b=document.getElementById('modalBody');
+if(type==='compra'){t.innerHTML=ed?'✏️ Editar compra':'🧱 Nova compra';b.innerHTML=`
 <div class="form-group"><label>Material</label><input id="f_material" placeholder="Ex: Cimento CP-II"></div>
 <div class="form-row"><div class="form-group"><label>Quantidade</label><input id="f_quantidade" placeholder="Ex: 10 sacos"></div>
 <div class="form-group"><label>Valor (R$)</label><input id="f_valor" type="number" step="0.01"></div></div>
@@ -574,23 +584,48 @@ if(type==='compra'){t.innerHTML='🧱 Nova compra';b.innerHTML=`
 <div class="form-group"><label>Data</label><input id="f_data" type="date" value="${new Date().toISOString().slice(0,10)}"></div></div>
 <div class="form-row"><div class="form-group"><label>Etapa</label><select id="f_categoria">${CATEGORIAS.map(c=>`<option>${c}</option>`).join('')}</select></div>
 <div class="form-group"><label>Status</label><select id="f_status"><option value="pago">Pago</option><option value="pendente">Pendente</option></select></div></div>`}
-else if(type==='maoobra'){t.innerHTML='👷 Novo pagamento';b.innerHTML=`
+else if(type==='maoobra'){t.innerHTML=ed?'✏️ Editar pagamento':'👷 Novo pagamento';b.innerHTML=`
 <div class="form-row"><div class="form-group"><label>Data</label><input id="f_data" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
 <div class="form-group"><label>Valor (R$)</label><input id="f_valor" type="number" step="0.01"></div></div>
 <div class="form-group"><label>Descrição</label><input id="f_descricao" placeholder="Ex: ROGERIO, PINTURA..."></div>
 <div class="form-group"><label>Status</label><select id="f_status"><option value="pago">Pago</option><option value="pendente">Pendente</option></select></div>`}
-else if(type==='doc'){t.innerHTML='📋 Novo serviço';b.innerHTML=`
+else if(type==='doc'){t.innerHTML=ed?'✏️ Editar serviço':'📋 Novo serviço';b.innerHTML=`
 <div class="form-group"><label>Serviço</label><input id="f_servico" placeholder="Ex: ITBI, Alvará..."></div>
 <div class="form-row"><div class="form-group"><label>Valor (R$)</label><input id="f_valor" type="number" step="0.01"></div>
 <div class="form-group"><label>Data</label><input id="f_data" type="date" value="${new Date().toISOString().slice(0,10)}"></div></div>
 <div class="form-group"><label>Forma de pagamento</label><input id="f_forma" placeholder="Ex: PIX CAIO, BB..."></div>`}
-m.classList.add('open')}
-function closeModal(){document.getElementById('modal').classList.remove('open');modalType=null}
+m.classList.add('open');
+if(ed)prefillForm(type,editIdx);
+}
+function prefillForm(type,idx){
+const it=S[MAP[type]][idx];if(!it)return;
+const set=(k,val)=>{const e=document.getElementById('f_'+k);if(e)e.value=(val===null||val===undefined)?'':val};
+if(type==='compra'){set('material',it.material);set('quantidade',it.quantidade);set('valor',it.valor);set('forma',it.forma);set('parcelas',it.parcelas||1);set('fornecedor',it.fornecedor);set('data',it.data);set('categoria',it.categoria);set('status',it.status)}
+else if(type==='maoobra'){set('data',it.data);set('valor',it.valor);set('descricao',it.descricao);set('status',it.status)}
+else if(type==='doc'){set('servico',it.servico);set('valor',it.valor);set('data',it.data);set('forma',it.forma)}
+}
+function editEntry(type,idx){openModal(type,idx)}
+function closeModal(){document.getElementById('modal').classList.remove('open');modalType=null;editIdx=null}
+function refreshPage(){let cur=((document.querySelector('.page.active')||{}).id||'').replace('page-','');
+if(cur==='compras')renderCompras();else if(cur==='maoobra')renderMO();else if(cur==='documentos')renderDocs();else if(cur==='financiamento')renderFin();else if(cur==='dashboard')renderDash();else if(cur==='parcelas')renderParcelas();else if(cur==='divisao')renderSplit()}
 
 function saveEntry(){
 const g=id=>{const e=document.getElementById('f_'+id);return e?e.value.trim():''};
 const v=id=>{const e=document.getElementById('f_'+id);return e?Number(e.value)||0:0};
 try{
+if(editIdx!==null){
+const arr=MAP[modalType];const it=S[arr][editIdx];if(!it){closeModal();return}
+if(modalType==='compra'){const mat=g('material');if(!mat)return toast('Informe o material!',true);
+Object.assign(it,{quantidade:g('quantidade'),material:mat,valor:v('valor'),forma:g('forma'),parcelas:v('parcelas')||1,fornecedor:g('fornecedor'),data:g('data'),status:g('status'),categoria:g('categoria')});
+sbUpdate('compras',it.id,{quantidade:it.quantidade,material:it.material,valor:it.valor,forma:it.forma,parcelas:it.parcelas,fornecedor:it.fornecedor,data:it.data,pagador:it.pagador,status:it.status,categoria:it.categoria})}
+else if(modalType==='maoobra'){const val=v('valor');if(!val)return toast('Informe o valor!',true);
+Object.assign(it,{data:g('data'),valor:val,descricao:g('descricao'),status:g('status')});
+sbUpdate('mao_de_obra',it.id,{data:it.data,valor:it.valor,descricao:it.descricao,status:it.status})}
+else if(modalType==='doc'){const srv=g('servico');if(!srv)return toast('Informe o serviço!',true);
+Object.assign(it,{servico:srv,valor:v('valor'),data:g('data'),forma:g('forma')});
+sbUpdate('documentos',it.id,{servico:it.servico,valor:it.valor,data:it.data,forma:it.forma,obs:it.obs})}
+save();closeModal();refreshPage();toast('✅ Alterações salvas!');return;
+}
 if(modalType==='compra'){const mat=g('material');if(!mat)return toast('Informe o material!',true);
 const item={id:uid(),quantidade:g('quantidade'),material:mat,valor:v('valor'),forma:g('forma'),parcelas:v('parcelas')||1,fornecedor:g('fornecedor'),data:g('data'),pagador:'CAIO',status:g('status'),categoria:g('categoria'),_new:true};
 S.compras.unshift(item);sbPush('compras',{id:item.id,quantidade:item.quantidade,material:item.material,valor:item.valor,forma:item.forma,parcelas:item.parcelas,fornecedor:item.fornecedor,data:item.data,pagador:item.pagador,status:item.status,categoria:item.categoria});toast('✅ Compra salva!')}
@@ -600,8 +635,7 @@ S.maoDeObra.unshift(item);sbPush('mao_de_obra',{id:item.id,data:item.data,valor:
 else if(modalType==='doc'){const srv=g('servico');if(!srv)return toast('Informe o serviço!',true);
 const item={id:uid(),servico:srv,valor:v('valor'),data:g('data'),forma:g('forma'),obs:null,_new:true};
 S.documentos.unshift(item);sbPush('documentos',{id:item.id,servico:item.servico,valor:item.valor,data:item.data,forma:item.forma,obs:item.obs});toast('✅ Serviço salvo!')}
-save();closeModal();const pages={compra:'compras',maoobra:'maoobra',doc:'documentos'};
-const cur=document.querySelector('.page.active')?.id?.replace('page-','');if(cur==='compras')renderCompras();else if(cur==='maoobra')renderMO();else if(cur==='documentos')renderDocs();
+save();closeModal();refreshPage();
 }catch(e){toast('Erro: '+e.message,true)}
 }
 
