@@ -178,7 +178,8 @@ th,td{padding:10px 12px;font-size:12px}
 <h1 id="pageTitle">Painel</h1>
 <div class="actions">
 <button class="btn btn-secondary" onclick="exportCSV()">📥 CSV</button>
-<button class="btn btn-secondary" onclick="sbPullAll()" title="Sincronizar com Supabase">☁️ Sync</button>
+<button class="btn btn-secondary" onclick="sbPullAll()" title="Baixar do Supabase">☁️ Sync</button>
+<button class="btn btn-secondary" onclick="sbSeedAll()" title="Enviar dados da planilha ao Supabase">⬆️ Enviar</button>
 <button class="btn btn-ghost" onclick="resetAll()" title="Restaurar dados originais">🔄</button>
 </div>
 </div>
@@ -304,8 +305,8 @@ const SEED={"compras": [{"id": "c0", "quantidade": "100", "material": "CIMENTO",
 // ============================================
 // SUPABASE CONFIG — Cole sua URL e anon key aqui
 // ============================================
-const SUPABASE_URL='SUA_URL_SUPABASE'; // ex: https://xxxx.supabase.co
-const SUPABASE_KEY='SUA_ANON_KEY_SUPABASE';
+const SUPABASE_URL='https://nvzqjvlztzhmbttbwletv.supabase.co';
+const SUPABASE_KEY='sb_publishable_mLCxvus4BzQcvwc1lH2alQ_Ci9gI6Hw';
 const SB=typeof supabase!=='undefined'&&SUPABASE_URL!=='SUA_URL_SUPABASE'?supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
 async function sbPush(table,payload){
 if(!SB)return null;
@@ -322,14 +323,28 @@ try{
 const[rc,rm,rd,rp,rj,rc2]=await Promise.all([
 SB.from('compras').select('*'),SB.from('mao_de_obra').select('*'),SB.from('documentos').select('*'),
 SB.from('parcelas_pagas').select('*'),SB.from('juros').select('*'),SB.from('contas').select('*')]);
-if(rc.data)S.compras=rc.data.map(r=>({id:r.id,quantidade:r.quantidade,material:r.material,valor:Number(r.valor),forma:r.forma,parcelas:r.parcelas,fornecedor:r.fornecedor,data:r.data,pagador:r.pagador,status:r.status,categoria:r.categoria}));
-if(rm.data)S.maoDeObra=rm.data.map(r=>({id:r.id,data:r.data,valor:Number(r.valor),descricao:r.descricao,status:r.status}));
-if(rd.data)S.documentos=rd.data.map(r=>({id:r.id,servico:r.servico,valor:Number(r.valor),data:r.data,forma:r.forma,obs:r.obs}));
+if(rc.data&&rc.data.length)S.compras=rc.data.map(r=>({id:r.id,quantidade:r.quantidade,material:r.material,valor:Number(r.valor),forma:r.forma,parcelas:r.parcelas,fornecedor:r.fornecedor,data:r.data,pagador:r.pagador,status:r.status,categoria:r.categoria}));
+if(rm.data&&rm.data.length)S.maoDeObra=rm.data.map(r=>({id:r.id,data:r.data,valor:Number(r.valor),descricao:r.descricao,status:r.status}));
+if(rd.data&&rd.data.length)S.documentos=rd.data.map(r=>({id:r.id,servico:r.servico,valor:Number(r.valor),data:r.data,forma:r.forma,obs:r.obs}));
 if(rp.data)S.parcelasPagas=rp.data.map(r=>r.parcela_id);
-if(rj.data)S.juros=rj.data.map(r=>({id:r.id,data:r.data,valor:Number(r.valor)}));
-if(rc2.data)S.contas=rc2.data.map(r=>({id:r.id,item:r.item,mes:r.mes,valor:Number(r.valor),status:r.status}));
+if(rj.data&&rj.data.length)S.juros=rj.data.map(r=>({id:r.id,data:r.data,valor:Number(r.valor)}));
+if(rc2.data&&rc2.data.length)S.contas=rc2.data.map(r=>({id:r.id,item:r.item,mes:r.mes,valor:Number(r.valor),status:r.status}));
 save();toast('☁️ Dados sincronizados!');show('dashboard');
 }catch(e){console.warn('Supabase pull error:',e.message);toast('Erro ao sincronizar: '+e.message,true)}}
+async function sbSeedAll(){
+if(!SB)return toast('Supabase não configurado!',true);
+if(!confirm('Enviar todos os dados da planilha para o Supabase?'))return;
+toast('☁️ Enviando dados...');
+try{
+const up=(t,rows)=>SB.from(t).upsert(rows,{onConflict:'id'});
+await Promise.all([
+up('compras',S.compras.map(c=>({id:c.id,quantidade:c.quantidade,material:c.material,valor:c.valor,forma:c.forma,parcelas:c.parcelas,fornecedor:c.fornecedor,data:c.data,pagador:c.pagador,status:c.status,categoria:c.categoria}))),
+up('mao_de_obra',S.maoDeObra.map(c=>({id:c.id,data:c.data,valor:c.valor,descricao:c.descricao,status:c.status}))),
+up('documentos',S.documentos.map(c=>({id:c.id,servico:c.servico,valor:c.valor,data:c.data,forma:c.forma,obs:c.obs}))),
+up('juros',S.juros.map(c=>({id:c.id||uid(),data:c.data,valor:c.valor}))),
+up('contas',S.contas.map(c=>({id:c.id||uid(),item:c.item,mes:c.mes,valor:c.valor,status:c.status})))]);
+toast('✅ Dados enviados ao Supabase!');
+}catch(e){toast('Erro: '+e.message,true)}}
 // ============================================
 let S=JSON.parse(JSON.stringify(SEED));
 let SAVED=JSON.parse(localStorage.getItem('obra-facil-v2')||'null')||{};

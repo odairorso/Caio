@@ -12,6 +12,18 @@ src/
 public/
 *.tsx
 *.ts
+package.json
+package-lock.json
+bun.lock
+bunfig.toml
+components.json
+eslint.config.js
+tsconfig.json
+vite.config.ts
+vitest.config.ts
+.prettierrc
+.prettierignore
+AGENTS.md
 
 # IDE
 .vscode/
