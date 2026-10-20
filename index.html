@@ -18,7 +18,8 @@
 --radius:12px;
 }
 html{font-family:'Inter',system-ui,sans-serif}
-body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+html,body{overflow-x:hidden;overflow-x:clip;max-width:100%}
+body{background:var(--bg);color:var(--text);min-height:100vh}
 .sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 12px;gap:4px;z-index:100}
 .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 8px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
 .sidebar .brand .icon{font-size:32px}
@@ -32,7 +33,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 .nav-btn:hover{background:var(--card3);color:var(--text)}
 .nav-btn.active{background:var(--accent);color:#fff;box-shadow:var(--glow)}
 .nav-btn .ico{font-size:18px;width:24px;text-align:center}
-.main{margin-left:240px;padding:0 0 40px;min-width:0;max-width:calc(100vw - 240px)}
+.main{margin-left:240px;padding:0 0 40px;min-width:0;width:calc(100% - 240px)}
 .topbar{display:flex;justify-content:space-between;align-items:center;padding:20px 32px;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:50;backdrop-filter:blur(12px)}
 .topbar h1{font-size:20px;font-weight:700}
 .topbar .actions{display:flex;gap:10px;align-items:center}
@@ -42,7 +43,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 .btn-ghost{background:transparent;color:var(--text2)}.btn-ghost:hover{background:var(--card3);color:var(--text)}
 .btn-danger{background:rgba(239,68,68,.1);color:var(--red)}.btn-danger:hover{background:var(--red);color:#fff}
 .btn-icon{width:36px;height:36px;padding:0;justify-content:center;border-radius:8px}
-.content{padding:24px 32px}
+.content{padding:24px 32px;overflow-x:hidden}
 .page{display:none}.page.active{display:block}
 /* HERO */
 .hero{background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(16,185,129,.08));border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px}
@@ -622,6 +623,11 @@ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});const a=docu
 // INIT
 show('dashboard');
 if(SB){setTimeout(()=>sbAutoSeed(),800)}
+// Força a página a ficar encostada na esquerda (evita corte lateral)
+function resetX(){if(window.scrollX>0||document.documentElement.scrollLeft>0)window.scrollTo(0,window.scrollY||0)}
+window.addEventListener('load',()=>{history.scrollRestoration='manual';resetX()});
+setInterval(resetX,1500);
+window.addEventListener('scroll',()=>{if(window.scrollX>0)window.scrollTo(0,window.scrollY)});
 </script>
 </body>
 </html>
