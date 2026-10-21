@@ -458,7 +458,12 @@ const SUPABASE_KEY='sb_publishable_mLCxvus4BzQcvwc1lH2alQ_Ci9gI6Hw';
 const SB=typeof supabase!=='undefined'&&SUPABASE_URL!=='SUA_URL_SUPABASE'?supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
 async function sbPush(table,payload){
 if(!SB)return null;
-try{const{data,error}=await SB.from(table).insert(payload);if(error)throw error;return data}catch(e){console.warn('Supabase push error:',e.message);return null}}
+try{
+const rows=Array.isArray(payload)?payload:[payload];
+const todosTemId=rows.length>0&&rows.every(r=>r&&r.id);
+const q=todosTemId?SB.from(table).upsert(rows,{onConflict:'id'}):SB.from(table).insert(rows);
+const{data,error}=await q;if(error)throw error;return data}catch(e){console.warn('Supabase push error:',e.message);return null}}
+const cloudRow=o=>{const r={...o};delete r._new;delete r._i;return r};
 async function sbUpdate(table,id,payload){
 if(!SB)return null;
 try{const{data,error}=await SB.from(table).update(payload).eq('id',id);if(error)throw error;return data}catch(e){console.warn('Supabase update error:',e.message);return null}}
@@ -509,6 +514,8 @@ if(SAVED.compras)S.compras=SAVED.compras;
 if(SAVED.maoDeObra)S.maoDeObra=SAVED.maoDeObra;
 if(SAVED.documentos)S.documentos=SAVED.documentos;
 if(SAVED.parcelasPagas)S.parcelasPagas=SAVED.parcelasPagas;
+if(SAVED.juros)S.juros=SAVED.juros;
+if(SAVED.contas)S.contas=SAVED.contas;
 
 // Limpeza automática: remove linhas de resumo antigas (TOTAL, SALDO) salvas no navegador
 const _badRow=r=>!!(r&&r.data&&typeof r.data==='string'&&r.data.trim()!==''&&!/^\d{4}-\d{2}-\d{2}$/.test(r.data.trim()));
@@ -519,7 +526,8 @@ const FORMAS={cartao:"Cartão",pix:"PIX",dinheiro:"Dinheiro",boleto:"Boleto",out
 const uid=()=>(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16)});
 function closeMenu(){document.querySelector('.nav-menu')?.classList.remove('open')}
 function toggleNav(){const n=document.querySelector('.nav-menu');if(n)n.classList.toggle('open')}
-const save=()=>localStorage.setItem('obra-facil-v2',JSON.stringify({compras:S.compras,maoDeObra:S.maoDeObra,documentos:S.documentos,parcelasPagas:S.parcelasPagas}));
+const save=()=>localStorage.setItem('obra-facil-v2',JSON.stringify({compras:S.compras,maoDeObra:S.maoDeObra,documentos:S.documentos,parcelasPagas:S.parcelasPagas,juros:S.juros,contas:S.contas}));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const brl=v=>'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const brlS=v=>v>=1000?'R$ '+(v/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil':brl(v);
 const dataBR=d=>d?new Date(d+'T12:00:00').toLocaleDateString('pt-BR'):'—';
@@ -580,7 +588,7 @@ function sortC(col){_sortC.asc=_sortC.col===col?!_sortC.asc:true;_sortC.col=col;
 function renderCompras(){
 const q=(document.getElementById('cq').value||'').toLowerCase(),forn=document.getElementById('cforn').value,cat=document.getElementById('ccat').value,forma=document.getElementById('cforma').value;
 const fornOpts=[...new Set(S.compras.map(c=>c.fornecedor).filter(Boolean))].sort();
-document.getElementById('cforn').innerHTML='<option value="">Todos fornecedores</option>'+fornOpts.map(f=>`<option>${f}</option>`).join('');
+document.getElementById('cforn').innerHTML='<option value="">Todos fornecedores</option>'+fornOpts.map(f=>`<option>${esc(f)}</option>`).join('');
 document.getElementById('ccat').innerHTML='<option value="">Todas etapas</option>'+CATEGORIAS.map(c=>`<option>${c}</option>`).join('');
 document.getElementById('cforma').innerHTML='<option value="">Todas formas</option>'+Object.entries(FORMAS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
 
@@ -589,28 +597,28 @@ items.sort((a,b)=>{let va=a[_sortC.col],vb=b[_sortC.col];if(_sortC.col==='valor'
 const total=items.reduce((s,c)=>s+c.valor,0);
 document.getElementById('comprasBody').innerHTML=items.map(c=>`<tr>
 <td>${dataBR(c.data)}${c._new?'<span class="new-badge">NOVO</span>':''}</td>
-<td><b>${c.material}</b>${c.quantidade?' <span style="color:var(--text2)">· '+c.quantidade+'</span>':''}</td>
+<td><b>${esc(c.material)}</b>${c.quantidade?' <span style="color:var(--text2)">· '+esc(c.quantidade)+'</span>':''}</td>
 <td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td>
-<td>${c.fornecedor||'—'}</td>
-<td>${FORMAS[c.forma]||c.forma}${c.forma==='cartao'&&c.parcelas>1?' '+c.parcelas+'x':''}</td>
-<td><span class="badge cat">${c.categoria}</span></td>
-<td><span class="badge ${c.status}">${c.status}</span></td>
+<td>${esc(c.fornecedor||'—')}</td>
+<td>${esc(FORMAS[c.forma]||c.forma)}${c.forma==='cartao'&&c.parcelas>1?' '+c.parcelas+'x':''}</td>
+<td><span class="badge cat">${esc(c.categoria)}</span></td>
+<td><span class="badge ${esc(c.status)}">${esc(c.status)}</span></td>
 <td><div style="display:flex;gap:4px">
 <button class="btn btn-ghost btn-icon" onclick="editEntry('compra',${c._i})" title="Editar">✏️</button>
 <button class="btn btn-ghost btn-icon" onclick="dupCompra(${c._i})" title="Duplicar">📋</button>
 <button class="btn btn-ghost btn-icon" onclick="delCompra(${c._i})" title="Excluir">🗑️</button></div></td></tr>`).join('');
 document.getElementById('comprasCards').innerHTML=items.length===0?'<div style="padding:24px;color:var(--text2);text-align:center">Nenhuma compra encontrada</div>':items.map(c=>`<div class="mcard">
-<div class="mi"><div class="mt">${c.material}${c._new?' <span class="new-badge">NOVO</span>':''}</div>
-<div class="ms">${dataBR(c.data)}${c.quantidade?' · '+c.quantidade:''}<br>${c.fornecedor||'Sem fornecedor'} · ${FORMAS[c.forma]||c.forma}${c.forma==='cartao'&&c.parcelas>1?' '+c.parcelas+'x':''} · <span class="badge cat">${c.categoria}</span></div></div>
+<div class="mi"><div class="mt">${esc(c.material)}${c._new?' <span class="new-badge">NOVO</span>':''}</div>
+<div class="ms">${dataBR(c.data)}${c.quantidade?' · '+esc(c.quantidade):''}<br>${esc(c.fornecedor||'Sem fornecedor')} · ${esc(FORMAS[c.forma]||c.forma)}${c.forma==='cartao'&&c.parcelas>1?' '+c.parcelas+'x':''} · <span class="badge cat">${esc(c.categoria)}</span></div></div>
 <div class="mr"><div class="mv">${brl(c.valor)}</div>
-<div class="ma"><span class="badge ${c.status}">${c.status}</span>
+<div class="ma"><span class="badge ${esc(c.status)}">${esc(c.status)}</span>
 <button class="btn btn-ghost btn-icon" onclick="editEntry('compra',${c._i})">✏️</button>
 <button class="btn btn-ghost btn-icon" onclick="delCompra(${c._i})">🗑️</button></div></div></div>`).join('');
 }
 
-function dupCompra(i){const c={...S.compras[i],id:uid(),data:new Date().toISOString().slice(0,10),_new:true};S.compras.unshift(c);save();renderCompras();toast('📋 Compra duplicada!')}
+function dupCompra(i){const src=S.compras[i];if(!src)return;const c={...src,id:uid(),data:new Date().toISOString().slice(0,10),_new:true};S.compras.unshift(c);save();renderCompras();sbPush('compras',cloudRow(c));toast('📋 Compra duplicada!')}
 let _lastDeleted=null;
-function delCompra(i){const c=S.compras[i];_lastDeleted={arr:'compras',item:JSON.parse(JSON.stringify(c))};S.compras.splice(i,1);save();renderCompras();toast('🗑️ Excluído!',false,'undoLast')}
+function delCompra(i){const c=S.compras[i];if(!c)return;_lastDeleted={arr:'compras',idx:i,item:JSON.parse(JSON.stringify(c))};S.compras.splice(i,1);save();renderCompras();if(c.id)sbDelete('compras',c.id);toast('🗑️ Excluído!',false,'undoLast')}
 
 // RENDER PARCELAS
 function renderParcelas(){
@@ -630,15 +638,19 @@ document.getElementById('parcPorMes').innerHTML=porMes.length===0?'<p style="col
 document.getElementById('parcelasList').innerHTML=abertas.length===0?'<p style="padding:16px 0;color:var(--text2)">Tudo quitado! 🎉</p>':abertas.map(p=>`
 <div class="parc-item">
 <div class="pi-main">
-<div class="pi-title">${p.desc}</div>
-<div class="pi-sub">${p.forn||'—'} · parcela ${p.num}/${p.total} · vence ${dataBR(p.venc)}</div>
+<div class="pi-title">${esc(p.desc)}</div>
+<div class="pi-sub">${esc(p.forn||'—')} · parcela ${p.num}/${p.total} · vence ${dataBR(p.venc)}</div>
 </div>
-<span class="badge ${p.status}">${p.status}</span>
+<span class="badge ${esc(p.status)}">${esc(p.status)}</span>
 <div class="pi-valor">${brl(p.valor)}</div>
-<button class="btn-pago" onclick="pagarParc('${p.id}')" title="Marcar como paga">✓ Pago</button>
+<button class="btn-pago" onclick="pagarParc('${esc(p.id)}')" title="Marcar como paga">✓ Pago</button>
 </div>`).join('');
 }
-function pagarParc(id){if(!S.parcelasPagas.includes(id)){S.parcelasPagas.push(id);sbPush('parcelas_pagas',{parcela_id:id})}save();renderParcelas();toast('✅ Parcela quitada!')}
+async function sbParcelaPaga(id){if(!SB)return null;try{const{error}=await SB.from('parcelas_pagas').upsert({parcela_id:id},{onConflict:'parcela_id'});if(error)throw error;return true}catch(e){console.warn('Supabase parcela error:',e.message);return null}}
+async function sbParcelaApagar(id){if(!SB)return null;try{const{error}=await SB.from('parcelas_pagas').delete().eq('parcela_id',id);if(error)throw error;return true}catch(e){console.warn('Supabase parcela delete:',e.message);return null}}
+let _lastParcPaga=null;
+function pagarParc(id){if(S.parcelasPagas.includes(id))return;_lastParcPaga=id;S.parcelasPagas.push(id);sbParcelaPaga(id);save();renderParcelas();toast('✅ Parcela quitada!',false,'desfazerParcela')}
+function desfazerParcela(){if(!_lastParcPaga)return;const id=_lastParcPaga;_lastParcPaga=null;S.parcelasPagas=S.parcelasPagas.filter(x=>x!==id);sbParcelaApagar(id);save();renderParcelas();toast('↩️ Parcela reaberta!')}
 
 // RENDER MÃO DE OBRA
 function renderMO(){
@@ -654,8 +666,8 @@ let cum=0;const acum=porMes.map(m=>{cum+=m.total;return cum});
 mk('chartMo',{type:'bar',data:{labels:lbl,datasets:[{data:porMes.map(m=>m.total),backgroundColor:barGrad('#ef4444'),borderRadius:[6,6,0,0]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
 mk('chartMoAcum',{type:'line',data:{labels:lbl,datasets:[{data:acum,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.1)',fill:true,tension:.4,pointBackgroundColor:'#10b981'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
 
-document.getElementById('moBody').innerHTML=S.maoDeObra.slice().reverse().map((c,ri)=>{const i=S.maoDeObra.length-1-ri;return`<tr><td>${dataBR(c.data)}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td><td>${c.descricao||'—'}</td><td><span class="badge ${c.status}">${c.status}</span></td><td><button class="btn btn-ghost btn-icon" onclick="editEntry('maoobra',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('maoDeObra',${i})">🗑️</button></td></tr>`}).join('');
-document.getElementById('moCards').innerHTML=S.maoDeObra.slice().reverse().map((c,ri)=>{const i=S.maoDeObra.length-1-ri;return`<div class="mcard"><div class="mi"><div class="mt">${c.descricao||'Pagamento'}</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv">${brl(c.valor)}</div><div class="ma"><span class="badge ${c.status}">${c.status}</span><button class="btn btn-ghost btn-icon" onclick="editEntry('maoobra',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('maoDeObra',${i})">🗑️</button></div></div></div>`}).join('');
+document.getElementById('moBody').innerHTML=S.maoDeObra.slice().reverse().map((c,ri)=>{const i=S.maoDeObra.length-1-ri;return`<tr><td>${dataBR(c.data)}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td><td>${esc(c.descricao||'—')}</td><td><span class="badge ${esc(c.status)}">${esc(c.status)}</span></td><td><button class="btn btn-ghost btn-icon" onclick="editEntry('maoobra',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('maoDeObra',${i})">🗑️</button></td></tr>`}).join('');
+document.getElementById('moCards').innerHTML=S.maoDeObra.slice().reverse().map((c,ri)=>{const i=S.maoDeObra.length-1-ri;return`<div class="mcard"><div class="mi"><div class="mt">${esc(c.descricao||'Pagamento')}</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv">${brl(c.valor)}</div><div class="ma"><span class="badge ${esc(c.status)}">${esc(c.status)}</span><button class="btn btn-ghost btn-icon" onclick="editEntry('maoobra',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('maoDeObra',${i})">🗑️</button></div></div></div>`}).join('');
 }
 
 // RENDER DOCS
@@ -667,8 +679,8 @@ const lbl=porMes.map(m=>{const[y,mo]=m.nome.split('-');return['Jan','Fev','Mar',
 mk('chartDoc',{type:'bar',data:{labels:lbl,datasets:[{data:porMes.map(m=>m.total),backgroundColor:barGrad('#6366f1'),borderRadius:[6,6,0,0]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
 const top=S.documentos.filter(c=>c.valor).sort((a,b)=>b.valor-a.valor).slice(0,8);
 mk('chartDocPie',{type:'pie',data:{labels:top.map(c=>(c.servico||'').substring(0,20)),datasets:[{data:top.map(c=>c.valor),backgroundColor:['#8b5cf6','#10b981','#3b82f6','#f59e0b','#ef4444','#ec4899','#14b8a6','#f97316'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}}});
-document.getElementById('docBody').innerHTML=S.documentos.map((c,i)=>`<tr><td><b>${c.servico}</b></td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td><td>${dataBR(c.data)}</td><td>${c.forma||'—'}</td><td><button class="btn btn-ghost btn-icon" onclick="editEntry('doc',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></td></tr>`).join('');
-document.getElementById('docCards').innerHTML=S.documentos.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">${c.servico}</div><div class="ms">${dataBR(c.data)}${c.forma?' · '+c.forma:''}</div></div><div class="mr"><div class="mv">${brl(c.valor)}</div><div class="ma"><button class="btn btn-ghost btn-icon" onclick="editEntry('doc',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></div></div></div>`).join('');
+document.getElementById('docBody').innerHTML=S.documentos.map((c,i)=>`<tr><td><b>${esc(c.servico)}</b></td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td><td>${dataBR(c.data)}</td><td>${esc(c.forma||'—')}</td><td><button class="btn btn-ghost btn-icon" onclick="editEntry('doc',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></td></tr>`).join('');
+document.getElementById('docCards').innerHTML=S.documentos.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">${esc(c.servico)}</div><div class="ms">${dataBR(c.data)}${c.forma?' · '+esc(c.forma):''}</div></div><div class="mr"><div class="mv">${brl(c.valor)}</div><div class="ma"><button class="btn btn-ghost btn-icon" onclick="editEntry('doc',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></div></div></div>`).join('');
 }
 
 // RENDER FIN (financiamento)
@@ -688,8 +700,8 @@ mk('chartContas',{type:'bar',data:{labels:Object.keys(uc),datasets:[{data:Object
 
 document.getElementById('finBody').innerHTML=juros.map((c,i)=>`<tr><td>${dataBR(c.data)}</td><td style="font-weight:600;color:var(--red)">${brl(c.valor||0)}</td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('juros',${i})">🗑️</button></td></tr>`).join('');
 document.getElementById('finCards').innerHTML=juros.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">Parcela</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv" style="color:var(--red)">${brl(c.valor||0)}</div><div class="ma"><button class="btn btn-ghost btn-icon" onclick="delEntry('juros',${i})">🗑️</button></div></div></div>`).join('');
-document.getElementById('contasBody').innerHTML=contas.map((c,i)=>`<tr><td>${c.item}</td><td>${c.mes||'—'}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td><span class="badge ${c.status||'pago'}">${c.status||'pago'}</span></td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('contas',${i})">🗑️</button></td></tr>`).join('');
-document.getElementById('contasCards').innerHTML=contas.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">${c.item}</div><div class="ms">${c.mes||'—'}</div></div><div class="mr"><div class="mv">${brl(c.valor||0)}</div><div class="ma"><span class="badge ${c.status||'pago'}">${c.status||'pago'}</span><button class="btn btn-ghost btn-icon" onclick="delEntry('contas',${i})">🗑️</button></div></div></div>`).join('');
+document.getElementById('contasBody').innerHTML=contas.map((c,i)=>`<tr><td>${esc(c.item)}</td><td>${esc(c.mes||'—')}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td><span class="badge ${esc(c.status||'pago')}">${esc(c.status||'pago')}</span></td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('contas',${i})">🗑️</button></td></tr>`).join('');
+document.getElementById('contasCards').innerHTML=contas.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">${esc(c.item)}</div><div class="ms">${esc(c.mes||'—')}</div></div><div class="mr"><div class="mv">${brl(c.valor||0)}</div><div class="ma"><span class="badge ${esc(c.status||'pago')}">${esc(c.status||'pago')}</span><button class="btn btn-ghost btn-icon" onclick="delEntry('contas',${i})">🗑️</button></div></div></div>`).join('');
 }
 
 // RENDER JUROS & ACERTO
@@ -701,8 +713,8 @@ const totC=contas.reduce((a,c)=>a+(c.valor||0),0);
 const totD=rateio.reduce((a,c)=>a+(c.valor||0),0);
 const atual=juros.length?juros[juros.length-1].valor||0:0;
 const primeiro=juros.length?juros[0].valor||0:0;
-const ter=rd['VALOR TERRENO']||0,esc=rd['DESPESAS ESCRITURA']||0,adi=rd['ADIANTAMENTO']||0;
-const devido=rd['VALOR DEVIDO']||(ter-esc-adi);
+const ter=rd['VALOR TERRENO']||0,escD=rd['DESPESAS ESCRITURA']||0,adi=rd['ADIANTAMENTO']||0;
+const devido=rd['VALOR DEVIDO']||(ter-escD-adi);
 
 document.getElementById('jStats').innerHTML=`
 <div class="stat primary"><div class="label">🏦 Juros pagos</div><div class="value">${brl(totJ)}</div><div class="hint">${juros.length} meses</div></div>
@@ -716,12 +728,12 @@ mk('chartJuros',{type:'line',data:{labels:jl,datasets:[{label:'Juros',data:juros
 
 document.getElementById('acertoBox').innerHTML=`
 <div class="jc-item"><span>Valor do terreno</span><span class="jc-val">${brl(ter)}</span></div>
-<div class="jc-item neg"><span>(-) Metade das despesas de escritura</span><span class="jc-val">-${brl(esc)}</span></div>
+<div class="jc-item neg"><span>(-) Metade das despesas de escritura</span><span class="jc-val">-${brl(escD)}</span></div>
 <div class="jc-item neg"><span>(-) Adiantamento</span><span class="jc-val">-${brl(adi)}</span></div>
 <div class="jc-total"><span>Valor devido</span><span class="jc-val">${brl(devido)}</span></div>`;
 
 document.getElementById('despBox').innerHTML=rateio.map(c=>`
-<div class="jc-row"><div class="jc-name">${c.item||'—'}<span class="jc-date">${dataBR(c.data)}</span></div>
+<div class="jc-row"><div class="jc-name">${esc(c.item||'—')}<span class="jc-date">${dataBR(c.data)}</span></div>
 <div class="jc-valor">${brl(c.valor||0)}</div></div>`).join('')+`
 <div class="jc-totrow"><span>Total</span><span class="jc-valor">${brl(totD)}</span></div>`;
 }
@@ -818,6 +830,8 @@ if(sbTable[arr]&&item.id)sbDelete(sbTable[arr],item.id);
 const renders={maoDeObra:renderMO,documentos:renderDocs,juros:renderFin,contas:renderFin};(renders[arr]||renderCompras)();
 toast('🗑️ Excluído!',false,'undoLast')}
 function undoLast(){if(!_lastDeleted)return;const{arr,item}=_lastDeleted;if(arr==='compras')S.compras.unshift(item);else S[arr].splice(_lastDeleted.idx,0,item);_lastDeleted=null;save();
+const sbTable={maoDeObra:'mao_de_obra',documentos:'documentos',juros:'juros',contas:'contas',compras:'compras'};
+const t=sbTable[arr];if(t&&item&&item.id)sbPush(t,cloudRow(item));
 const renders={maoDeObra:renderMO,documentos:renderDocs,juros:renderFin,contas:renderFin};(renders[arr]||renderCompras)();toast('↩️ Restaurado!')}
 
 function resetAll(){localStorage.removeItem('obra-facil-v2');S=JSON.parse(JSON.stringify(SEED));toast('🔄 Dados restaurados!')}
