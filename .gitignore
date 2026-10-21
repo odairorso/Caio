@@ -40,4 +40,3 @@ npm-debug.log*
 # Env
 .env
 .env.local
-.github/workflows/

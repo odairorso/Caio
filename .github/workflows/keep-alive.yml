@@ -1,0 +1,19 @@
+name: Manter Supabase ativo
+
+# Faz uma consulta leve ao Supabase todos os dias.
+# Sem isso, o plano gratuito pausa o projeto após 7 dias de inatividade.
+on:
+  schedule:
+    - cron: "0 12 * * *"   # todo dia às 12:00 UTC (~09:00 em Brasília)
+  workflow_dispatch:         # permite rodar na mão pelo GitHub
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar Supabase
+        run: |
+          curl -s -o /dev/null -w "HTTP %{http_code}\n" \
+            -H "apikey: sb_publishable_mLCxvus4BzQcvwc1lH2alQ_Ci9gI6Hw" \
+            -H "Authorization: Bearer sb_publishable_mLCxvus4BzQcvwc1lH2alQ_Ci9gI6Hw" \
+            "https://nvzqjvlztzhmbttbwletv.supabase.co/rest/v1/compras?select=id&limit=1"
