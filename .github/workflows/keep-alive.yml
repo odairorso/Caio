@@ -1,11 +1,11 @@
 name: Manter Supabase ativo
 
-# Faz uma consulta leve ao Supabase todos os dias.
-# Sem isso, o plano gratuito pausa o projeto após 7 dias de inatividade.
+# Consulta leve ao Supabase todo dia.
+# Sem isso, o plano gratuito pausa o projeto apos 7 dias de inatividade.
 on:
   schedule:
-    - cron: "0 12 * * *"   # todo dia às 12:00 UTC (~09:00 em Brasília)
-  workflow_dispatch:         # permite rodar na mão pelo GitHub
+    - cron: "0 12 * * *"
+  workflow_dispatch:
 
 jobs:
   keep-alive:
