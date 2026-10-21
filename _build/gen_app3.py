@@ -216,6 +216,8 @@ tr:hover{background:rgba(139,92,246,.03)}
 .parc-items::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
 .parc-item{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid rgba(39,39,42,.5)}
 .parc-item:last-child{border-bottom:none}
+.parc-sep{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card);padding:10px 0 8px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text2);border-bottom:1px solid rgba(39,39,42,.5)}
+.parc-sep .btn{text-transform:none;letter-spacing:0;font-size:11px;padding:4px 10px}
 .pi-main{flex:1;min-width:0}
 .pi-title{font-size:13.5px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pi-sub{font-size:11.5px;color:var(--text2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -548,7 +550,7 @@ function addMonths(iso,n){const d=new Date(iso+'T12:00:00');d.setMonth(d.getMont
 function gerarParcelas(){
 const out=[];const hoje=new Date().toISOString().slice(0,10);
 for(const c of S.compras){if(c.forma!=='cartao'||!c.data)continue;const n=Math.max(1,c.parcelas||1);const base=Math.floor((c.valor/n)*100)/100;
-for(let i=1;i<=n;i++){const val=i===n?Math.round((c.valor-base*(n-1))*100)/100:base;const venc=addMonths(c.data,i);const id=c.id+'-'+i;const paga=S.parcelasPagas.includes(id)||venc<hoje;
+for(let i=1;i<=n;i++){const val=i===n?Math.round((c.valor-base*(n-1))*100)/100:base;const venc=addMonths(c.data,i);const id=c.id+'-'+i;const paga=S.parcelasPagas.includes(id);
 out.push({id,compraId:c.id,desc:c.material,forn:c.fornecedor,num:i,total:n,valor:val,venc,status:paga?'pago':(venc<hoje?'atrasado':'pendente')})}}
 return out.sort((a,b)=>a.venc.localeCompare(b.venc))}
 
@@ -560,13 +562,15 @@ const mat=S.compras.reduce((a,c)=>a+c.valor,0),mao=S.maoDeObra.reduce((a,c)=>a+c
 const juros=(S.juros||[]).reduce((a,c)=>a+(c.valor||0),0)+(S.contas||[]).reduce((a,c)=>a+(c.valor||0),0);
 const total=mat+mao+docs+juros;
 const parc=gerarParcelas();const aPagar=parc.filter(p=>p.status!=='pago');const totPagar=aPagar.reduce((a,p)=>a+p.valor,0);
+const _hojeStr=new Date().toISOString().slice(0,10);
+const nAtraso=aPagar.filter(p=>p.venc<_hojeStr).length;
 const ref=S.obra.area*S.obra.valorM2;
 document.getElementById('heroTotal').textContent=brl(total);
 document.getElementById('heroSub').textContent=S.obra.area+' m² · obra financiada · '+S.compras.length+' compras · '+S.maoDeObra.length+' pagamentos';
 document.getElementById('statsGrid').innerHTML=`
 <div class="stat"><div class="label">🧱 Materiais</div><div class="value">${brlS(mat)}</div><div class="hint">${S.compras.length} lançamentos</div></div>
 <div class="stat ${mao>ref?'danger':''}"><div class="label">👷 Mão de obra</div><div class="value">${brlS(mao)}</div><div class="hint">Ref. ${brlS(ref)} · saldo ${brlS(ref-mao)}</div></div>
-<div class="stat primary"><div class="label">💳 A pagar no cartão</div><div class="value">${brlS(totPagar)}</div><div class="hint">${aPagar.length} parcelas futuras</div></div>
+<div class="stat primary"><div class="label">💳 A pagar no cartão</div><div class="value">${brlS(totPagar)}</div><div class="hint">${aPagar.length} em aberto${nAtraso?' · ⚠️ '+nAtraso+' atrasadas':''}</div></div>
 <div class="stat"><div class="label">📋 Docs + Juros</div><div class="value">${brlS(docs+juros)}</div><div class="hint">financiamento, taxas e contas</div></div>`;
 
 const porMes=somaPor(S.compras.filter(c=>c.data),c=>c.data.slice(0,7),c=>c.valor).sort((a,b)=>a.nome.localeCompare(b.nome));
@@ -623,20 +627,24 @@ function delCompra(i){const c=S.compras[i];if(!c)return;_lastDeleted={arr:'compr
 // RENDER PARCELAS
 function renderParcelas(){
 const parc=gerarParcelas();const abertas=parc.filter(p=>p.status!=='pago');
+const hojeStr=new Date().toISOString().slice(0,10);
 const hoje=new Date();
-const somaAte=d=>{const lim=new Date(hoje.getTime()+d*864e5).toISOString().slice(0,10);return abertas.filter(p=>p.venc<=lim).reduce((a,p)=>a+p.valor,0)};
+const atrasadas=abertas.filter(p=>p.venc<hojeStr);
+const futuras=abertas.filter(p=>p.venc>=hojeStr);
+const totAtraso=atrasadas.reduce((a,p)=>a+p.valor,0);
+const somaAte=d=>{const lim=new Date(hoje.getTime()+d*864e5).toISOString().slice(0,10);return futuras.filter(p=>p.venc<=lim).reduce((a,p)=>a+p.valor,0)};
 document.getElementById('parcelasStats').innerHTML=`
+<div class="stat ${atrasadas.length?'danger':''}"><div class="label">⚠️ Atrasadas</div><div class="value">${brl(totAtraso)}</div><div class="hint">${atrasadas.length} vencidas sem confirmação</div></div>
 <div class="stat primary"><div class="label">⏰ Próx. 7 dias</div><div class="value">${brl(somaAte(7))}</div></div>
 <div class="stat"><div class="label">📅 Próx. 30 dias</div><div class="value">${brl(somaAte(30))}</div></div>
 <div class="stat"><div class="label">📆 Próx. 90 dias</div><div class="value">${brl(somaAte(90))}</div></div>`;
-document.getElementById('parcCount').textContent=abertas.length+' abertas';
+document.getElementById('parcCount').textContent=abertas.length+' em aberto'+(atrasadas.length?' · '+atrasadas.length+' atrasadas':'');
 
-const porMes=somaPor(abertas,p=>p.venc.slice(0,7),p=>p.valor).sort((a,b)=>a.nome.localeCompare(b.nome));
+const porMes=somaPor(futuras,p=>p.venc.slice(0,7),p=>p.valor).sort((a,b)=>a.nome.localeCompare(b.nome));
 const MN=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-document.getElementById('parcPorMes').innerHTML=porMes.length===0?'<p style="color:var(--text2);padding:8px 0">Nenhuma fatura em aberto 🎉</p>':porMes.map(m=>{const[y,mo]=m.nome.split('-');return`<div class="pmes-row"><span>${MN[parseInt(mo)-1]} De ${y}</span><b>${brl(m.total)}</b></div>`}).join('');
+document.getElementById('parcPorMes').innerHTML=porMes.length===0?'<p style="color:var(--text2);padding:8px 0">Nenhuma fatura futura 🎉</p>':porMes.map(m=>{const[y,mo]=m.nome.split('-');return`<div class="pmes-row"><span>${MN[parseInt(mo)-1]} De ${y}</span><b>${brl(m.total)}</b></div>`}).join('');
 
-document.getElementById('parcelasList').innerHTML=abertas.length===0?'<p style="padding:16px 0;color:var(--text2)">Tudo quitado! 🎉</p>':abertas.map(p=>`
-<div class="parc-item">
+const linha=p=>`<div class="parc-item">
 <div class="pi-main">
 <div class="pi-title">${esc(p.desc)}</div>
 <div class="pi-sub">${esc(p.forn||'—')} · parcela ${p.num}/${p.total} · vence ${dataBR(p.venc)}</div>
@@ -644,13 +652,40 @@ document.getElementById('parcelasList').innerHTML=abertas.length===0?'<p style="
 <span class="badge ${esc(p.status)}">${esc(p.status)}</span>
 <div class="pi-valor">${brl(p.valor)}</div>
 <button class="btn-pago" onclick="pagarParc('${esc(p.id)}')" title="Marcar como paga">✓ Pago</button>
-</div>`).join('');
+</div>`;
+const sep=(t,btn)=>`<div class="parc-sep"><span>${t}</span>${btn||''}</div>`;
+let html='';
+if(atrasadas.length)html+=sep('⚠️ Vencidas ('+atrasadas.length+')','<button class="btn btn-ghost" onclick="pagarTodasAtrasadas()">marcar todas como pagas</button>')+atrasadas.map(linha).join('');
+if(futuras.length)html+=sep('⏳ A vencer ('+futuras.length+')')+futuras.map(linha).join('');
+document.getElementById('parcelasList').innerHTML=abertas.length===0?'<p style="padding:16px 0;color:var(--text2)">Tudo quitado! 🎉</p>':html;
 }
 async function sbParcelaPaga(id){if(!SB)return null;try{const{error}=await SB.from('parcelas_pagas').upsert({parcela_id:id},{onConflict:'parcela_id'});if(error)throw error;return true}catch(e){console.warn('Supabase parcela error:',e.message);return null}}
 async function sbParcelaApagar(id){if(!SB)return null;try{const{error}=await SB.from('parcelas_pagas').delete().eq('parcela_id',id);if(error)throw error;return true}catch(e){console.warn('Supabase parcela delete:',e.message);return null}}
 let _lastParcPaga=null;
 function pagarParc(id){if(S.parcelasPagas.includes(id))return;_lastParcPaga=id;S.parcelasPagas.push(id);sbParcelaPaga(id);save();renderParcelas();toast('✅ Parcela quitada!',false,'desfazerParcela')}
 function desfazerParcela(){if(!_lastParcPaga)return;const id=_lastParcPaga;_lastParcPaga=null;S.parcelasPagas=S.parcelasPagas.filter(x=>x!==id);sbParcelaApagar(id);save();renderParcelas();toast('↩️ Parcela reaberta!')}
+async function sbParcelasPagasLote(ids){if(!SB||!ids.length)return null;try{const{error}=await SB.from('parcelas_pagas').upsert(ids.map(x=>({parcela_id:x})),{onConflict:'parcela_id'});if(error)throw error;return true}catch(e){console.warn('Supabase lote pago:',e.message);return null}}
+async function sbParcelasApagarLote(ids){if(!SB||!ids.length)return null;try{const{error}=await SB.from('parcelas_pagas').delete().in('parcela_id',ids);if(error)throw error;return true}catch(e){console.warn('Supabase lote apagar:',e.message);return null}}
+let _lotePago=null;
+function pagarTodasAtrasadas(){
+const hojeStr=new Date().toISOString().slice(0,10);
+const alvo=gerarParcelas().filter(p=>p.venc<hojeStr&&!S.parcelasPagas.includes(p.id));
+if(!alvo.length)return;
+const tot=alvo.reduce((a,p)=>a+p.valor,0);
+if(!confirm('Marcar '+alvo.length+' parcelas vencidas como pagas?\n\nTotal: '+brl(tot)+'\n\nVocê poderá desfazer em seguida.'))return;
+const ids=alvo.map(p=>p.id);
+_lotePago=ids.slice();
+ids.forEach(id=>{if(!S.parcelasPagas.includes(id))S.parcelasPagas.push(id)});
+sbParcelasPagasLote(ids);save();renderParcelas();renderDash();
+toast('✅ '+ids.length+' parcelas quitadas!',false,'desfazerLote')
+}
+function desfazerLote(){
+if(!_lotePago)return;
+const ids=_lotePago;_lotePago=null;
+S.parcelasPagas=S.parcelasPagas.filter(x=>!ids.includes(x));
+sbParcelasApagarLote(ids);save();renderParcelas();renderDash();
+toast('↩️ '+ids.length+' parcelas reabertas')
+}
 
 // RENDER MÃO DE OBRA
 function renderMO(){
