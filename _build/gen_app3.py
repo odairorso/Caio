@@ -643,16 +643,19 @@ const maisDias=d=>{const t=new Date();t.setHours(12,0,0,0);t.setDate(t.getDate()
 // FILA DE PENDENCIAS — o que nao conseguiu chegar na nuvem
 // ============================================
 const PEND_KEY='obra-facil-pend';
-const lerPend=()=>{try{const p=JSON.parse(localStorage.getItem(PEND_KEY)||'null');return p&&Array.isArray(p.del)?p:{del:[]}}catch(e){return{del:[]}}};
+const lerPend=()=>{try{const p=JSON.parse(localStorage.getItem(PEND_KEY)||'null');return{del:p&&Array.isArray(p.del)?p.del:[],add:p&&Array.isArray(p.add)?p.add:[]}}catch(e){return{del:[],add:[]}}};
 let PEND=lerPend();
 const gravarPend=()=>{try{localStorage.setItem(PEND_KEY,JSON.stringify(PEND))}catch(e){}};
-const pendDel=(t,col,val)=>{PEND.del=PEND.del.filter(x=>!(x.t===t&&x.col===col&&x.v===val));PEND.del.push({t:t,col:col,v:val});gravarPend()};
+const pendDel=(t,col,val)=>{PEND.del=PEND.del.filter(x=>!(x.t===t&&x.col===col&&x.v===val));PEND.add=PEND.add.filter(x=>!(x.t===t&&x.col===col&&x.v===val));PEND.del.push({t:t,col:col,v:val});gravarPend()};
 const pendOk=(t,col,val)=>{const n=PEND.del.length;PEND.del=PEND.del.filter(x=>!(x.t===t&&x.col===col&&x.v===val));if(PEND.del.length!==n)gravarPend()};
+const pendAdd=(t,col,val)=>{PEND.add=PEND.add.filter(x=>!(x.t===t&&x.col===col&&x.v===val));PEND.del=PEND.del.filter(x=>!(x.t===t&&x.col===col&&x.v===val));PEND.add.push({t:t,col:col,v:val});gravarPend()};
+const pendAddOk=(t,col,val)=>{const n=PEND.add.length;PEND.add=PEND.add.filter(x=>!(x.t===t&&x.col===col&&x.v===val));if(PEND.add.length!==n)gravarPend()};
 
 const marcarSujo=id=>{if(!id)return;let mudou=false;
 for(const k of ['compras','maoDeObra','documentos','juros','contas']){for(const it of (S[k]||[])){if(it&&it.id===id&&!it._dirty){it._dirty=true;mudou=true}}}
 if(mudou)save()};
-const limparSujo=id=>{if(!id)return;for(const k of ['compras','maoDeObra','documentos','juros','contas']){for(const it of (S[k]||[])){if(it&&it.id===id)it._dirty=false}}};
+const limparSujo=id=>{if(!id)return;for(const k of ['compras','maoDeObra','documentos','juros','contas']){for(const it of (S[k]||[])){if(it&&it.id===id){it._dirty=false;it._new=false}}}
+try{document.querySelectorAll('[data-novo="'+String(id)+'"]').forEach(e=>e.remove())}catch(e){}};
 
 async function sbPush(table,payload){
 // As tabelas antigas guardam so a Casa Caio. Obras novas vao para a tabela "obras".
@@ -678,11 +681,16 @@ if(!SB){pendDel(table,'id',id);return null}
 try{const{error}=await SB.from(table).delete().eq('id',id);if(error)throw error;pendOk(table,'id',id);return true}
 catch(e){console.warn('Supabase delete error:',e.message);pendDel(table,'id',id);return null}}
 async function reenviarPendencias(){
-if(!SB||!PEND.del.length)return 0;
+if(!SB)return 0;
 let ok=0;
+// 1) o que ficou para INSERIR (ex: parcela paga sem internet)
+for(const p of (PEND.add||[]).slice()){
+try{const{error}=await SB.from(p.t).upsert({[p.col]:p.v},{onConflict:p.col});if(error)throw error;pendAddOk(p.t,p.col,p.v);ok++}
+catch(e){console.warn('pendencia (add) nao resolvida:',p.t,p.v,e.message)}}
+// 2) o que ficou para APAGAR
 for(const p of PEND.del.slice()){
 try{const{error}=await SB.from(p.t).delete().eq(p.col,p.v);if(error)throw error;pendOk(p.t,p.col,p.v);ok++}
-catch(e){console.warn('pendencia nao resolvida:',p.t,p.v,e.message)}}
+catch(e){console.warn('pendencia (del) nao resolvida:',p.t,p.v,e.message)}}
 return ok}
 // Mantem o que existe apenas no aparelho (lancado sem internet) e reenvia.
 // Edicao local pendente vence a versao da nuvem.
@@ -958,7 +966,7 @@ let items=S.compras.map((c,i)=>({...c,_i:i})).filter(c=>(!q||String(c.material||
 items.sort((a,b)=>{let va=a[_sortC.col],vb=b[_sortC.col];if(_sortC.col==='valor'){va=Number(va)||0;vb=Number(vb)||0}else{va=String(va||'');vb=String(vb||'')}return _sortC.asc?(va>vb?1:-1):(va<vb?1:-1)});
 const total=items.reduce((s,c)=>s+c.valor,0);
 document.getElementById('comprasBody').innerHTML=items.map(c=>`<tr>
-<td>${dataBR(c.data)}${c._new?'<span class="new-badge">NOVO</span>':''}</td>
+<td>${dataBR(c.data)}${c._new?`<span class="new-badge" data-novo="${esc(c.id)}">NOVO</span>`:''}</td>
 <td><b>${esc(c.material)}</b>${c.quantidade?' <span style="color:var(--text2)">· '+esc(c.quantidade)+'</span>':''}</td>
 <td style="font-weight:600;color:var(--accent2)">${brl(c.valor)}</td>
 <td>${esc(c.fornecedor||'—')}</td>
@@ -970,7 +978,7 @@ document.getElementById('comprasBody').innerHTML=items.map(c=>`<tr>
 <button class="btn btn-ghost btn-icon" onclick="dupCompra(${c._i})" title="Duplicar">📋</button>
 <button class="btn btn-ghost btn-icon" onclick="delCompra(${c._i})" title="Excluir">🗑️</button></div></td></tr>`).join('');
 document.getElementById('comprasCards').innerHTML=items.length===0?'<div style="padding:24px;color:var(--text2);text-align:center">Nenhuma compra encontrada</div>':items.map(c=>`<div class="mcard">
-<div class="mi"><div class="mt">${esc(c.material)}${c._new?' <span class="new-badge">NOVO</span>':''}</div>
+<div class="mi"><div class="mt">${esc(c.material)}${c._new?` <span class="new-badge" data-novo="${esc(c.id)}">NOVO</span>`:''}</div>
 <div class="ms">${dataBR(c.data)}${c.quantidade?' · '+esc(c.quantidade):''}<br>${esc(c.fornecedor||'Sem fornecedor')} · ${esc(FORMAS[c.forma]||c.forma)}${c.forma==='cartao'&&c.parcelas>1?' '+c.parcelas+'x':''} · <span class="badge cat">${esc(c.categoria)}</span></div></div>
 <div class="mr"><div class="mv">${brl(c.valor)}</div>
 <div class="ma"><span class="badge ${esc(c.status)}">${esc(c.status)}</span>
@@ -1026,13 +1034,13 @@ if(atrasadas.length)html+=sep('⚠️ Vencidas ('+atrasadas.length+')','<button 
 if(futuras.length)html+=sep('⏳ A vencer ('+futuras.length+')')+futuras.map(linha).join('');
 document.getElementById('parcelasList').innerHTML=abertas.length===0?'<p style="padding:16px 0;color:var(--text2)">Tudo quitado! 🎉</p>':html;
 }
-async function sbParcelaPaga(id){if(!SB)return null;try{const{error}=await SB.from('parcelas_pagas').upsert({parcela_id:id},{onConflict:'parcela_id'});if(error)throw error;return true}catch(e){console.warn('Supabase parcela error:',e.message);return null}}
-async function sbParcelaApagar(id){if(!SB)return null;try{const{error}=await SB.from('parcelas_pagas').delete().eq('parcela_id',id);if(error)throw error;return true}catch(e){console.warn('Supabase parcela delete:',e.message);return null}}
+async function sbParcelaPaga(id){if(!SB){pendAdd('parcelas_pagas','parcela_id',id);return null}try{const{error}=await SB.from('parcelas_pagas').upsert({parcela_id:id},{onConflict:'parcela_id'});if(error)throw error;pendAddOk('parcelas_pagas','parcela_id',id);return true}catch(e){console.warn('Supabase parcela error:',e.message);pendAdd('parcelas_pagas','parcela_id',id);marcarSinc('err');return null}}
+async function sbParcelaApagar(id){if(!SB){pendDel('parcelas_pagas','parcela_id',id);return null}try{const{error}=await SB.from('parcelas_pagas').delete().eq('parcela_id',id);if(error)throw error;pendOk('parcelas_pagas','parcela_id',id);return true}catch(e){console.warn('Supabase parcela delete:',e.message);pendDel('parcelas_pagas','parcela_id',id);marcarSinc('err');return null}}
 let _lastParcPaga=null;
 function pagarParc(id){if(S.parcelasPagas.includes(id))return;_lastParcPaga=id;S.parcelasPagas.push(id);sbParcelaPaga(id);save();renderParcelas();refreshObras();toast('✅ Parcela quitada!',false,'desfazerParcela')}
 function desfazerParcela(){if(!_lastParcPaga)return;const id=_lastParcPaga;_lastParcPaga=null;S.parcelasPagas=S.parcelasPagas.filter(x=>x!==id);sbParcelaApagar(id);save();renderParcelas();refreshObras();toast('↩️ Parcela reaberta!')}
-async function sbParcelasPagasLote(ids){if(!SB||!ids.length)return null;try{const{error}=await SB.from('parcelas_pagas').upsert(ids.map(x=>({parcela_id:x})),{onConflict:'parcela_id'});if(error)throw error;return true}catch(e){console.warn('Supabase lote pago:',e.message);return null}}
-async function sbParcelasApagarLote(ids){if(!SB||!ids.length)return null;try{const{error}=await SB.from('parcelas_pagas').delete().in('parcela_id',ids);if(error)throw error;return true}catch(e){console.warn('Supabase lote apagar:',e.message);return null}}
+async function sbParcelasPagasLote(ids){if(!ids||!ids.length)return null;if(!SB){ids.forEach(x=>pendAdd('parcelas_pagas','parcela_id',x));return null}try{const{error}=await SB.from('parcelas_pagas').upsert(ids.map(x=>({parcela_id:x})),{onConflict:'parcela_id'});if(error)throw error;ids.forEach(x=>pendAddOk('parcelas_pagas','parcela_id',x));return true}catch(e){console.warn('Supabase lote pago:',e.message);ids.forEach(x=>pendAdd('parcelas_pagas','parcela_id',x));marcarSinc('err');return null}}
+async function sbParcelasApagarLote(ids){if(!ids||!ids.length)return null;if(!SB){ids.forEach(x=>pendDel('parcelas_pagas','parcela_id',x));return null}try{const{error}=await SB.from('parcelas_pagas').delete().in('parcela_id',ids);if(error)throw error;ids.forEach(x=>pendOk('parcelas_pagas','parcela_id',x));return true}catch(e){console.warn('Supabase lote apagar:',e.message);ids.forEach(x=>pendDel('parcelas_pagas','parcela_id',x));marcarSinc('err');return null}}
 let _lotePago=null;
 function pagarTodasAtrasadas(){
 const hojeStr=hojeISO();

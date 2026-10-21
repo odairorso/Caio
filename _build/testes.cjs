@@ -29,7 +29,11 @@ function pegarFuncao(src, nome) {
     if (src[k] === '{') d++;
     else if (src[k] === '}') {
       d--;
-      if (d === 0) return src.slice(i, k + 1);
+      if (d === 0) {
+        // preserva o "async" que vem antes de "function"
+        const antes = src.slice(Math.max(0, i - 6), i);
+        return (antes === 'async ' ? 'async ' : '') + src.slice(i, k + 1);
+      }
     }
   }
   return null;
@@ -83,7 +87,7 @@ function pegar(src, nome) {
   throw new Error('Nao encontrei a funcao/constante "' + nome + '" no app');
 }
 
-const nomes = ['addMonths', 'hojeISO', 'maisDias', 'esc', 'brl', 'somaPor', 'gerarParcelas', 'mesclar', 'cloudRow', 'FORMAS', 'gastosUnificados', 'mesclarObra', 'pacoteDaNuvem'];
+const nomes = ['addMonths', 'hojeISO', 'maisDias', 'esc', 'brl', 'somaPor', 'gerarParcelas', 'mesclar', 'cloudRow', 'FORMAS', 'gastosUnificados', 'mesclarObra', 'pacoteDaNuvem', 'PEND_KEY', 'lerPend', 'PEND', 'gravarPend', 'pendDel', 'pendOk', 'pendAdd', 'pendAddOk', 'reenviarPendencias', 'sbParcelaPaga', 'limparSujo'];
 let codigo = '';
 for (const n of nomes) codigo += pegar(JS, n) + '\n';
 // `const` no escopo do script nao vira propriedade do contexto: exporta na mao
@@ -91,8 +95,17 @@ codigo += '\n;globalThis.__exp={' + nomes.join(',') + '};';
 
 /* ---------- sandbox ---------- */
 const registros = { push: [], sujos: [] };
+const _ls = {};
 const contexto = {
-  console,
+  console: { log: console.log, warn: () => {}, error: console.error },
+  localStorage: {
+    getItem: (k) => (k in _ls ? _ls[k] : null),
+    setItem: (k, v) => { _ls[k] = String(v); },
+    removeItem: (k) => { delete _ls[k]; },
+  },
+  SB: null,
+  marcarSinc: () => {},
+  document: undefined,
   S: { compras: [], parcelasPagas: [] },
   ORCAMENTO_VAZIO: () => ({ materiais: 0, mao: 0, doc: 0, juros: 0, contas: 0 }),
   sbPush: (tabela, linhas) => { registros.push.push({ tabela, linhas }); },
@@ -111,7 +124,7 @@ const contexto = {
 };
 vm.createContext(contexto);
 vm.runInContext(codigo, contexto);
-const { addMonths, hojeISO, maisDias, esc, gerarParcelas, mesclar, cloudRow, gastosUnificados, mesclarObra, pacoteDaNuvem } = contexto.__exp;
+const { addMonths, hojeISO, maisDias, esc, gerarParcelas, mesclar, cloudRow, gastosUnificados, mesclarObra, pacoteDaNuvem, PEND_KEY, PEND, gravarPend, pendDel, pendAdd, pendAddOk, reenviarPendencias, sbParcelaPaga, limparSujo } = contexto.__exp;
 
 /* ---------- mini framework ---------- */
 let ok = 0;
@@ -471,11 +484,128 @@ teste('nenhum toISOString sobrou no codigo do app', () => {
   if (usos.length) throw new Error(usos.length + ' usos ainda');
 });
 
-/* ---------- resultado ---------- */
-console.log('\n' + '='.repeat(50));
-if (falhas.length) {
-  console.log('*** ' + falhas.length + ' TESTE(S) FALHARAM ***');
-  falhas.forEach((f) => console.log('  - ' + f.nome + ': ' + f.erro));
-  process.exit(1);
+/* ---------- 10. fila de pendencias ---------- */
+console.log('\n=== FILA DE PENDENCIAS ===');
+
+const chamadas = [];
+function fakeSB(falhar) {
+  return {
+    from(tabela) {
+      return {
+        upsert(row, opt) {
+          chamadas.push({ tabela, op: 'upsert', row, opt });
+          return Promise.resolve({ error: falhar ? { message: 'offline' } : null });
+        },
+        delete() {
+          return {
+            eq(col, v) {
+              chamadas.push({ tabela, op: 'delete', col, v });
+              return Promise.resolve({ error: falhar ? { message: 'offline' } : null });
+            },
+          };
+        },
+      };
+    },
+  };
 }
-console.log('*** TODOS OS ' + ok + ' TESTES PASSARAM ***');
+
+async function testeAsync(nome, fn) {
+  try {
+    await fn();
+    ok++;
+    console.log('  [OK]   ' + nome);
+  } catch (e) {
+    falhas.push({ nome, erro: e.message });
+    console.log('  [FALHA] ' + nome + '  ->  ' + e.message);
+  }
+}
+
+(async () => {
+  teste('pendDel cancela um add pendente da mesma parcela', () => {
+    PEND.add = [{ t: 'parcelas_pagas', col: 'parcela_id', v: 'p-5' }];
+    PEND.del = [];
+    pendDel('parcelas_pagas', 'parcela_id', 'p-5');
+    igual(PEND.add.length, 0);
+    igual(PEND.del.map((p) => p.v), ['p-5']);
+  });
+
+  teste('pendAdd tira o mesmo id da fila de exclusao', () => {
+    PEND.del = [{ t: 'parcelas_pagas', col: 'parcela_id', v: 'p-6' }];
+    PEND.add = [];
+    pendAdd('parcelas_pagas', 'parcela_id', 'p-6');
+    igual(PEND.del.length, 0);
+    igual(PEND.add.map((p) => p.v), ['p-6']);
+  });
+
+  teste('pendAdd nao duplica o mesmo id', () => {
+    PEND.add = [];
+    pendAdd('parcelas_pagas', 'parcela_id', 'p-7');
+    pendAdd('parcelas_pagas', 'parcela_id', 'p-7');
+    igual(PEND.add.length, 1);
+  });
+
+  teste('pendAdd grava a fila no aparelho', () => {
+    PEND.add = [];
+    pendAdd('parcelas_pagas', 'parcela_id', 'p-8');
+    const salvo = JSON.parse(_ls[PEND_KEY]);
+    igual(salvo.add.map((p) => p.v), ['p-8']);
+  });
+
+  teste('limparSujo tira o selo NOVO quando a nuvem aceita', () => {
+    contexto.S.compras = [{ id: 'c-1', _new: true, _dirty: true }];
+    limparSujo('c-1');
+    igual(contexto.S.compras[0]._new, false);
+    igual(contexto.S.compras[0]._dirty, false);
+  });
+
+  await testeAsync('com internet, a parcela paga NAO entra na fila', async () => {
+    PEND.add = [];
+    PEND.del = [];
+    chamadas.length = 0;
+    contexto.SB = fakeSB(false);
+    await sbParcelaPaga('p-1');
+    igual(PEND.add.length, 0);
+    igual(chamadas[0].op, 'upsert');
+  });
+
+  await testeAsync('sem internet, a parcela paga entra na fila para reenviar', async () => {
+    PEND.add = [];
+    PEND.del = [];
+    contexto.SB = fakeSB(true);
+    await sbParcelaPaga('p-2');
+    igual(PEND.add.map((p) => p.v), ['p-2']);
+    igual(JSON.parse(_ls[PEND_KEY]).add.map((p) => p.v), ['p-2']);
+  });
+
+  await testeAsync('reenviarPendencias manda o add e limpa a fila', async () => {
+    PEND.add = [{ t: 'parcelas_pagas', col: 'parcela_id', v: 'p-3' }];
+    PEND.del = [];
+    gravarPend();
+    chamadas.length = 0;
+    contexto.SB = fakeSB(false);
+    const n = await reenviarPendencias();
+    igual(n, 1);
+    igual(PEND.add.length, 0);
+    igual(chamadas[0].op, 'upsert');
+    igual(chamadas[0].row, { parcela_id: 'p-3' });
+    igual(chamadas[0].opt, { onConflict: 'parcela_id' });
+  });
+
+  await testeAsync('se o reenvio falhar, a pendencia continua na fila', async () => {
+    PEND.add = [{ t: 'parcelas_pagas', col: 'parcela_id', v: 'p-4' }];
+    PEND.del = [];
+    gravarPend();
+    contexto.SB = fakeSB(true);
+    await reenviarPendencias();
+    igual(PEND.add.map((p) => p.v), ['p-4']);
+  });
+
+  /* ---------- resultado ---------- */
+  console.log('\n' + '='.repeat(50));
+  if (falhas.length) {
+    console.log('*** ' + falhas.length + ' TESTE(S) FALHARAM ***');
+    falhas.forEach((f) => console.log('  - ' + f.nome + ': ' + f.erro));
+    process.exit(1);
+  }
+  console.log('*** TODOS OS ' + ok + ' TESTES PASSARAM ***');
+})();

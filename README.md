@@ -94,7 +94,11 @@ A sincronização é **automática**: ao abrir, o app puxa o que está na nuvem 
 com o que está no aparelho. Não existem botões de "enviar" ou "baixar".
 
 - Se o aparelho estiver sem internet, os dados continuam salvos e são enviados depois.
+  Isso vale também para **parcelas**: pagar (ou reabrir) uma parcela sem internet entra
+  numa fila (`obra-facil-pend`) e é reenviado na próxima vez que o app abrir com conexão.
 - O ícone de nuvem no topo mostra o estado: ☁️ sincronizado · 📴 sem internet · ⚠️ falha.
+- O selo verde **NOVO** some sozinho quando a compra chega na nuvem (se o envio falhar,
+  ele continua até conseguir — é o aviso de que ainda não subiu).
 - O plano grátis do Supabase pausa após 7 dias sem uso. O workflow
   `.github/workflows/keep-alive.yml` faz uma consulta diária (9h de Brasília) para evitar isso.
 
