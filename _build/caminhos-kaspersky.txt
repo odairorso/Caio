@@ -1,0 +1,10 @@
+EXCLUIR NO KASPERSKY (Seguranca > Exclusoes > Adicionar > Pasta)
+
+OBRIGATORIOS:
+1) C:\Users\Odair\AppData\Local\Programs\@opencodedesktop
+2) C:\Users\Odair\AppData\Roaming\ai.opencode.desktop
+
+RECOMENDADOS:
+3) C:\Users\Odair\AppData\Local\Temp\opencode
+4) C:\Users\Odair\.local\share\opencode
+5) C:\Users\Odair\.cache\opencode

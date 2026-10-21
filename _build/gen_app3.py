@@ -474,7 +474,7 @@ SB.from('parcelas_pagas').select('*'),SB.from('juros').select('*'),SB.from('cont
 if(rc.data&&rc.data.length)S.compras=rc.data.map(r=>({id:r.id,quantidade:r.quantidade,material:r.material,valor:Number(r.valor),forma:r.forma,parcelas:r.parcelas,fornecedor:r.fornecedor,data:r.data,pagador:r.pagador,status:r.status,categoria:r.categoria}));
 if(rm.data&&rm.data.length)S.maoDeObra=rm.data.map(r=>({id:r.id,data:r.data,valor:Number(r.valor),descricao:r.descricao,status:r.status}));
 if(rd.data&&rd.data.length)S.documentos=rd.data.map(r=>({id:r.id,servico:r.servico,valor:Number(r.valor),data:r.data,forma:r.forma,obs:r.obs}));
-if(rp.data)S.parcelasPagas=rp.data.map(r=>r.parcela_id);
+if(rp.data&&rp.data.length)S.parcelasPagas=rp.data.map(r=>r.parcela_id);
 if(rj.data&&rj.data.length)S.juros=rj.data.map(r=>({id:r.id,data:r.data,valor:Number(r.valor)}));
 if(rc2.data&&rc2.data.length)S.contas=rc2.data.map(r=>({id:r.id,item:r.item,mes:r.mes,valor:Number(r.valor),status:r.status}));
 save();if(!silent)toast('☁️ Dados sincronizados!');refreshPage();
@@ -491,6 +491,7 @@ up('mao_de_obra',S.maoDeObra.map(c=>({id:c.id,data:c.data,valor:c.valor,descrica
 up('documentos',S.documentos.map(c=>({id:c.id,servico:c.servico,valor:c.valor,data:c.data,forma:c.forma,obs:c.obs}))),
 up('juros',S.juros.map(c=>({id:c.id||uid(),data:c.data,valor:c.valor}))),
 up('contas',S.contas.map(c=>({id:c.id||uid(),item:c.item,mes:c.mes,valor:c.valor,status:c.status})))]);
+if(S.parcelasPagas.length){const rp2=await SB.from('parcelas_pagas').upsert(S.parcelasPagas.map(x=>({parcela_id:x})),{onConflict:'parcela_id'});if(rp2.error)throw new Error('parcelas_pagas: '+rp2.error.message)}
 if(!silent)toast('✅ Dados enviados ao Supabase!');
 return 1;
 }catch(e){if(!silent)toast('Erro: '+e.message,true);return 0}}
