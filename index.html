@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Obra Fácil — Casa Caio</title>
+<meta name="description" content="Controle de custos da obra da Casa Caio: compras, parcelas do cartão, mão de obra, documentação, financiamento e rateio.">
+<meta name="theme-color" content="#09090b">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Obra Fácil">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -36,6 +43,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh}
 .main{margin-left:240px;padding:0 0 40px;min-width:0}
 .topbar{display:flex;justify-content:space-between;align-items:center;padding:20px 32px;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:50;backdrop-filter:blur(12px)}
 .topbar h1{font-size:20px;font-weight:700}
+.sync-chip{font-size:15px;line-height:1;padding:6px 10px;border-radius:20px;background:var(--card3);border:1px solid var(--border);cursor:default;user-select:none}
+.sync-chip.ok{color:var(--green)}
+.sync-chip.off{color:var(--orange)}
+.sync-chip.err{color:var(--red)}
 .topbar .actions{display:flex;gap:10px;align-items:center}
 .btn{padding:8px 18px;border-radius:var(--radius);border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
 .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2);box-shadow:var(--glow)}
@@ -237,9 +248,13 @@ th,td{padding:10px 12px;font-size:12px}
 <div class="topbar">
 <button class="dots-menu" onclick="toggleNav()" title="Menu">☰</button>
 <h1 id="pageTitle">Painel</h1>
+<div class="actions">
+<span class="sync-chip" id="syncChip" title="Status da sincronização">☁️</span>
+<button class="btn btn-ghost btn-icon" onclick="baixarBackup()" title="Baixar backup dos dados">⬇️</button>
+</div>
 </div>
 
-<div class="content">
+<div class="content" role="main">
 <!-- DASHBOARD -->
 <div id="page-dashboard" class="page active">
 <div class="hero">
@@ -261,7 +276,7 @@ th,td{padding:10px 12px;font-size:12px}
 <!-- COMPRAS -->
 <div id="page-compras" class="page">
 <div class="filters">
-<input type="text" id="cq" placeholder="🔍 Buscar material..." oninput="renderCompras()">
+<input type="text" id="cq" placeholder="🔍 Buscar material..." oninput="buscaCompras()">
 <select id="cforn" onchange="renderCompras()"><option value="">Todos fornecedores</option></select>
 <select id="ccat" onchange="renderCompras()"><option value="">Todas etapas</option></select>
 <select id="cforma" onchange="renderCompras()"><option value="">Todas formas</option></select>
@@ -378,34 +393,94 @@ const SEED={"compras": [{"id": "2c987055-3074-5cf6-a99b-3ca9a49f960a", "quantida
 const SUPABASE_URL='https://nvzqjvltzhmbtbtwletv.supabase.co';
 const SUPABASE_KEY='sb_publishable_mLCxvus4BzQcvwc1lH2alQ_Ci9gI6Hw';
 const SB=typeof supabase!=='undefined'&&SUPABASE_URL!=='SUA_URL_SUPABASE'?supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
+// ============================================
+// RELOGIO LOCAL — toISOString usa UTC e, no Brasil, vira o dia depois das 21h
+// ============================================
+const hojeISO=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const maisDias=d=>{const t=new Date();t.setHours(12,0,0,0);t.setDate(t.getDate()+d);return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')};
+
+// ============================================
+// FILA DE PENDENCIAS — o que nao conseguiu chegar na nuvem
+// ============================================
+const PEND_KEY='obra-facil-pend';
+const lerPend=()=>{try{const p=JSON.parse(localStorage.getItem(PEND_KEY)||'null');return p&&Array.isArray(p.del)?p:{del:[]}}catch(e){return{del:[]}}};
+let PEND=lerPend();
+const gravarPend=()=>{try{localStorage.setItem(PEND_KEY,JSON.stringify(PEND))}catch(e){}};
+const pendDel=(t,col,val)=>{PEND.del=PEND.del.filter(x=>!(x.t===t&&x.col===col&&x.v===val));PEND.del.push({t:t,col:col,v:val});gravarPend()};
+const pendOk=(t,col,val)=>{const n=PEND.del.length;PEND.del=PEND.del.filter(x=>!(x.t===t&&x.col===col&&x.v===val));if(PEND.del.length!==n)gravarPend()};
+
+const marcarSujo=id=>{if(!id)return;let mudou=false;
+for(const k of ['compras','maoDeObra','documentos','juros','contas']){for(const it of (S[k]||[])){if(it&&it.id===id&&!it._dirty){it._dirty=true;mudou=true}}}
+if(mudou)save()};
+const limparSujo=id=>{if(!id)return;for(const k of ['compras','maoDeObra','documentos','juros','contas']){for(const it of (S[k]||[])){if(it&&it.id===id)it._dirty=false}}};
+
 async function sbPush(table,payload){
-if(!SB)return null;
-try{
 const rows=Array.isArray(payload)?payload:[payload];
+if(!SB){rows.forEach(r=>r&&marcarSujo(r.id));return null}
+try{
 const todosTemId=rows.length>0&&rows.every(r=>r&&r.id);
-const q=todosTemId?SB.from(table).upsert(rows,{onConflict:'id'}):SB.from(table).insert(rows);
-const{data,error}=await q;if(error)throw error;return data}catch(e){console.warn('Supabase push error:',e.message);return null}}
-const cloudRow=o=>{const r={...o};delete r._new;delete r._i;return r};
+const limpos=rows.map(cloudRow);
+const q=todosTemId?SB.from(table).upsert(limpos,{onConflict:'id'}):SB.from(table).insert(limpos);
+const{data,error}=await q;if(error)throw error;
+rows.forEach(r=>r&&limparSujo(r.id));
+return data}catch(e){console.warn('Supabase push error:',e.message);rows.forEach(r=>r&&marcarSujo(r.id));marcarSinc('err');return null}}
+const cloudRow=o=>{const r={...o};delete r._new;delete r._i;delete r._dirty;return r};
 async function sbUpdate(table,id,payload){
-if(!SB)return null;
-try{const{data,error}=await SB.from(table).update(payload).eq('id',id);if(error)throw error;return data}catch(e){console.warn('Supabase update error:',e.message);return null}}
+if(!SB){marcarSujo(id);return null}
+try{const{data,error}=await SB.from(table).update(payload).eq('id',id);if(error)throw error;limparSujo(id);return data}
+catch(e){console.warn('Supabase update error:',e.message);marcarSujo(id);return null}}
 async function sbDelete(table,id){
-if(!SB)return null;
-try{const{error}=await SB.from(table).delete().eq('id',id);if(error)throw error;return true}catch(e){console.warn('Supabase delete error:',e.message);return null}}
+if(!SB){pendDel(table,'id',id);return null}
+try{const{error}=await SB.from(table).delete().eq('id',id);if(error)throw error;pendOk(table,'id',id);return true}
+catch(e){console.warn('Supabase delete error:',e.message);pendDel(table,'id',id);return null}}
+async function reenviarPendencias(){
+if(!SB||!PEND.del.length)return 0;
+let ok=0;
+for(const p of PEND.del.slice()){
+try{const{error}=await SB.from(p.t).delete().eq(p.col,p.v);if(error)throw error;pendOk(p.t,p.col,p.v);ok++}
+catch(e){console.warn('pendencia nao resolvida:',p.t,p.v,e.message)}}
+return ok}
+// Mantem o que existe apenas no aparelho (lancado sem internet) e reenvia.
+// Edicao local pendente vence a versao da nuvem.
+function mesclar(nuvem,local,tabela){
+const mapa=new Map();
+for(const r of nuvem)mapa.set(r.id,r);
+const reenviar=[];
+for(const r of (local||[])){
+if(!r||!r.id)continue;
+if(mapa.has(r.id)){
+if(r._dirty){mapa.set(r.id,r);reenviar.push(r)}
+}else if(r._dirty||r._new){mapa.set(r.id,r);reenviar.push(r)}
+}
+if(reenviar.length)sbPush(tabela,reenviar.map(cloudRow));
+return [...mapa.values()]}
 async function sbPullAll(silent){
-if(!SB)return;
+if(!SB)return false;
 try{
 const[rc,rm,rd,rp,rj,rc2]=await Promise.all([
 SB.from('compras').select('*'),SB.from('mao_de_obra').select('*'),SB.from('documentos').select('*'),
 SB.from('parcelas_pagas').select('*'),SB.from('juros').select('*'),SB.from('contas').select('*')]);
-if(rc.data&&rc.data.length)S.compras=rc.data.map(r=>({id:r.id,quantidade:r.quantidade,material:r.material,valor:Number(r.valor),forma:r.forma,parcelas:r.parcelas,fornecedor:r.fornecedor,data:r.data,pagador:r.pagador,status:r.status,categoria:r.categoria}));
-if(rm.data&&rm.data.length)S.maoDeObra=rm.data.map(r=>({id:r.id,data:r.data,valor:Number(r.valor),descricao:r.descricao,status:r.status}));
-if(rd.data&&rd.data.length)S.documentos=rd.data.map(r=>({id:r.id,servico:r.servico,valor:Number(r.valor),data:r.data,forma:r.forma,obs:r.obs}));
-if(rp.data&&rp.data.length)S.parcelasPagas=rp.data.map(r=>r.parcela_id);
-if(rj.data&&rj.data.length)S.juros=rj.data.map(r=>({id:r.id,data:r.data,valor:Number(r.valor)}));
-if(rc2.data&&rc2.data.length)S.contas=rc2.data.map(r=>({id:r.id,item:r.item,mes:r.mes,valor:Number(r.valor),status:r.status}));
-save();if(!silent)toast('☁️ Dados sincronizados!');refreshPage();
-}catch(e){console.warn('Supabase pull error:',e.message);if(!silent)toast('Erro ao sincronizar: '+e.message,true)}}
+const erro=[rc,rm,rd,rp,rj,rc2].find(r=>r&&r.error);
+if(erro)throw new Error(erro.error.message);
+const compras=(rc.data||[]).map(r=>({id:r.id,quantidade:r.quantidade,material:r.material,valor:Number(r.valor),forma:r.forma,parcelas:r.parcelas,fornecedor:r.fornecedor,data:r.data,pagador:r.pagador,status:r.status,categoria:r.categoria}));
+const mao=(rm.data||[]).map(r=>({id:r.id,data:r.data,valor:Number(r.valor),descricao:r.descricao,status:r.status}));
+const docs=(rd.data||[]).map(r=>({id:r.id,servico:r.servico,valor:Number(r.valor),data:r.data,forma:r.forma,obs:r.obs}));
+const juros=(rj.data||[]).map(r=>({id:r.id,data:r.data,valor:Number(r.valor)}));
+const contas=(rc2.data||[]).map(r=>({id:r.id,item:r.item,mes:r.mes,valor:Number(r.valor),status:r.status}));
+const pagas=(rp.data||[]).map(r=>r.parcela_id);
+S.compras=mesclar(compras,S.compras,'compras');
+S.maoDeObra=mesclar(mao,S.maoDeObra,'mao_de_obra');
+S.documentos=mesclar(docs,S.documentos,'documentos');
+S.juros=mesclar(juros,S.juros,'juros');
+S.contas=mesclar(contas,S.contas,'contas');
+const pendParc=new Set(PEND.del.filter(p=>p.t==='parcelas_pagas').map(p=>p.v));
+const compraIds=new Set(S.compras.map(c=>c.id));
+S.parcelasPagas=[...new Set([...pagas,...(S.parcelasPagas||[])])].filter(id=>{
+if(pendParc.has(id))return false;
+const base=String(id).replace(/-\d+$/,'');
+return compraIds.has(base)||base===String(id)});
+save();marcarSinc('ok');if(!silent)toast('☁️ Dados sincronizados!');refreshPage();return true;
+}catch(e){console.warn('Supabase pull error:',e.message);marcarSinc('err');if(!silent)toast('Erro ao sincronizar: '+e.message,true);return false}}
 async function sbSeedAll(silent){
 if(!SB)return silent?0:toast('Supabase não configurado!',true);
 if(!silent&&!confirm('Enviar todos os dados da planilha para o Supabase?'))return;
@@ -419,6 +494,7 @@ up('documentos',S.documentos.map(c=>({id:c.id,servico:c.servico,valor:c.valor,da
 up('juros',S.juros.map(c=>({id:c.id||uid(),data:c.data,valor:c.valor}))),
 up('contas',S.contas.map(c=>({id:c.id||uid(),item:c.item,mes:c.mes,valor:c.valor,status:c.status})))]);
 if(S.parcelasPagas.length){const rp2=await SB.from('parcelas_pagas').upsert(S.parcelasPagas.map(x=>({parcela_id:x})),{onConflict:'parcela_id'});if(rp2.error)throw new Error('parcelas_pagas: '+rp2.error.message)}
+try{localStorage.setItem('obra-facil-semeado','1')}catch(e){}
 if(!silent)toast('✅ Dados enviados ao Supabase!');
 return 1;
 }catch(e){if(!silent)toast('Erro: '+e.message,true);return 0}}
@@ -426,8 +502,11 @@ async function sbAutoSeed(){
 if(!SB)return;
 try{
 const r=await SB.from('compras').select('id',{count:'exact',head:true});
-if(r.count===0){console.log('Supabase vazio — enviando dados iniciais...');await sbSeedAll(true)}
+if(r.error)throw r.error;
+const jaSemeou=localStorage.getItem('obra-facil-semeado');
+if(r.count===0&&!jaSemeou){console.log('Supabase vazio — enviando dados iniciais...');await sbSeedAll(true)}
 else{await sbPullAll(true)}
+await reenviarPendencias();
 }catch(e){console.warn('autoSeed:',e.message)}}
 // ============================================
 let S=JSON.parse(JSON.stringify(SEED));
@@ -439,8 +518,9 @@ if(SAVED.parcelasPagas)S.parcelasPagas=SAVED.parcelasPagas;
 if(SAVED.juros)S.juros=SAVED.juros;
 if(SAVED.contas)S.contas=SAVED.contas;
 
-// Limpeza automática: remove linhas de resumo antigas (TOTAL, SALDO) salvas no navegador
-const _badRow=r=>!!(r&&r.data&&typeof r.data==='string'&&r.data.trim()!==''&&!/^\d{4}-\d{2}-\d{2}$/.test(r.data.trim()));
+// Limpeza automatica: remove apenas linhas de resumo antigas (TOTAL/SALDO), sem tocar no resto
+const _resumo=r=>{const t=String((r&&(r.material||r.descricao||r.servico))||'').trim().toUpperCase();return /^(TOTAL|SUBTOTAL|TOTAL GERAL|SALDO|SALDO FINAL)\b/.test(t)};
+const _badRow=r=>!!(r&&_resumo(r)&&!(r.data&&/^\d{4}-\d{2}-\d{2}$/.test(String(r.data).trim())));
 ['compras','maoDeObra','documentos'].forEach(k=>{S[k]=(S[k]||[]).filter(r=>!_badRow(r))});
 
 const CATEGORIAS=["Fundação","Estrutura","Alvenaria","Laje","Cobertura","Madeira/Formas","Elétrica","Hidráulica","Acabamento","Pintura","Serviços","Outros"];
@@ -448,12 +528,14 @@ const FORMAS={cartao:"Cartão",pix:"PIX",dinheiro:"Dinheiro",boleto:"Boleto",out
 const uid=()=>(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16)});
 function closeMenu(){document.querySelector('.nav-menu')?.classList.remove('open')}
 function toggleNav(){const n=document.querySelector('.nav-menu');if(n)n.classList.toggle('open')}
-const save=()=>localStorage.setItem('obra-facil-v2',JSON.stringify({compras:S.compras,maoDeObra:S.maoDeObra,documentos:S.documentos,parcelasPagas:S.parcelasPagas,juros:S.juros,contas:S.contas}));
+let _saveAviso=false;
+const save=()=>{try{localStorage.setItem('obra-facil-v2',JSON.stringify({compras:S.compras,maoDeObra:S.maoDeObra,documentos:S.documentos,parcelasPagas:S.parcelasPagas,juros:S.juros,contas:S.contas}))}
+catch(e){console.warn('save:',e.message);if(!_saveAviso){_saveAviso=true;try{toast('⚠️ Não consegui salvar neste aparelho. Faça um backup!',true)}catch(_){}}}};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const brl=v=>'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const brlS=v=>v>=1000?'R$ '+(v/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil':brl(v);
 const dataBR=d=>d?new Date(d+'T12:00:00').toLocaleDateString('pt-BR'):'—';
-function toast(msg,err,undo){const t=document.getElementById('toast');t.innerHTML=msg+(undo?' <button class="undo" onclick="'+undo+'()">Desfazer</button>':'');t.className='toast show'+(err?' error':'');setTimeout(()=>t.className='toast',4000)}
+function toast(msg,err,undo){const t=document.getElementById('toast');t.innerHTML=esc(msg)+(undo?' <button class="undo" onclick="'+undo+'()">Desfazer</button>':'');t.className='toast show'+(err?' error':'');setTimeout(()=>t.className='toast',4000)}
 function show(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
 const titles={dashboard:'Painel',compras:'Compras',parcelas:'Parcelas',maoobra:'Mão de Obra',documentos:'Documentos',financiamento:'Financiamento',juros:'Juros & acerto',divisao:'Rateio Matheus'};document.getElementById('pageTitle').textContent=titles[id]||id;
 setTimeout(()=>{destroyAll();if(id==='dashboard')renderDash();else if(id==='compras')renderCompras();else if(id==='parcelas')renderParcelas();else if(id==='maoobra')renderMO();else if(id==='documentos')renderDocs();else if(id==='financiamento')renderFin();else if(id==='juros')renderJuros();else if(id==='divisao')renderSplit()},50)}
@@ -466,10 +548,10 @@ function mk(id,cfg){if(typeof Chart==='undefined')return;const el=document.getEl
 function destroyAll(){Object.values(_ch).forEach(c=>{try{c.destroy()}catch(e){}});_ch={}}
 
 // PARCELAS
-function addMonths(iso,n){const d=new Date(iso+'T12:00:00');d.setMonth(d.getMonth()+n);return d.toISOString().slice(0,10)}
+function addMonths(iso,n){const[y,m,d]=String(iso).split('-').map(Number);const ultimoDia=new Date(y,m-1+n+1,0).getDate();const dt=new Date(y,m-1+n,Math.min(d,ultimoDia));return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0')}
 function gerarParcelas(){
-const out=[];const hoje=new Date().toISOString().slice(0,10);
-for(const c of S.compras){if(c.forma!=='cartao'||!c.data)continue;const n=Math.max(1,c.parcelas||1);const base=Math.floor((c.valor/n)*100)/100;
+const out=[];const hoje=hojeISO();
+for(const c of S.compras){if(c.forma!=='cartao'||!c.data)continue;const n=Math.min(60,Math.max(1,Math.round(Number(c.parcelas)||1)));const base=Math.floor((c.valor/n)*100)/100;
 for(let i=1;i<=n;i++){const val=i===n?Math.round((c.valor-base*(n-1))*100)/100:base;const venc=addMonths(c.data,i);const id=c.id+'-'+i;const paga=S.parcelasPagas.includes(id);
 out.push({id,compraId:c.id,desc:c.material,forn:c.fornecedor,num:i,total:n,valor:val,venc,status:paga?'pago':(venc<hoje?'atrasado':'pendente')})}}
 return out.sort((a,b)=>a.venc.localeCompare(b.venc))}
@@ -482,7 +564,7 @@ const mat=S.compras.reduce((a,c)=>a+c.valor,0),mao=S.maoDeObra.reduce((a,c)=>a+c
 const juros=(S.juros||[]).reduce((a,c)=>a+(c.valor||0),0)+(S.contas||[]).reduce((a,c)=>a+(c.valor||0),0);
 const total=mat+mao+docs+juros;
 const parc=gerarParcelas();const aPagar=parc.filter(p=>p.status!=='pago');const totPagar=aPagar.reduce((a,p)=>a+p.valor,0);
-const _hojeStr=new Date().toISOString().slice(0,10);
+const _hojeStr=hojeISO();
 const nAtraso=aPagar.filter(p=>p.venc<_hojeStr).length;
 const ref=S.obra.area*S.obra.valorM2;
 document.getElementById('heroTotal').textContent=brl(total);
@@ -509,14 +591,21 @@ mk('chartForn',{type:'bar',data:{labels:forn.map(f=>f.nome),datasets:[{data:forn
 // RENDER COMPRAS
 let _sortC={col:'data',asc:false};
 function sortC(col){_sortC.asc=_sortC.col===col?!_sortC.asc:true;_sortC.col=col;renderCompras()}
+// Espera o usuario parar de digitar antes de redesenhar (evita travar no celular)
+let _tBusca=null;
+function buscaCompras(){clearTimeout(_tBusca);_tBusca=setTimeout(renderCompras,220)}
 function renderCompras(){
 const q=(document.getElementById('cq').value||'').toLowerCase(),forn=document.getElementById('cforn').value,cat=document.getElementById('ccat').value,forma=document.getElementById('cforma').value;
 const fornOpts=[...new Set(S.compras.map(c=>c.fornecedor).filter(Boolean))].sort();
 document.getElementById('cforn').innerHTML='<option value="">Todos fornecedores</option>'+fornOpts.map(f=>`<option>${esc(f)}</option>`).join('');
 document.getElementById('ccat').innerHTML='<option value="">Todas etapas</option>'+CATEGORIAS.map(c=>`<option>${c}</option>`).join('');
 document.getElementById('cforma').innerHTML='<option value="">Todas formas</option>'+Object.entries(FORMAS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+// Restaura a selecao: os <select> foram remontados acima e voltariam para "Todos"
+document.getElementById('cforn').value=forn;
+document.getElementById('ccat').value=cat;
+document.getElementById('cforma').value=forma;
 
-let items=S.compras.map((c,i)=>({...c,_i:i})).filter(c=>(!q||c.material.toLowerCase().includes(q))&&(!forn||c.fornecedor===forn)&&(!cat||c.categoria===cat)&&(!forma||c.forma===forma));
+let items=S.compras.map((c,i)=>({...c,_i:i})).filter(c=>(!q||String(c.material||'').toLowerCase().includes(q)||String(c.fornecedor||'').toLowerCase().includes(q))&&(!forn||c.fornecedor===forn)&&(!cat||c.categoria===cat)&&(!forma||c.forma===forma));
 items.sort((a,b)=>{let va=a[_sortC.col],vb=b[_sortC.col];if(_sortC.col==='valor'){va=Number(va)||0;vb=Number(vb)||0}else{va=String(va||'');vb=String(vb||'')}return _sortC.asc?(va>vb?1:-1):(va<vb?1:-1)});
 const total=items.reduce((s,c)=>s+c.valor,0);
 document.getElementById('comprasBody').innerHTML=items.map(c=>`<tr>
@@ -540,19 +629,28 @@ document.getElementById('comprasCards').innerHTML=items.length===0?'<div style="
 <button class="btn btn-ghost btn-icon" onclick="delCompra(${c._i})">🗑️</button></div></div></div>`).join('');
 }
 
-function dupCompra(i){const src=S.compras[i];if(!src)return;const c={...src,id:uid(),data:new Date().toISOString().slice(0,10),_new:true};S.compras.unshift(c);save();renderCompras();sbPush('compras',cloudRow(c));toast('📋 Compra duplicada!')}
+function dupCompra(i){const src=S.compras[i];if(!src)return;const c={...src,id:uid(),data:hojeISO(),_new:true};S.compras.unshift(c);save();renderCompras();sbPush('compras',cloudRow(c));toast('📋 Compra duplicada!')}
 let _lastDeleted=null;
-function delCompra(i){const c=S.compras[i];if(!c)return;_lastDeleted={arr:'compras',idx:i,item:JSON.parse(JSON.stringify(c))};S.compras.splice(i,1);save();renderCompras();if(c.id)sbDelete('compras',c.id);toast('🗑️ Excluído!',false,'undoLast')}
+function delCompra(i){const c=S.compras[i];if(!c)return;
+const n=Math.min(60,Math.max(1,Math.round(Number(c.parcelas)||1)));
+const ids=[];for(let k=1;k<=n;k++)ids.push(c.id+'-'+k);
+const pagasAntes=(S.parcelasPagas||[]).filter(x=>ids.includes(x));
+_lastDeleted={arr:'compras',idx:i,item:JSON.parse(JSON.stringify(c)),parcelas:pagasAntes};
+S.compras.splice(i,1);
+S.parcelasPagas=(S.parcelasPagas||[]).filter(x=>!ids.includes(x));
+save();renderCompras();
+if(c.id)sbDelete('compras',c.id);
+if(ids.length)sbParcelasApagarLote(ids);
+toast('🗑️ Excluído!',false,'undoLast')}
 
 // RENDER PARCELAS
 function renderParcelas(){
 const parc=gerarParcelas();const abertas=parc.filter(p=>p.status!=='pago');
-const hojeStr=new Date().toISOString().slice(0,10);
-const hoje=new Date();
+const hojeStr=hojeISO();
 const atrasadas=abertas.filter(p=>p.venc<hojeStr);
 const futuras=abertas.filter(p=>p.venc>=hojeStr);
 const totAtraso=atrasadas.reduce((a,p)=>a+p.valor,0);
-const somaAte=d=>{const lim=new Date(hoje.getTime()+d*864e5).toISOString().slice(0,10);return futuras.filter(p=>p.venc<=lim).reduce((a,p)=>a+p.valor,0)};
+const somaAte=d=>{const lim=maisDias(d);return futuras.filter(p=>p.venc<=lim).reduce((a,p)=>a+p.valor,0)};
 document.getElementById('parcelasStats').innerHTML=`
 <div class="stat ${atrasadas.length?'danger':''}"><div class="label">⚠️ Atrasadas</div><div class="value">${brl(totAtraso)}</div><div class="hint">${atrasadas.length} vencidas sem confirmação</div></div>
 <div class="stat primary"><div class="label">⏰ Próx. 7 dias</div><div class="value">${brl(somaAte(7))}</div></div>
@@ -588,7 +686,7 @@ async function sbParcelasPagasLote(ids){if(!SB||!ids.length)return null;try{cons
 async function sbParcelasApagarLote(ids){if(!SB||!ids.length)return null;try{const{error}=await SB.from('parcelas_pagas').delete().in('parcela_id',ids);if(error)throw error;return true}catch(e){console.warn('Supabase lote apagar:',e.message);return null}}
 let _lotePago=null;
 function pagarTodasAtrasadas(){
-const hojeStr=new Date().toISOString().slice(0,10);
+const hojeStr=hojeISO();
 const alvo=gerarParcelas().filter(p=>p.venc<hojeStr&&!S.parcelasPagas.includes(p.id));
 if(!alvo.length)return;
 const tot=alvo.reduce((a,p)=>a+p.valor,0);
@@ -640,7 +738,7 @@ document.getElementById('docCards').innerHTML=S.documentos.map((c,i)=>`<div clas
 
 // RENDER FIN (financiamento)
 function renderFin(){
-const juros=S.juros||[],contas=S.contas||[];
+const juros=(S.juros||[]).slice().sort((a,b)=>String(a.data||'').localeCompare(String(b.data||''))),contas=S.contas||[];
 const totJ=juros.reduce((a,c)=>a+(c.valor||0),0),totC=contas.reduce((a,c)=>a+(c.valor||0),0);
 document.getElementById('finStats').innerHTML=`
 <div class="stat"><div class="label">🏦 Financiamento</div><div class="value">${brlS(totJ)}</div><div class="hint">${juros.length} parcelas</div></div>
@@ -703,15 +801,17 @@ document.getElementById('splitBox').innerHTML=`<h3>🤝 Resumo do Rateio</h3>
 <div class="split-item"><span>💵 Caio Deve</span><strong>${brl(rd['VALOR DEVIDO']||31420.34)}</strong></div>
 <div class="split-item"><span>🔄 Retorno Matheus</span><strong style="color:var(--green)">${brl(rd['RETORNO']||579.66)}</strong></div>`;
 mk('chartSplit',{type:'doughnut',data:{labels:['Terreno (Caio)','Metade Escritura','Adiantamento'],datasets:[{data:[17500,1579.66/2,2000],backgroundColor:['#8b5cf6','#f59e0b','#10b981'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},cutout:'60%'}});
-document.getElementById('splitBody').innerHTML=(S.rateio||[]).map(c=>`<tr><td>${c.item||'—'}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td>${dataBR(c.data)}</td></tr>`).join('');
-document.getElementById('splitCards').innerHTML=(S.rateio||[]).map(c=>`<div class="mcard"><div class="mi"><div class="mt">${c.item||'—'}</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv">${brl(c.valor||0)}</div></div></div>`).join('');
+document.getElementById('splitBody').innerHTML=(S.rateio||[]).map(c=>`<tr><td>${esc(c.item||'—')}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td>${dataBR(c.data)}</td></tr>`).join('');
+document.getElementById('splitCards').innerHTML=(S.rateio||[]).map(c=>`<div class="mcard"><div class="mi"><div class="mt">${esc(c.item||'—')}</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv">${brl(c.valor||0)}</div></div></div>`).join('');
 }
 
 // MODAL
-let modalType=null,editIdx=null;
+let modalType=null,editIdx=null,editId=null;
 const MAP={compra:'compras',maoobra:'maoDeObra',doc:'documentos'};
 function openModal(type,ref){
 modalType=type;editIdx=(ref===undefined||ref===null)?null:Number(ref);
+// Guarda o ID, nao a posicao: a lista pode ser reordenada por uma sincronizacao no meio da edicao
+editId=editIdx===null?null:((((S[MAP[type]]||[])[editIdx])||{}).id||null);
 const ed=editIdx!==null;
 const m=document.getElementById('modal');const t=document.getElementById('modalTitle');const b=document.getElementById('modalBody');
 if(type==='compra'){t.innerHTML=ed?'✏️ Editar compra':'🧱 Nova compra';b.innerHTML=`
@@ -721,18 +821,18 @@ if(type==='compra'){t.innerHTML=ed?'✏️ Editar compra':'🧱 Nova compra';b.i
 <div class="form-row"><div class="form-group"><label>Forma de pagamento</label><select id="f_forma">${Object.entries(FORMAS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
 <div class="form-group"><label>Nº Parcelas (se cartão)</label><input id="f_parcelas" type="number" value="1" min="1"></div></div>
 <div class="form-row"><div class="form-group"><label>Fornecedor</label><input id="f_fornecedor" placeholder="Ex: Imperio Construções"></div>
-<div class="form-group"><label>Data</label><input id="f_data" type="date" value="${new Date().toISOString().slice(0,10)}"></div></div>
+<div class="form-group"><label>Data</label><input id="f_data" type="date" value="${hojeISO()}"></div></div>
 <div class="form-row"><div class="form-group"><label>Etapa</label><select id="f_categoria">${CATEGORIAS.map(c=>`<option>${c}</option>`).join('')}</select></div>
 <div class="form-group"><label>Status</label><select id="f_status"><option value="pago">Pago</option><option value="pendente">Pendente</option></select></div></div>`}
 else if(type==='maoobra'){t.innerHTML=ed?'✏️ Editar pagamento':'👷 Novo pagamento';b.innerHTML=`
-<div class="form-row"><div class="form-group"><label>Data</label><input id="f_data" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+<div class="form-row"><div class="form-group"><label>Data</label><input id="f_data" type="date" value="${hojeISO()}"></div>
 <div class="form-group"><label>Valor (R$)</label><input id="f_valor" type="number" step="0.01"></div></div>
 <div class="form-group"><label>Descrição</label><input id="f_descricao" placeholder="Ex: ROGERIO, PINTURA..."></div>
 <div class="form-group"><label>Status</label><select id="f_status"><option value="pago">Pago</option><option value="pendente">Pendente</option></select></div>`}
 else if(type==='doc'){t.innerHTML=ed?'✏️ Editar serviço':'📋 Novo serviço';b.innerHTML=`
 <div class="form-group"><label>Serviço</label><input id="f_servico" placeholder="Ex: ITBI, Alvará..."></div>
 <div class="form-row"><div class="form-group"><label>Valor (R$)</label><input id="f_valor" type="number" step="0.01"></div>
-<div class="form-group"><label>Data</label><input id="f_data" type="date" value="${new Date().toISOString().slice(0,10)}"></div></div>
+<div class="form-group"><label>Data</label><input id="f_data" type="date" value="${hojeISO()}"></div></div>
 <div class="form-group"><label>Forma de pagamento</label><input id="f_forma" placeholder="Ex: PIX CAIO, BB..."></div>`}
 m.classList.add('open');
 if(ed)prefillForm(type,editIdx);
@@ -745,7 +845,7 @@ else if(type==='maoobra'){set('data',it.data);set('valor',it.valor);set('descric
 else if(type==='doc'){set('servico',it.servico);set('valor',it.valor);set('data',it.data);set('forma',it.forma)}
 }
 function editEntry(type,idx){openModal(type,idx)}
-function closeModal(){document.getElementById('modal').classList.remove('open');modalType=null;editIdx=null}
+function closeModal(){document.getElementById('modal').classList.remove('open');modalType=null;editIdx=null;editId=null}
 function refreshPage(){let cur=((document.querySelector('.page.active')||{}).id||'').replace('page-','');
 if(cur==='compras')renderCompras();else if(cur==='maoobra')renderMO();else if(cur==='documentos')renderDocs();else if(cur==='financiamento')renderFin();else if(cur==='dashboard')renderDash();else if(cur==='parcelas')renderParcelas();else if(cur==='juros')renderJuros();else if(cur==='divisao')renderSplit()}
 
@@ -754,9 +854,11 @@ const g=id=>{const e=document.getElementById('f_'+id);return e?e.value.trim():''
 const v=id=>{const e=document.getElementById('f_'+id);return e?Number(e.value)||0:0};
 try{
 if(editIdx!==null){
-const arr=MAP[modalType];const it=S[arr][editIdx];if(!it){closeModal();return}
+const arr=MAP[modalType];
+if(editId){const achou=S[arr].findIndex(x=>x&&x.id===editId);if(achou<0){closeModal();return toast('⚠️ Este registro não existe mais. Recarregue a página.',true)}editIdx=achou}
+const it=S[arr][editIdx];if(!it){closeModal();return}
 if(modalType==='compra'){const mat=g('material');if(!mat)return toast('Informe o material!',true);
-Object.assign(it,{quantidade:g('quantidade'),material:mat,valor:v('valor'),forma:g('forma'),parcelas:v('parcelas')||1,fornecedor:g('fornecedor'),data:g('data'),status:g('status'),categoria:g('categoria')});
+Object.assign(it,{quantidade:g('quantidade'),material:mat,valor:v('valor'),forma:g('forma'),parcelas:Math.min(60,Math.max(1,Math.round(v('parcelas')||1))),fornecedor:g('fornecedor'),data:g('data'),status:g('status'),categoria:g('categoria')});
 sbUpdate('compras',it.id,{quantidade:it.quantidade,material:it.material,valor:it.valor,forma:it.forma,parcelas:it.parcelas,fornecedor:it.fornecedor,data:it.data,pagador:it.pagador,status:it.status,categoria:it.categoria})}
 else if(modalType==='maoobra'){const val=v('valor');if(!val)return toast('Informe o valor!',true);
 Object.assign(it,{data:g('data'),valor:val,descricao:g('descricao'),status:g('status')});
@@ -767,7 +869,7 @@ sbUpdate('documentos',it.id,{servico:it.servico,valor:it.valor,data:it.data,form
 save();closeModal();refreshPage();toast('✅ Alterações salvas!');return;
 }
 if(modalType==='compra'){const mat=g('material');if(!mat)return toast('Informe o material!',true);
-const item={id:uid(),quantidade:g('quantidade'),material:mat,valor:v('valor'),forma:g('forma'),parcelas:v('parcelas')||1,fornecedor:g('fornecedor'),data:g('data'),pagador:'CAIO',status:g('status'),categoria:g('categoria'),_new:true};
+const item={id:uid(),quantidade:g('quantidade'),material:mat,valor:v('valor'),forma:g('forma'),parcelas:Math.min(60,Math.max(1,Math.round(v('parcelas')||1))),fornecedor:g('fornecedor'),data:g('data'),pagador:'CAIO',status:g('status'),categoria:g('categoria'),_new:true};
 S.compras.unshift(item);sbPush('compras',{id:item.id,quantidade:item.quantidade,material:item.material,valor:item.valor,forma:item.forma,parcelas:item.parcelas,fornecedor:item.fornecedor,data:item.data,pagador:item.pagador,status:item.status,categoria:item.categoria});toast('✅ Compra salva!')}
 else if(modalType==='maoobra'){const val=v('valor');if(!val)return toast('Informe o valor!',true);
 const item={id:uid(),data:g('data'),valor:val,descricao:g('descricao'),status:g('status'),_new:true};
@@ -784,7 +886,9 @@ const sbTable={maoDeObra:'mao_de_obra',documentos:'documentos',juros:'juros',con
 if(sbTable[arr]&&item.id)sbDelete(sbTable[arr],item.id);
 const renders={maoDeObra:renderMO,documentos:renderDocs,juros:renderFin,contas:renderFin};(renders[arr]||renderCompras)();
 toast('🗑️ Excluído!',false,'undoLast')}
-function undoLast(){if(!_lastDeleted)return;const{arr,item}=_lastDeleted;if(arr==='compras')S.compras.unshift(item);else S[arr].splice(_lastDeleted.idx,0,item);_lastDeleted=null;save();
+function undoLast(){if(!_lastDeleted)return;const{arr,item,parcelas}=_lastDeleted;if(arr==='compras')S.compras.unshift(item);else S[arr].splice(_lastDeleted.idx,0,item);
+if(parcelas&&parcelas.length){S.parcelasPagas=[...new Set([...(S.parcelasPagas||[]),...parcelas])];sbParcelasPagasLote(parcelas)}
+_lastDeleted=null;save();
 const sbTable={maoDeObra:'mao_de_obra',documentos:'documentos',juros:'juros',contas:'contas',compras:'compras'};
 const t=sbTable[arr];if(t&&item&&item.id)sbPush(t,cloudRow(item));
 const renders={maoDeObra:renderMO,documentos:renderDocs,juros:renderFin,contas:renderFin};(renders[arr]||renderCompras)();toast('↩️ Restaurado!')}
@@ -793,9 +897,25 @@ function resetAll(){localStorage.removeItem('obra-facil-v2');S=JSON.parse(JSON.s
 
 // Offline: os dados continuam salvos no aparelho, só não sincroniza
 if(typeof window!=='undefined'){
-window.addEventListener('offline',()=>toast('📴 Sem internet — seus dados continuam salvos neste aparelho',true));
-window.addEventListener('online',()=>{toast('📶 Internet de volta! Sincronizando...');sbPullAll(false)});
-if(navigator.onLine===false)toast('📴 Sem internet — seus dados continuam salvos neste aparelho',true);
+window.addEventListener('offline',()=>{marcarSinc('off');toast('📴 Sem internet — seus dados continuam salvos neste aparelho',true)});
+window.addEventListener('online',()=>{toast('📶 Internet de volta! Sincronizando...');sbPullAll(false).then(()=>reenviarPendencias())});
+if(navigator.onLine===false)marcarSinc('off');else if(!SB)marcarSinc('local');
+// Duas abas/atalhos abertos: mantem os dois lados iguais
+window.addEventListener('storage',e=>{
+if(e.key!=='obra-facil-v2'||!e.newValue)return;
+try{const d=JSON.parse(e.newValue);
+if(d.compras)S.compras=d.compras;
+if(d.maoDeObra)S.maoDeObra=d.maoDeObra;
+if(d.documentos)S.documentos=d.documentos;
+if(d.parcelasPagas)S.parcelasPagas=d.parcelasPagas;
+if(d.juros)S.juros=d.juros;
+if(d.contas)S.contas=d.contas;
+refreshPage()}catch(err){}
+});
+// App instalavel + abre sem internet
+if('serviceWorker' in navigator&&location.protocol==='https:'){
+window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(e=>console.warn('SW:',e.message))});
+}
 }
 
 function exportCSV(){let csv='Categoria;Material;Valor;Forma;Data;Fornecedor;Status;Etapa\n';
@@ -803,6 +923,27 @@ S.compras.forEach(c=>{csv+=`Compra;${c.material};${c.valor};${c.forma}${c.parcel
 S.maoDeObra.forEach(c=>{csv+=`MaoObra;;;${c.valor};;${c.data};${c.status};;${c.descricao||''}\n`});
 S.documentos.forEach(c=>{csv+=`Doc;${c.servico};${c.valor};;${c.data||''};;;${c.forma||''}\n`});
 const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='obra_casa_caio.csv';a.click();toast('📥 CSV exportado!')}
+
+// ============================================
+// STATUS DE SINCRONIZACAO + BACKUP
+// ============================================
+let _ultimaSinc=null;
+function marcarSinc(estado){
+const el=document.getElementById('syncChip');if(!el)return;
+if(estado==='ok'){_ultimaSinc=new Date();el.className='sync-chip ok';el.textContent='☁️';el.title='Sincronizado às '+_ultimaSinc.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
+else if(estado==='off'){el.className='sync-chip off';el.textContent='📴';el.title='Sem internet — os dados estão salvos neste aparelho'}
+else if(estado==='local'){el.className='sync-chip off';el.textContent='📴';el.title='Somente neste aparelho — a nuvem não está disponível'}
+else{el.className='sync-chip err';el.textContent='⚠️';el.title='Falha ao sincronizar — os dados estão salvos neste aparelho'}
+}
+function baixarBackup(){
+try{
+const dados={geradoEm:new Date().toISOString(),versao:2,obra:S.obra,compras:S.compras,maoDeObra:S.maoDeObra,documentos:S.documentos,parcelasPagas:S.parcelasPagas,juros:S.juros,contas:S.contas,rateio:S.rateio,resumoDivisao:S.resumoDivisao};
+const blob=new Blob([JSON.stringify(dados,null,2)],{type:'application/json'});
+const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='obra-caio-backup-'+hojeISO()+'.json';
+document.body.appendChild(a);a.click();a.remove();
+setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+toast('⬇️ Backup baixado! Guarde este arquivo.')}
+catch(e){toast('Erro ao gerar backup: '+e.message,true)}}
 
 // INIT
 show('dashboard');
