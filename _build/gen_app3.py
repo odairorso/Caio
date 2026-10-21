@@ -23,13 +23,20 @@ def _is_summary(v):
         return False
     return not _is_real_date(v)
 
+def _is_total_label(v):
+    """True quando o NOME do lançamento é um rótulo de total (ex: 'TOTAL:', 'SALDO')."""
+    if v is None:
+        return False
+    t = str(v).strip().upper().rstrip(":").strip()
+    return t in ("TOTAL", "SUBTOTAL", "TOTAL GERAL", "SALDO", "SALDO FINAL")
+
 with open(r"C:\Users\Odair\Documents\App Caio\obra_data.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
 # Convert spreadsheet data to Lovable-like structure
 compras = []
 for i, c in enumerate(data.get("custos", [])):
-    if _is_summary(c.get("data")):
+    if _is_summary(c.get("data")) or _is_total_label(c.get("material")):
         continue  # pula linhas de resumo/total
     pag = (c.get("pagamento") or "").upper()
     forma = "cartao" if "CART" in pag else "pix" if "PIX" in pag else "dinheiro" if "DINHEIRO" in pag else "boleto" if "BOLETO" in pag else "outro"
@@ -47,14 +54,14 @@ for i, c in enumerate(data.get("custos", [])):
 
 maoDeObra = []
 for i, c in enumerate(data.get("mao_obra", [])):
-    if _is_summary(c.get("data")):
+    if _is_summary(c.get("data")) or _is_total_label(c.get("descricao")) or _is_total_label(c.get("quem")):
         continue  # pula linhas TOTAL/SALDO da planilha
     maoDeObra.append({"id": _uid("mo:" + str(i)), "data": c.get("data") or "", "valor": c.get("valor") or 0,
         "descricao": c.get("quem") or c.get("forma") or "", "status": "pago" if str(c.get("status") or "").strip().upper() == "PAGO" else "pendente"})
 
 documentos = []
 for i, c in enumerate(data.get("documentacao", [])):
-    if _is_summary(c.get("data")):
+    if _is_summary(c.get("data")) or _is_total_label(c.get("servico")):
         continue
     documentos.append({"id": _uid("doc:" + str(i)), "servico": c.get("servico") or "", "valor": c.get("valor") or 0,
         "data": c.get("data"), "forma": c.get("pagamento"), "obs": c.get("obs")})

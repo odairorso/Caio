@@ -390,7 +390,7 @@ console.log('\n=== DADOS REAIS (SEED) ===');
 const seed = JSON.parse(html.match(/const SEED=(\{.*?\});\r?\n/s)[1]);
 
 teste('seed tem 243 compras, 32 mao de obra, 30 docs, 14 juros, 13 contas', () => {
-  igual([seed.compras.length, seed.maoDeObra.length, seed.documentos.length, seed.juros.length, seed.contas.length], [243, 32, 30, 14, 13]);
+  igual([seed.compras.length, seed.maoDeObra.length, seed.documentos.length, seed.juros.length, seed.contas.length], [243, 32, 29, 14, 13]);
 });
 
 teste('status do seed e sempre pago ou pendente', () => {
@@ -405,9 +405,9 @@ teste('planilha em branco virou pendente (89 compras e 3 pagamentos)', () => {
   perto(seed.maoDeObra.filter((c) => c.status === 'pendente').reduce((a, c) => a + c.valor, 0), 3597.16, 'mao pendente:');
 });
 
-teste('total do seed continua R$ 194.078,86', () => {
+teste('total do seed continua R$ 180.217,89 (sem a linha TOTAL da planilha)', () => {
   const t = [...seed.compras, ...seed.maoDeObra, ...seed.documentos, ...seed.juros, ...seed.contas].reduce((a, c) => a + (c.valor || 0), 0);
-  perto(t, 194078.86, 'total:');
+  perto(t, 180217.89, 'total:');
 });
 
 teste('aba Obras tem as 6 sub-abas', () => {

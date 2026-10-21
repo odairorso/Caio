@@ -49,7 +49,7 @@ sozinho não pega erro de lógica — ele só conta registros e valida sintaxe.
   próprios lançamentos, parcelas, orçamento e diário
 - 243 compras de material
 - 32 pagamentos de mão de obra (R$ 62.007,32)
-- 30 serviços de documentação
+- 29 serviços de documentação
 - Parcelas automáticas do cartão (vencidas aparecem como **atrasadas**)
 - Financiamento, juros e contas da obra
 - Rateio com o Matheus
@@ -61,7 +61,18 @@ sozinho não pega erro de lógica — ele só conta registros e valida sintaxe.
 Na planilha, o que estava **em branco** na coluna de status passou a valer como
 **pendente** (antes virava "pago" por engano). São 89 compras (R$ 26.217,60) e
 3 pagamentos de mão de obra (R$ 3.597,16) — total pendente de R$ 29.814,76.
-O total gasto não mudou: R$ 194.078,86.
+
+### Correção do total: R$ 180.217,89
+
+A aba de documentos da planilha tinha uma linha **"TOTAL:"** de R$ 13.860,97 — que é
+a soma da própria seção, não um gasto. Ela estava sendo contada como serviço,
+inflando o total. Removida do seed e da nuvem. Números corretos (21/10/2026):
+
+| | |
+|---|---|
+| Total gasto | **R$ 180.217,89** (331 lançamentos) |
+| Pago | R$ 150.403,13 (239 quitados) |
+| Pendente | R$ 29.814,76 (92 em aberto) |
 
 ---
 

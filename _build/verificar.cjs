@@ -19,7 +19,7 @@ const ok = (cond, msg) => { console.log((cond ? '  [OK]   ' : '  [FALHA] ') + ms
 console.log('=== CONTAGENS ===');
 ok(S.compras.length === 243, 'compras = ' + S.compras.length + ' (esperado 243)');
 ok(S.maoDeObra.length === 32, 'maoDeObra = ' + S.maoDeObra.length + ' (esperado 32)');
-ok(S.documentos.length === 30, 'documentos = ' + S.documentos.length + ' (esperado 30)');
+ok(S.documentos.length === 29, 'documentos = ' + S.documentos.length + ' (esperado 29 — sem a linha TOTAL)');
 ok(S.juros.length === 14, 'juros = ' + S.juros.length + ' (esperado 14)');
 ok(S.contas.length === 13, 'contas = ' + S.contas.length + ' (esperado 13)');
 ok(S.rateio.length === 7, 'rateio = ' + S.rateio.length + ' (esperado 7)');
@@ -29,6 +29,11 @@ const somaMO = S.maoDeObra.reduce((a, b) => a + Number(b.valor || 0), 0);
 ok(Math.abs(somaMO - 62007.32) < 0.01, 'soma = ' + brl(somaMO) + ' (esperado R$ 62.007,32)');
 ok(S.maoDeObra.every(r => r.data && !/total|saldo/i.test(r.data || '')), 'nenhuma linha TOTAL/SALDO');
 ok(S.maoDeObra.every(r => Number(r.valor) >= 0), 'nenhum valor negativo');
+
+console.log('\n=== DOCUMENTACAO ===');
+const somaDoc = S.documentos.reduce((a, b) => a + Number(b.valor || 0), 0);
+ok(Math.abs(somaDoc - 13860.97) < 0.01, 'soma = ' + brl(somaDoc) + ' (esperado R$ 13.860,97)');
+ok(S.documentos.every(r => !/^(TOTAL|SUBTOTAL|SALDO)/i.test(String(r.servico || '').trim())), 'nenhuma linha TOTAL/SALDO');
 
 console.log('\n=== IDS EM UUID ===');
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
