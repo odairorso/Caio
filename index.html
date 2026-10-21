@@ -143,6 +143,25 @@ tr:hover{background:rgba(139,92,246,.03)}
 .btn-pago{display:inline-flex;align-items:center;gap:5px;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:6px 13px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
 .btn-pago:hover{background:var(--green);border-color:var(--green);color:#fff}
 @media(max-width:768px){.parc-item{flex-wrap:wrap;gap:10px}.pi-main{flex:1 1 100%}.pi-valor{margin-left:auto}.parc-items{max-height:none;overflow:visible}.pmes-list,.parc-items{padding-left:16px;padding-right:16px}}
+/* JUROS & ACERTO */
+.jc-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px;min-width:0;display:flex;flex-direction:column}
+.jc-box h3{font-size:16px;font-weight:600;margin-bottom:20px}
+.jc-chart{position:relative;height:230px}
+.jc-chart canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+.jc-cap{font-size:12px;color:var(--text2);margin-top:16px}
+.jc-list{flex:1}
+.jc-item{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:12px 0;border-bottom:1px solid rgba(39,39,42,.5);font-size:13.5px;color:var(--text2)}
+.jc-item .jc-val{color:var(--text);font-weight:600;white-space:nowrap}
+.jc-item.neg .jc-val{color:var(--text2);font-weight:500}
+.jc-total{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:14px 0 2px;font-size:15px;font-weight:700;color:var(--text)}
+.jc-total .jc-val{color:var(--accent2);font-size:16.5px;white-space:nowrap}
+.jc-row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:12px 0;border-bottom:1px solid rgba(39,39,42,.5);font-size:13.5px}
+.jc-row:last-of-type{border-bottom:none}
+.jc-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jc-date{font-size:11.5px;color:var(--text2);margin-left:8px;white-space:nowrap}
+.jc-valor{font-weight:600;white-space:nowrap}
+.jc-totrow{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:14px 0 2px;margin-top:4px;border-top:1px solid var(--border);font-size:15px;font-weight:700}
+@media(max-width:768px){.jc-item,.jc-row,.jc-total,.jc-totrow{gap:10px}.jc-name{white-space:normal}.jc-chart{height:200px}}
 @media(max-width:768px){
 .sidebar{width:100%;height:auto;bottom:auto;flex-direction:column;padding:0;align-items:stretch;border-right:none;border-bottom:1px solid var(--border);position:fixed;top:0}
 .sidebar .brand{border:none;margin:0;padding:12px 16px;justify-content:space-between}
@@ -205,11 +224,7 @@ th,td{padding:10px 12px;font-size:12px}
 <button class="nav-btn" onclick="show('parcelas',this);closeMenu()"><span class="ico">💳</span>Parcelas</button>
 <button class="nav-btn" onclick="show('maoobra',this);closeMenu()"><span class="ico">👷</span>Mão de Obra</button>
 <button class="nav-btn" onclick="show('documentos',this);closeMenu()"><span class="ico">📋</span>Documentos</button>
-<div class="section">Financeiro</div>
-<button class="nav-btn" onclick="show('financiamento',this);closeMenu()"><span class="ico">🏦</span>Financiamento</button>
-<button class="nav-btn" onclick="show('divisao',this);closeMenu()"><span class="ico">🤝</span>Rateio Matheus</button>
-<div class="section">Dados</div>
-<button class="nav-btn" onclick="resetAll();closeMenu()"><span class="ico">♻️</span>Restaurar original</button>
+<button class="nav-btn" onclick="show('financiamento',this);closeMenu()"><span class="ico">🤝</span>Juros & acerto</button>
 </div>
 </div>
 
@@ -294,30 +309,17 @@ th,td{padding:10px 12px;font-size:12px}
 <tbody id="docBody"></tbody></table></div><div class="mobile-list" id="docCards"></div></div>
 </div>
 
-<!-- FINANCIAMENTO -->
+<!-- JUROS & ACERTO -->
 <div id="page-financiamento" class="page">
+<p class="parc-sub">🏦 Financiamento da obra e divisão com sócio</p>
 <div class="stats" id="finStats"></div>
+<div class="jc-box"><h3>📈 Curva dos juros de obra</h3>
+<div class="jc-chart"><canvas id="chartFin"></canvas></div>
+<p class="jc-cap">Os juros sobem a cada liberação de etapa pelo banco.</p></div>
 <div class="grid2">
-<div class="chart-box"><h3>🏦 Parcelas do financiamento</h3><canvas id="chartFin"></canvas></div>
-<div class="chart-box"><h3>💡 Contas da obra</h3><canvas id="chartContas"></canvas></div>
+<div class="jc-box"><h3>🤝 Acerto com Matheus</h3><div class="jc-list" id="acertoBox"></div></div>
+<div class="jc-box"><h3>📄 Despesas divididas</h3><div class="jc-list" id="despBox"></div></div>
 </div>
-<div class="table-box"><div class="header"><h3>🏦 Financiamento</h3></div><div class="table-wrap"><table>
-<thead><tr><th>Vencimento</th><th>Valor</th><th></th></tr></thead>
-<tbody id="finBody"></tbody></table></div><div class="mobile-list" id="finCards"></div></div>
-<div class="table-box"><div class="header"><h3>💡 Contas (Água/Luz/IPTU)</h3></div><div class="table-wrap"><table>
-<thead><tr><th>Item</th><th>Mês</th><th>Valor</th><th>Status</th><th></th></tr></thead>
-<tbody id="contasBody"></tbody></table></div><div class="mobile-list" id="contasCards"></div></div>
-</div>
-
-<!-- DIVISÃO -->
-<div id="page-divisao" class="page">
-<div class="grid2">
-<div class="split-box" id="splitBox"></div>
-<div class="chart-box"><h3>🤝 Composição do rateio</h3><canvas id="chartSplit"></canvas></div>
-</div>
-<div class="table-box"><div class="header"><h3>🤝 Detalhamento</h3></div><div class="table-wrap"><table>
-<thead><tr><th>Item</th><th>Valor</th><th>Data</th></tr></thead>
-<tbody id="splitBody"></tbody></table></div><div class="mobile-list" id="splitCards"></div></div>
 </div>
 </div>
 </div>
@@ -366,7 +368,7 @@ if(rd.data&&rd.data.length)S.documentos=rd.data.map(r=>({id:r.id,servico:r.servi
 if(rp.data)S.parcelasPagas=rp.data.map(r=>r.parcela_id);
 if(rj.data&&rj.data.length)S.juros=rj.data.map(r=>({id:r.id,data:r.data,valor:Number(r.valor)}));
 if(rc2.data&&rc2.data.length)S.contas=rc2.data.map(r=>({id:r.id,item:r.item,mes:r.mes,valor:Number(r.valor),status:r.status}));
-save();if(!silent)toast('☁️ Dados sincronizados!');show('dashboard');
+save();if(!silent)toast('☁️ Dados sincronizados!');refreshPage();
 }catch(e){console.warn('Supabase pull error:',e.message);if(!silent)toast('Erro ao sincronizar: '+e.message,true)}}
 async function sbSeedAll(silent){
 if(!SB)return silent?0:toast('Supabase não configurado!',true);
@@ -413,8 +415,8 @@ const brlS=v=>v>=1000?'R$ '+(v/1000).toLocaleString('pt-BR',{maximumFractionDigi
 const dataBR=d=>d?new Date(d+'T12:00:00').toLocaleDateString('pt-BR'):'—';
 function toast(msg,err,undo){const t=document.getElementById('toast');t.innerHTML=msg+(undo?' <button class="undo" onclick="'+undo+'()">Desfazer</button>':'');t.className='toast show'+(err?' error':'');setTimeout(()=>t.className='toast',4000)}
 function show(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
-const titles={dashboard:'Painel',compras:'Compras',parcelas:'Parcelas',maoobra:'Mão de Obra',documentos:'Documentos',financiamento:'Financiamento',divisao:'Rateio Matheus'};document.getElementById('pageTitle').textContent=titles[id]||id;
-setTimeout(()=>{destroyAll();if(id==='dashboard')renderDash();else if(id==='compras')renderCompras();else if(id==='parcelas')renderParcelas();else if(id==='maoobra')renderMO();else if(id==='documentos')renderDocs();else if(id==='financiamento')renderFin();else if(id==='divisao')renderSplit()},50)}
+const titles={dashboard:'Painel',compras:'Compras',parcelas:'Parcelas',maoobra:'Mão de Obra',documentos:'Documentos',financiamento:'Juros & acerto'};document.getElementById('pageTitle').textContent=titles[id]||id;
+setTimeout(()=>{destroyAll();if(id==='dashboard')renderDash();else if(id==='compras')renderCompras();else if(id==='parcelas')renderParcelas();else if(id==='maoobra')renderMO();else if(id==='documentos')renderDocs();else if(id==='financiamento')renderFin()},50)}
 
 // CHART MANAGEMENT
 let _ch={};
@@ -559,39 +561,38 @@ document.getElementById('docBody').innerHTML=S.documentos.map((c,i)=>`<tr><td><b
 document.getElementById('docCards').innerHTML=S.documentos.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">${c.servico}</div><div class="ms">${dataBR(c.data)}${c.forma?' · '+c.forma:''}</div></div><div class="mr"><div class="mv">${brl(c.valor)}</div><div class="ma"><button class="btn btn-ghost btn-icon" onclick="editEntry('doc',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></div></div></div>`).join('');
 }
 
-// RENDER FIN
+// RENDER FIN / JUROS & ACERTO
 function renderFin(){
-const juros=S.juros||[],contas=S.contas||[];
-const totJ=juros.reduce((a,c)=>a+(c.valor||0),0),totC=contas.reduce((a,c)=>a+(c.valor||0),0);
+const juros=(S.juros||[]).slice().sort((a,b)=>(a.data||'').localeCompare(b.data||''));
+const contas=S.contas||[],rateio=S.rateio||[],rd=S.resumoDivisao||{};
+const totJ=juros.reduce((a,c)=>a+(c.valor||0),0);
+const totC=contas.reduce((a,c)=>a+(c.valor||0),0);
+const totD=rateio.reduce((a,c)=>a+(c.valor||0),0);
+const atual=juros.length?juros[juros.length-1].valor||0:0;
+const primeiro=juros.length?juros[0].valor||0:0;
+const ter=rd['VALOR TERRENO']||0,esc=rd['DESPESAS ESCRITURA']||0,adi=rd['ADIANTAMENTO']||0;
+const devido=rd['VALOR DEVIDO']||(ter-esc-adi);
+
 document.getElementById('finStats').innerHTML=`
-<div class="stat"><div class="label">🏦 Financiamento</div><div class="value">${brlS(totJ)}</div><div class="hint">${juros.length} parcelas</div></div>
-<div class="stat"><div class="label">💡 Contas</div><div class="value">${brlS(totC)}</div><div class="hint">${contas.length} contas</div></div>
-<div class="stat primary"><div class="label">📊 Total fixo</div><div class="value">${brlS(totJ+totC)}</div><div class="hint">custos mensais da obra</div></div>`;
+<div class="stat primary"><div class="label">🏦 Juros pagos</div><div class="value">${brl(totJ)}</div><div class="hint">${juros.length} meses</div></div>
+<div class="stat"><div class="label">📈 Juros atual/mês</div><div class="value" style="color:var(--accent2)">${brl(atual)}</div><div class="hint">começou em ${brl(primeiro)}</div></div>
+<div class="stat"><div class="label">💡 Água, luz e IPTU</div><div class="value">${brl(totC)}</div><div class="hint">${contas.length} contas pagas</div></div>
+<div class="stat danger"><div class="label">🤝 Devido a Matheus</div><div class="value">${brl(devido)}</div></div>`;
 
-const jl=juros.map(c=>{if(!c.data)return'-';const[,m,d]=c.data.split('-');return d+'/'+m});
-mk('chartFin',{type:'line',data:{labels:jl,datasets:[{label:'Parcela',data:juros.map(c=>c.valor||0),borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',fill:true,tension:.3,pointBackgroundColor:'#ef4444'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brl(v)}}}}});
+const MS=['jan.','fev.','mar.','abr.','mai.','jun.','jul.','ago.','set.','out.','nov.','dez.'];
+const jl=juros.map(c=>{if(!c.data)return'';const[y,m]=c.data.split('-');return MS[parseInt(m)-1]+' de '+y.slice(2)});
+mk('chartFin',{type:'line',data:{labels:jl,datasets:[{label:'Juros',data:juros.map(c=>c.valor||0),borderColor:'#8b5cf6',backgroundColor:barGrad('#8b5cf6'),fill:true,tension:.35,pointBackgroundColor:'#8b5cf6',pointRadius:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+brl(c.parsed.y)}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v}},x:{ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:12}}}}});
 
-const uc={};contas.forEach(c=>{uc[c.item]=(uc[c.item]||0)+(c.valor||0)});
-mk('chartContas',{type:'bar',data:{labels:Object.keys(uc),datasets:[{data:Object.values(uc),backgroundColor:['#3b82f6','#f59e0b','#10b981','#8b5cf6'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brl(v)}}}}});
+document.getElementById('acertoBox').innerHTML=`
+<div class="jc-item"><span>Valor do terreno</span><span class="jc-val">${brl(ter)}</span></div>
+<div class="jc-item neg"><span>(-) Metade das despesas de escritura</span><span class="jc-val">-${brl(esc)}</span></div>
+<div class="jc-item neg"><span>(-) Adiantamento</span><span class="jc-val">-${brl(adi)}</span></div>
+<div class="jc-total"><span>Valor devido</span><span class="jc-val">${brl(devido)}</span></div>`;
 
-document.getElementById('finBody').innerHTML=juros.map((c,i)=>`<tr><td>${dataBR(c.data)}</td><td style="font-weight:600;color:var(--red)">${brl(c.valor||0)}</td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('juros',${i})">🗑️</button></td></tr>`).join('');
-document.getElementById('finCards').innerHTML=juros.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">Parcela</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv" style="color:var(--red)">${brl(c.valor||0)}</div><div class="ma"><button class="btn btn-ghost btn-icon" onclick="delEntry('juros',${i})">🗑️</button></div></div></div>`).join('');
-document.getElementById('contasBody').innerHTML=contas.map((c,i)=>`<tr><td>${c.item}</td><td>${c.mes||'—'}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td><span class="badge ${c.status||'pago'}">${c.status||'pago'}</span></td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('contas',${i})">🗑️</button></td></tr>`).join('');
-document.getElementById('contasCards').innerHTML=contas.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">${c.item}</div><div class="ms">${c.mes||'—'}</div></div><div class="mr"><div class="mv">${brl(c.valor||0)}</div><div class="ma"><span class="badge ${c.status||'pago'}">${c.status||'pago'}</span><button class="btn btn-ghost btn-icon" onclick="delEntry('contas',${i})">🗑️</button></div></div></div>`).join('');
-}
-
-// RENDER SPLIT
-function renderSplit(){
-const rd=S.resumoDivisao||{};
-document.getElementById('splitBox').innerHTML=`<h3>🤝 Resumo do Rateio</h3>
-<div class="split-item"><span>💰 Valor do Terreno</span><strong>${brl(rd['VALOR TERRENO']||35000)}</strong></div>
-<div class="split-item"><span>📋 Despesas Escritura</span><strong>${brl(rd['DESPESAS ESCRITURA']||1579.66)}</strong></div>
-<div class="split-item"><span>🤝 Adiantamento</span><strong>${brl(rd['ADIANTAMENTO']||2000)}</strong></div>
-<div class="split-item"><span>💵 Caio Deve</span><strong>${brl(rd['VALOR DEVIDO']||31420.34)}</strong></div>
-<div class="split-item"><span>🔄 Retorno Matheus</span><strong style="color:var(--green)">${brl(rd['RETORNO']||579.66)}</strong></div>`;
-mk('chartSplit',{type:'doughnut',data:{labels:['Terreno (Caio)','Metade Escritura','Adiantamento'],datasets:[{data:[17500,1579.66/2,2000],backgroundColor:['#8b5cf6','#f59e0b','#10b981'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},cutout:'60%'}});
-document.getElementById('splitBody').innerHTML=(S.rateio||[]).map(c=>`<tr><td>${c.item||'—'}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td>${dataBR(c.data)}</td></tr>`).join('');
-document.getElementById('splitCards').innerHTML=(S.rateio||[]).map(c=>`<div class="mcard"><div class="mi"><div class="mt">${c.item||'—'}</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv">${brl(c.valor||0)}</div></div></div>`).join('');
+document.getElementById('despBox').innerHTML=rateio.map(c=>`
+<div class="jc-row"><div class="jc-name">${c.item||'—'}<span class="jc-date">${dataBR(c.data)}</span></div>
+<div class="jc-valor">${brl(c.valor||0)}</div></div>`).join('')+`
+<div class="jc-totrow"><span>Total</span><span class="jc-valor">${brl(totD)}</span></div>`;
 }
 
 // MODAL
@@ -634,7 +635,7 @@ else if(type==='doc'){set('servico',it.servico);set('valor',it.valor);set('data'
 function editEntry(type,idx){openModal(type,idx)}
 function closeModal(){document.getElementById('modal').classList.remove('open');modalType=null;editIdx=null}
 function refreshPage(){let cur=((document.querySelector('.page.active')||{}).id||'').replace('page-','');
-if(cur==='compras')renderCompras();else if(cur==='maoobra')renderMO();else if(cur==='documentos')renderDocs();else if(cur==='financiamento')renderFin();else if(cur==='dashboard')renderDash();else if(cur==='parcelas')renderParcelas();else if(cur==='divisao')renderSplit()}
+if(cur==='compras')renderCompras();else if(cur==='maoobra')renderMO();else if(cur==='documentos')renderDocs();else if(cur==='financiamento')renderFin();else if(cur==='dashboard')renderDash();else if(cur==='parcelas')renderParcelas()}
 
 function saveEntry(){
 const g=id=>{const e=document.getElementById('f_'+id);return e?e.value.trim():''};
@@ -674,7 +675,7 @@ toast('🗑️ Excluído!',false,'undoLast')}
 function undoLast(){if(!_lastDeleted)return;const{arr,item}=_lastDeleted;if(arr==='compras')S.compras.unshift(item);else S[arr].splice(_lastDeleted.idx,0,item);_lastDeleted=null;save();
 const renders={maoDeObra:renderMO,documentos:renderDocs,juros:renderFin,contas:renderFin};(renders[arr]||renderCompras)();toast('↩️ Restaurado!')}
 
-function resetAll(){if(!confirm('Restaurar dados originais da planilha?'))return;localStorage.removeItem('obra-facil-v2');S=JSON.parse(JSON.stringify(SEED));toast('🔄 Dados restaurados!');const cur=document.querySelector('.page.active')?.id?.replace('page-','')||'dashboard';show(cur)}
+function resetAll(){localStorage.removeItem('obra-facil-v2');S=JSON.parse(JSON.stringify(SEED));toast('🔄 Dados restaurados!')}
 
 function exportCSV(){let csv='Categoria;Material;Valor;Forma;Data;Fornecedor;Status;Etapa\n';
 S.compras.forEach(c=>{csv+=`Compra;${c.material};${c.valor};${c.forma}${c.parcelas>1?c.parcelas+'x':''};${c.data||''};${c.fornecedor||''};${c.status};${c.categoria}\n`});
