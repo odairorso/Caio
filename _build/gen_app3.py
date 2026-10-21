@@ -86,6 +86,7 @@ html = r"""<!DOCTYPE html>
 <meta name="description" content="Controle de custos da obra da Casa Caio: compras, parcelas do cartão, mão de obra, documentação, financiamento e rateio.">
 <meta name="theme-color" content="#09090b">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">

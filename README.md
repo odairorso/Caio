@@ -1,47 +1,92 @@
-# Obra Fácil — Caio
+# Obra Fácil — Casa Caio
 
-App de gestão financeira da obra, com gráficos, parcelas automáticas e sincronização em nuvem.
+Controle de custos da obra da Casa Caio: compras, parcelas do cartão, mão de obra,
+documentação, financiamento, juros e rateio com o Matheus.
 
-## 🚀 Deploy no Vercel
+- **No ar:** https://caio-nine-nu.vercel.app/
+- **Funciona sem internet** (PWA instalável no celular)
+- **Sincroniza entre aparelhos** pelo Supabase
 
-1. Acesse [vercel.com](https://vercel.com) e faça login com GitHub
-2. Clique em **"Add New"** → **"Project"**
-3. Arraste a pasta `App Caio` ou conecte o repositório Git
-4. Clique em **"Deploy"** — pronto! Vai gerar um link tipo `obra-facil.vercel.app`
+---
 
-## ☁️ Configurar Supabase
+## ⚠️ Leia antes de mexer
 
-1. Acesse [supabase.com](https://supabase.com) e crie uma conta grátis
-2. Clique em **"New Project"** e dê um nome (ex: `obra-facil`)
-3. Aguarde criar e vá em **SQL Editor** (menu lateral)
-4. Cole todo o conteúdo do arquivo `supabase-schema.sql` e clique em **"Run"**
-5. Vá em **Project Settings** → **API** e copie:
-   - **Project URL** (ex: `https://xxxx.supabase.co`)
-   - **anon public** key
-6. Abra o `index.html` e procure por estas linhas no início do JavaScript:
-   ```js
-   const SUPABASE_URL='SUA_URL_SUPABASE';
-   const SUPABASE_KEY='SUA_ANON_KEY_SUPABASE';
-   ```
-7. Substitua pelos seus valores reais
-8. Suba o arquivo atualizado para o Vercel (arraste de novo)
+O `index.html` é **gerado**. Não edite ele na mão: qualquer alteração é perdida na
+próxima geração.
 
-## 📱 Recursos
+| Arquivo | Papel |
+|---|---|
+| `_build/gen_app3.py` | **Fonte de verdade do app.** Todo ajuste de tela, texto ou lógica vai aqui. |
+| `index.html` | Produto gerado (é o que o navegador carrega). Não editar. |
+| `obra_data.json` | Dados extraídos da planilha. |
+| `_build/testes.cjs` | Testes de comportamento (datas, parcelas, sincronização). |
+| `_build/verificar.cjs` | Confere contagens, somas e sintaxe. |
+| `sw.js` / `manifest.webmanifest` | Fazem o app funcionar offline e ser instalável. |
 
-- 📊 Dashboard com gráficos
-- 🧱 243 compras de material
-- 👷 34 pagamentos de mão de obra
-- 📋 30 serviços de documentação
-- 💳 Parcelas automáticas do cartão
-- 🏦 Financiamento + contas da obra
-- 🤝 Rateio com Matheus
-- ☁️ Sync com Supabase
-- 📥 Exportar CSV
-- 📱 Otimizado para celular
+### Como alterar o app
 
-## 🛠️ Tecnologias
+```bash
+python _build/gen_app3.py     # gera o index.html
+node _build/verificar.cjs     # confere dados e sintaxe
+node _build/testes.cjs        # confere o comportamento
+git add -A && git commit -m "..." && git push
+```
 
-- HTML + JavaScript vanilla
-- Chart.js (gráficos)
-- Supabase (banco de dados)
-- Vercel (hospedagem)
+O Vercel publica sozinho ~1 minuto depois do push.
+
+**Só publique se os dois comandos de verificação passarem.** O `verificar.cjs`
+sozinho não pega erro de lógica — ele só conta registros e valida sintaxe.
+
+---
+
+## 📊 O que tem dentro
+
+- Painel com total investido, gráficos e alerta de parcelas atrasadas
+- 243 compras de material
+- 32 pagamentos de mão de obra (R$ 62.007,32)
+- 30 serviços de documentação
+- Parcelas automáticas do cartão (vencidas aparecem como **atrasadas**)
+- Financiamento, juros e contas da obra
+- Rateio com o Matheus
+- Backup completo em JSON (botão ⬇️ no topo)
+- Exportação CSV
+
+---
+
+## ☁️ Supabase
+
+Projeto: `nvzqjvltzhmbtbtwletv.supabase.co`
+
+A sincronização é **automática**: ao abrir, o app puxa o que está na nuvem e mescla
+com o que está no aparelho. Não existem botões de "enviar" ou "baixar".
+
+- Se o aparelho estiver sem internet, os dados continuam salvos e são enviados depois.
+- O ícone de nuvem no topo mostra o estado: ☁️ sincronizado · 📴 sem internet · ⚠️ falha.
+- O plano grátis do Supabase pausa após 7 dias sem uso. O workflow
+  `.github/workflows/keep-alive.yml` faz uma consulta diária (9h de Brasília) para evitar isso.
+
+### 🔒 Segurança — pendente
+
+Hoje o banco aceita leitura e escrita de qualquer pessoa que tenha o link do app
+(as políticas do `supabase-schema.sql` são `FOR ALL USING (true)` e a chave pública
+está no HTML). Para dados financeiros isso precisa ser fechado com login no Supabase
+(RLS exigindo usuário autenticado). Ver a seção "Segurança" no fim deste arquivo.
+
+---
+
+## 📱 Instalar no celular
+
+1. Abra https://caio-nine-nu.vercel.app/ no Chrome (Android) ou Safari (iPhone)
+2. Menu → **"Adicionar à tela de início"**
+3. O app abre em tela cheia, inclusive sem internet
+
+---
+
+## 🗄️ Sobre o app React antigo
+
+Até outubro/2026 existia nesta pasta um app React/TanStack (gerado pelo Lovable) em
+`src/`, com outro banco local (`obra-facil-v1`) e sem Supabase. Ele **nunca foi
+publicado**: não estava no Git e o Vercel sempre serviu o `index.html`.
+
+Ele foi movido para `Documents\App Caio - app React arquivado (nao usar)`.
+Não é necessário para nada e não deve voltar para esta pasta.

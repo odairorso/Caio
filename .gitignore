@@ -1,17 +1,14 @@
-# Dependencies
+# Dependencias (o app publicado nao usa nenhuma)
 node_modules/
-.bun/
-
-# Build
 dist/
 build/
+.bun/
 
-# Lovable
-.lovable/
+# Arquivos do app React/TanStack antigo.
+# Ele foi arquivado fora desta pasta em outubro/2026 e nao e publicado.
+# Se o Lovable recriar estes arquivos, eles NAO devem entrar no repositorio.
 src/
 public/
-*.tsx
-*.ts
 package.json
 package-lock.json
 bun.lock
@@ -23,13 +20,16 @@ vite.config.ts
 vitest.config.ts
 .prettierrc
 .prettierignore
+.lovable/
 AGENTS.md
+*.tsx
+*.ts
 
 # IDE
 .vscode/
 .idea/
 
-# OS
+# Sistema
 Thumbs.db
 .DS_Store
 
@@ -37,6 +37,6 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# Env
+# Variaveis de ambiente
 .env
 .env.local
