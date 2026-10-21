@@ -65,12 +65,22 @@ com o que está no aparelho. Não existem botões de "enviar" ou "baixar".
 - O plano grátis do Supabase pausa após 7 dias sem uso. O workflow
   `.github/workflows/keep-alive.yml` faz uma consulta diária (9h de Brasília) para evitar isso.
 
-### 🔒 Segurança — pendente
+### 🔒 Segurança — decisão de 21/10/2026: manter aberto por enquanto
 
 Hoje o banco aceita leitura e escrita de qualquer pessoa que tenha o link do app
 (as políticas do `supabase-schema.sql` são `FOR ALL USING (true)` e a chave pública
-está no HTML). Para dados financeiros isso precisa ser fechado com login no Supabase
-(RLS exigindo usuário autenticado). Ver a seção "Segurança" no fim deste arquivo.
+está no HTML). Isso foi avaliado e, por decisão do responsável, **ficou assim por
+enquanto**: o link não é divulgado, então o risco na prática é baixo.
+
+Se um dia quiser fechar de verdade, o caminho é:
+
+1. Ativar login por e-mail e senha no Supabase e criar um usuário.
+2. Trocar as políticas por `USING (auth.role() = 'authenticated')` no
+   `supabase-schema.sql`.
+3. Adicionar a tela de login no `_build/gen_app3.py`.
+
+Não adianta apenas esconder a chave no HTML: a chave pública é, por definição,
+visível para quem abre o app. A proteção real vem das políticas (RLS).
 
 ---
 
