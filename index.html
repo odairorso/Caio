@@ -224,7 +224,10 @@ th,td{padding:10px 12px;font-size:12px}
 <button class="nav-btn" onclick="show('parcelas',this);closeMenu()"><span class="ico">💳</span>Parcelas</button>
 <button class="nav-btn" onclick="show('maoobra',this);closeMenu()"><span class="ico">👷</span>Mão de Obra</button>
 <button class="nav-btn" onclick="show('documentos',this);closeMenu()"><span class="ico">📋</span>Documentos</button>
-<button class="nav-btn" onclick="show('financiamento',this);closeMenu()"><span class="ico">🤝</span>Juros & acerto</button>
+<div class="section">Financeiro</div>
+<button class="nav-btn" onclick="show('financiamento',this);closeMenu()"><span class="ico">🏦</span>Financiamento</button>
+<button class="nav-btn" onclick="show('juros',this);closeMenu()"><span class="ico">📈</span>Juros & acerto</button>
+<button class="nav-btn" onclick="show('divisao',this);closeMenu()"><span class="ico">🤝</span>Rateio Matheus</button>
 </div>
 </div>
 
@@ -309,17 +312,43 @@ th,td{padding:10px 12px;font-size:12px}
 <tbody id="docBody"></tbody></table></div><div class="mobile-list" id="docCards"></div></div>
 </div>
 
-<!-- JUROS & ACERTO -->
+<!-- FINANCIAMENTO -->
 <div id="page-financiamento" class="page">
-<p class="parc-sub">🏦 Financiamento da obra e divisão com sócio</p>
 <div class="stats" id="finStats"></div>
+<div class="grid2">
+<div class="chart-box"><h3>🏦 Parcelas do financiamento</h3><canvas id="chartFin"></canvas></div>
+<div class="chart-box"><h3>💡 Contas da obra</h3><canvas id="chartContas"></canvas></div>
+</div>
+<div class="table-box"><div class="header"><h3>🏦 Financiamento</h3></div><div class="table-wrap"><table>
+<thead><tr><th>Vencimento</th><th>Valor</th><th></th></tr></thead>
+<tbody id="finBody"></tbody></table></div><div class="mobile-list" id="finCards"></div></div>
+<div class="table-box"><div class="header"><h3>💡 Contas (Água/Luz/IPTU)</h3></div><div class="table-wrap"><table>
+<thead><tr><th>Item</th><th>Mês</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+<tbody id="contasBody"></tbody></table></div><div class="mobile-list" id="contasCards"></div></div>
+</div>
+
+<!-- JUROS & ACERTO -->
+<div id="page-juros" class="page">
+<p class="parc-sub">📈 Financiamento da obra e divisão com sócio</p>
+<div class="stats" id="jStats"></div>
 <div class="jc-box"><h3>📈 Curva dos juros de obra</h3>
-<div class="jc-chart"><canvas id="chartFin"></canvas></div>
+<div class="jc-chart"><canvas id="chartJuros"></canvas></div>
 <p class="jc-cap">Os juros sobem a cada liberação de etapa pelo banco.</p></div>
 <div class="grid2">
 <div class="jc-box"><h3>🤝 Acerto com Matheus</h3><div class="jc-list" id="acertoBox"></div></div>
 <div class="jc-box"><h3>📄 Despesas divididas</h3><div class="jc-list" id="despBox"></div></div>
 </div>
+</div>
+
+<!-- DIVISÃO -->
+<div id="page-divisao" class="page">
+<div class="grid2">
+<div class="split-box" id="splitBox"></div>
+<div class="chart-box"><h3>🤝 Composição do rateio</h3><canvas id="chartSplit"></canvas></div>
+</div>
+<div class="table-box"><div class="header"><h3>🤝 Detalhamento</h3></div><div class="table-wrap"><table>
+<thead><tr><th>Item</th><th>Valor</th><th>Data</th></tr></thead>
+<tbody id="splitBody"></tbody></table></div><div class="mobile-list" id="splitCards"></div></div>
 </div>
 </div>
 </div>
@@ -415,8 +444,8 @@ const brlS=v=>v>=1000?'R$ '+(v/1000).toLocaleString('pt-BR',{maximumFractionDigi
 const dataBR=d=>d?new Date(d+'T12:00:00').toLocaleDateString('pt-BR'):'—';
 function toast(msg,err,undo){const t=document.getElementById('toast');t.innerHTML=msg+(undo?' <button class="undo" onclick="'+undo+'()">Desfazer</button>':'');t.className='toast show'+(err?' error':'');setTimeout(()=>t.className='toast',4000)}
 function show(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
-const titles={dashboard:'Painel',compras:'Compras',parcelas:'Parcelas',maoobra:'Mão de Obra',documentos:'Documentos',financiamento:'Juros & acerto'};document.getElementById('pageTitle').textContent=titles[id]||id;
-setTimeout(()=>{destroyAll();if(id==='dashboard')renderDash();else if(id==='compras')renderCompras();else if(id==='parcelas')renderParcelas();else if(id==='maoobra')renderMO();else if(id==='documentos')renderDocs();else if(id==='financiamento')renderFin()},50)}
+const titles={dashboard:'Painel',compras:'Compras',parcelas:'Parcelas',maoobra:'Mão de Obra',documentos:'Documentos',financiamento:'Financiamento',juros:'Juros & acerto',divisao:'Rateio Matheus'};document.getElementById('pageTitle').textContent=titles[id]||id;
+setTimeout(()=>{destroyAll();if(id==='dashboard')renderDash();else if(id==='compras')renderCompras();else if(id==='parcelas')renderParcelas();else if(id==='maoobra')renderMO();else if(id==='documentos')renderDocs();else if(id==='financiamento')renderFin();else if(id==='juros')renderJuros();else if(id==='divisao')renderSplit()},50)}
 
 // CHART MANAGEMENT
 let _ch={};
@@ -561,8 +590,29 @@ document.getElementById('docBody').innerHTML=S.documentos.map((c,i)=>`<tr><td><b
 document.getElementById('docCards').innerHTML=S.documentos.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">${c.servico}</div><div class="ms">${dataBR(c.data)}${c.forma?' · '+c.forma:''}</div></div><div class="mr"><div class="mv">${brl(c.valor)}</div><div class="ma"><button class="btn btn-ghost btn-icon" onclick="editEntry('doc',${i})">✏️</button><button class="btn btn-ghost btn-icon" onclick="delEntry('documentos',${i})">🗑️</button></div></div></div>`).join('');
 }
 
-// RENDER FIN / JUROS & ACERTO
+// RENDER FIN (financiamento)
 function renderFin(){
+const juros=S.juros||[],contas=S.contas||[];
+const totJ=juros.reduce((a,c)=>a+(c.valor||0),0),totC=contas.reduce((a,c)=>a+(c.valor||0),0);
+document.getElementById('finStats').innerHTML=`
+<div class="stat"><div class="label">🏦 Financiamento</div><div class="value">${brlS(totJ)}</div><div class="hint">${juros.length} parcelas</div></div>
+<div class="stat"><div class="label">💡 Contas</div><div class="value">${brlS(totC)}</div><div class="hint">${contas.length} contas</div></div>
+<div class="stat primary"><div class="label">📊 Total fixo</div><div class="value">${brlS(totJ+totC)}</div><div class="hint">custos mensais da obra</div></div>`;
+
+const jl=juros.map(c=>{if(!c.data)return'-';const[,m,d]=c.data.split('-');return d+'/'+m});
+mk('chartFin',{type:'line',data:{labels:jl,datasets:[{label:'Parcela',data:juros.map(c=>c.valor||0),borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',fill:true,tension:.3,pointBackgroundColor:'#ef4444'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brl(v)}}}}});
+
+const uc={};contas.forEach(c=>{uc[c.item]=(uc[c.item]||0)+(c.valor||0)});
+mk('chartContas',{type:'bar',data:{labels:Object.keys(uc),datasets:[{data:Object.values(uc),backgroundColor:['#3b82f6','#f59e0b','#10b981','#8b5cf6'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>brl(v)}}}}});
+
+document.getElementById('finBody').innerHTML=juros.map((c,i)=>`<tr><td>${dataBR(c.data)}</td><td style="font-weight:600;color:var(--red)">${brl(c.valor||0)}</td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('juros',${i})">🗑️</button></td></tr>`).join('');
+document.getElementById('finCards').innerHTML=juros.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">Parcela</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv" style="color:var(--red)">${brl(c.valor||0)}</div><div class="ma"><button class="btn btn-ghost btn-icon" onclick="delEntry('juros',${i})">🗑️</button></div></div></div>`).join('');
+document.getElementById('contasBody').innerHTML=contas.map((c,i)=>`<tr><td>${c.item}</td><td>${c.mes||'—'}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td><span class="badge ${c.status||'pago'}">${c.status||'pago'}</span></td><td><button class="btn btn-ghost btn-icon" onclick="delEntry('contas',${i})">🗑️</button></td></tr>`).join('');
+document.getElementById('contasCards').innerHTML=contas.map((c,i)=>`<div class="mcard"><div class="mi"><div class="mt">${c.item}</div><div class="ms">${c.mes||'—'}</div></div><div class="mr"><div class="mv">${brl(c.valor||0)}</div><div class="ma"><span class="badge ${c.status||'pago'}">${c.status||'pago'}</span><button class="btn btn-ghost btn-icon" onclick="delEntry('contas',${i})">🗑️</button></div></div></div>`).join('');
+}
+
+// RENDER JUROS & ACERTO
+function renderJuros(){
 const juros=(S.juros||[]).slice().sort((a,b)=>(a.data||'').localeCompare(b.data||''));
 const contas=S.contas||[],rateio=S.rateio||[],rd=S.resumoDivisao||{};
 const totJ=juros.reduce((a,c)=>a+(c.valor||0),0);
@@ -573,7 +623,7 @@ const primeiro=juros.length?juros[0].valor||0:0;
 const ter=rd['VALOR TERRENO']||0,esc=rd['DESPESAS ESCRITURA']||0,adi=rd['ADIANTAMENTO']||0;
 const devido=rd['VALOR DEVIDO']||(ter-esc-adi);
 
-document.getElementById('finStats').innerHTML=`
+document.getElementById('jStats').innerHTML=`
 <div class="stat primary"><div class="label">🏦 Juros pagos</div><div class="value">${brl(totJ)}</div><div class="hint">${juros.length} meses</div></div>
 <div class="stat"><div class="label">📈 Juros atual/mês</div><div class="value" style="color:var(--accent2)">${brl(atual)}</div><div class="hint">começou em ${brl(primeiro)}</div></div>
 <div class="stat"><div class="label">💡 Água, luz e IPTU</div><div class="value">${brl(totC)}</div><div class="hint">${contas.length} contas pagas</div></div>
@@ -581,7 +631,7 @@ document.getElementById('finStats').innerHTML=`
 
 const MS=['jan.','fev.','mar.','abr.','mai.','jun.','jul.','ago.','set.','out.','nov.','dez.'];
 const jl=juros.map(c=>{if(!c.data)return'';const[y,m]=c.data.split('-');return MS[parseInt(m)-1]+' de '+y.slice(2)});
-mk('chartFin',{type:'line',data:{labels:jl,datasets:[{label:'Juros',data:juros.map(c=>c.valor||0),borderColor:'#8b5cf6',backgroundColor:barGrad('#8b5cf6'),fill:true,tension:.35,pointBackgroundColor:'#8b5cf6',pointRadius:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+brl(c.parsed.y)}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v}},x:{ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:12}}}}});
+mk('chartJuros',{type:'line',data:{labels:jl,datasets:[{label:'Juros',data:juros.map(c=>c.valor||0),borderColor:'#8b5cf6',backgroundColor:barGrad('#8b5cf6'),fill:true,tension:.35,pointBackgroundColor:'#8b5cf6',pointRadius:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+brl(c.parsed.y)}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v}},x:{ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:12}}}}});
 
 document.getElementById('acertoBox').innerHTML=`
 <div class="jc-item"><span>Valor do terreno</span><span class="jc-val">${brl(ter)}</span></div>
@@ -593,6 +643,20 @@ document.getElementById('despBox').innerHTML=rateio.map(c=>`
 <div class="jc-row"><div class="jc-name">${c.item||'—'}<span class="jc-date">${dataBR(c.data)}</span></div>
 <div class="jc-valor">${brl(c.valor||0)}</div></div>`).join('')+`
 <div class="jc-totrow"><span>Total</span><span class="jc-valor">${brl(totD)}</span></div>`;
+}
+
+// RENDER SPLIT (rateio Matheus)
+function renderSplit(){
+const rd=S.resumoDivisao||{};
+document.getElementById('splitBox').innerHTML=`<h3>🤝 Resumo do Rateio</h3>
+<div class="split-item"><span>💰 Valor do Terreno</span><strong>${brl(rd['VALOR TERRENO']||35000)}</strong></div>
+<div class="split-item"><span>📋 Despesas Escritura</span><strong>${brl(rd['DESPESAS ESCRITURA']||1579.66)}</strong></div>
+<div class="split-item"><span>🤝 Adiantamento</span><strong>${brl(rd['ADIANTAMENTO']||2000)}</strong></div>
+<div class="split-item"><span>💵 Caio Deve</span><strong>${brl(rd['VALOR DEVIDO']||31420.34)}</strong></div>
+<div class="split-item"><span>🔄 Retorno Matheus</span><strong style="color:var(--green)">${brl(rd['RETORNO']||579.66)}</strong></div>`;
+mk('chartSplit',{type:'doughnut',data:{labels:['Terreno (Caio)','Metade Escritura','Adiantamento'],datasets:[{data:[17500,1579.66/2,2000],backgroundColor:['#8b5cf6','#f59e0b','#10b981'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},cutout:'60%'}});
+document.getElementById('splitBody').innerHTML=(S.rateio||[]).map(c=>`<tr><td>${c.item||'—'}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td>${dataBR(c.data)}</td></tr>`).join('');
+document.getElementById('splitCards').innerHTML=(S.rateio||[]).map(c=>`<div class="mcard"><div class="mi"><div class="mt">${c.item||'—'}</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv">${brl(c.valor||0)}</div></div></div>`).join('');
 }
 
 // MODAL
@@ -635,7 +699,7 @@ else if(type==='doc'){set('servico',it.servico);set('valor',it.valor);set('data'
 function editEntry(type,idx){openModal(type,idx)}
 function closeModal(){document.getElementById('modal').classList.remove('open');modalType=null;editIdx=null}
 function refreshPage(){let cur=((document.querySelector('.page.active')||{}).id||'').replace('page-','');
-if(cur==='compras')renderCompras();else if(cur==='maoobra')renderMO();else if(cur==='documentos')renderDocs();else if(cur==='financiamento')renderFin();else if(cur==='dashboard')renderDash();else if(cur==='parcelas')renderParcelas()}
+if(cur==='compras')renderCompras();else if(cur==='maoobra')renderMO();else if(cur==='documentos')renderDocs();else if(cur==='financiamento')renderFin();else if(cur==='dashboard')renderDash();else if(cur==='parcelas')renderParcelas();else if(cur==='juros')renderJuros();else if(cur==='divisao')renderSplit()}
 
 function saveEntry(){
 const g=id=>{const e=document.getElementById('f_'+id);return e?e.value.trim():''};
