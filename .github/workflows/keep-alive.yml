@@ -16,4 +16,4 @@ jobs:
           curl -s -o /dev/null -w "HTTP %{http_code}\n" \
             -H "apikey: sb_publishable_mLCxvus4BzQcvwc1lH2alQ_Ci9gI6Hw" \
             -H "Authorization: Bearer sb_publishable_mLCxvus4BzQcvwc1lH2alQ_Ci9gI6Hw" \
-            "https://nvzqjvlztzhmbttbwletv.supabase.co/rest/v1/compras?select=id&limit=1"
+            "https://nvzqjvltzhmbtbtwletv.supabase.co/rest/v1/compras?select=id&limit=1"
