@@ -451,7 +451,7 @@ setTimeout(()=>{destroyAll();if(id==='dashboard')renderDash();else if(id==='comp
 let _ch={};
 if(typeof Chart!=='undefined'){Chart.defaults.color='#a1a1aa';Chart.defaults.borderColor='rgba(63,63,70,.6)';Chart.defaults.font.family="Inter,system-ui,sans-serif";Chart.defaults.font.size=11;Chart.defaults.plugins.tooltip.backgroundColor='#18181b';Chart.defaults.plugins.tooltip.borderColor='#3f3f46';Chart.defaults.plugins.tooltip.borderWidth=1;Chart.defaults.plugins.tooltip.padding=10;Chart.defaults.plugins.tooltip.titleColor='#fafafa';Chart.defaults.plugins.tooltip.bodyColor='#a1a1aa';Chart.defaults.plugins.tooltip.cornerRadius=8}
 function barGrad(hex){return(c)=>{const{ctx,chartArea}=c.chart;if(!chartArea)return hex;const g=ctx.createLinearGradient(0,chartArea.bottom,0,chartArea.top);g.addColorStop(0,hex+'33');g.addColorStop(.6,hex+'cc');g.addColorStop(1,hex);return g}}
-function mk(id,cfg){if(_ch[id]){try{_ch[id].destroy()}catch(e){}}_ch[id]=new Chart(document.getElementById(id),cfg)}
+function mk(id,cfg){if(typeof Chart==='undefined')return;const el=document.getElementById(id);if(!el)return;if(_ch[id]){try{_ch[id].destroy()}catch(e){}}_ch[id]=new Chart(el,cfg)}
 function destroyAll(){Object.values(_ch).forEach(c=>{try{c.destroy()}catch(e){}});_ch={}}
 
 // PARCELAS
@@ -740,6 +740,13 @@ function undoLast(){if(!_lastDeleted)return;const{arr,item}=_lastDeleted;if(arr=
 const renders={maoDeObra:renderMO,documentos:renderDocs,juros:renderFin,contas:renderFin};(renders[arr]||renderCompras)();toast('↩️ Restaurado!')}
 
 function resetAll(){localStorage.removeItem('obra-facil-v2');S=JSON.parse(JSON.stringify(SEED));toast('🔄 Dados restaurados!')}
+
+// Offline: os dados continuam salvos no aparelho, só não sincroniza
+if(typeof window!=='undefined'){
+window.addEventListener('offline',()=>toast('📴 Sem internet — seus dados continuam salvos neste aparelho',true));
+window.addEventListener('online',()=>{toast('📶 Internet de volta! Sincronizando...');sbPullAll(false)});
+if(navigator.onLine===false)toast('📴 Sem internet — seus dados continuam salvos neste aparelho',true);
+}
 
 function exportCSV(){let csv='Categoria;Material;Valor;Forma;Data;Fornecedor;Status;Etapa\n';
 S.compras.forEach(c=>{csv+=`Compra;${c.material};${c.valor};${c.forma}${c.parcelas>1?c.parcelas+'x':''};${c.data||''};${c.fornecedor||''};${c.status};${c.categoria}\n`});
