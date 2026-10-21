@@ -83,7 +83,7 @@ function pegar(src, nome) {
   throw new Error('Nao encontrei a funcao/constante "' + nome + '" no app');
 }
 
-const nomes = ['addMonths', 'hojeISO', 'maisDias', 'esc', 'brl', 'somaPor', 'gerarParcelas', 'mesclar', 'cloudRow'];
+const nomes = ['addMonths', 'hojeISO', 'maisDias', 'esc', 'brl', 'somaPor', 'gerarParcelas', 'mesclar', 'cloudRow', 'FORMAS', 'gastosUnificados', 'mesclarObra', 'pacoteDaNuvem'];
 let codigo = '';
 for (const n of nomes) codigo += pegar(JS, n) + '\n';
 // `const` no escopo do script nao vira propriedade do contexto: exporta na mao
@@ -94,6 +94,7 @@ const registros = { push: [], sujos: [] };
 const contexto = {
   console,
   S: { compras: [], parcelasPagas: [] },
+  ORCAMENTO_VAZIO: () => ({ materiais: 0, mao: 0, doc: 0, juros: 0, contas: 0 }),
   sbPush: (tabela, linhas) => { registros.push.push({ tabela, linhas }); },
   marcarSujo: (id) => registros.sujos.push(id),
   limparSujo: () => {},
@@ -110,7 +111,7 @@ const contexto = {
 };
 vm.createContext(contexto);
 vm.runInContext(codigo, contexto);
-const { addMonths, hojeISO, maisDias, esc, gerarParcelas, mesclar, cloudRow } = contexto.__exp;
+const { addMonths, hojeISO, maisDias, esc, gerarParcelas, mesclar, cloudRow, gastosUnificados, mesclarObra, pacoteDaNuvem } = contexto.__exp;
 
 /* ---------- mini framework ---------- */
 let ok = 0;
@@ -336,7 +337,113 @@ teste('nuvem com erro nao apaga o que esta no aparelho', () => {
   igual(r.length, 1);
 });
 
-/* ---------- 6. estrutura do arquivo publicado ---------- */
+/* ---------- 6. aba Obras: gastos unificados ---------- */
+console.log('\n=== ABA OBRAS: GASTOS UNIFICADOS ===');
+
+teste('junta as 5 origens com a categoria certa', () => {
+  contexto.S = {
+    compras: [{ material: 'CIMENTO', valor: 100, status: 'pago', forma: 'pix', fornecedor: 'F', data: '2026-01-10' }],
+    maoDeObra: [{ valor: 50, status: 'pendente', descricao: 'Pedreiro', data: '2026-01-11' }],
+    documentos: [{ servico: 'ITBI', valor: 30, data: '2026-01-12', forma: 'PIX' }],
+    juros: [{ valor: 20, data: '2026-01-13' }],
+    contas: [{ item: 'AGUA', valor: 10, status: 'PAGO', mes: 'JAN' }],
+  };
+  const g = gastosUnificados();
+  igual(g.length, 5);
+  igual(g.map((x) => x.cat), ['Materiais', 'Mão de obra', 'Documentação e taxas', 'Financiamento', 'Contas de água e luz']);
+  perto(g.reduce((a, x) => a + x.valor, 0), 210, 'total:');
+});
+
+teste('status: so "PAGO" conta como pago', () => {
+  contexto.S = {
+    compras: [
+      { material: 'A', valor: 10, status: 'pago' },
+      { material: 'B', valor: 20, status: 'pendente' },
+    ],
+    maoDeObra: [{ valor: 5, status: 'pendente' }],
+    documentos: [{ servico: 'D', valor: 1 }],
+    juros: [{ valor: 1 }],
+    contas: [{ item: 'C', valor: 1, status: 'PAGO' }, { item: 'C2', valor: 2, status: 'pendente' }],
+  };
+  const g = gastosUnificados();
+  const pago = g.filter((x) => x.status === 'pago').reduce((a, x) => a + x.valor, 0);
+  const pend = g.filter((x) => x.status !== 'pago').reduce((a, x) => a + x.valor, 0);
+  perto(pago, 13, 'pago:');
+  perto(pend, 27, 'pendente:');
+});
+
+/* ---------- 7. dados reais do seed ---------- */
+console.log('\n=== DADOS REAIS (SEED) ===');
+const seed = JSON.parse(html.match(/const SEED=(\{.*?\});\r?\n/s)[1]);
+
+teste('seed tem 243 compras, 32 mao de obra, 30 docs, 14 juros, 13 contas', () => {
+  igual([seed.compras.length, seed.maoDeObra.length, seed.documentos.length, seed.juros.length, seed.contas.length], [243, 32, 30, 14, 13]);
+});
+
+teste('status do seed e sempre pago ou pendente', () => {
+  const s = [...seed.compras, ...seed.maoDeObra].map((x) => x.status);
+  igual([...new Set(s)].sort(), ['pago', 'pendente']);
+});
+
+teste('planilha em branco virou pendente (89 compras e 3 pagamentos)', () => {
+  igual(seed.compras.filter((c) => c.status === 'pendente').length, 89);
+  igual(seed.maoDeObra.filter((c) => c.status === 'pendente').length, 3);
+  perto(seed.compras.filter((c) => c.status === 'pendente').reduce((a, c) => a + c.valor, 0), 26217.6, 'compras pendentes:');
+  perto(seed.maoDeObra.filter((c) => c.status === 'pendente').reduce((a, c) => a + c.valor, 0), 3597.16, 'mao pendente:');
+});
+
+teste('total do seed continua R$ 194.078,86', () => {
+  const t = [...seed.compras, ...seed.maoDeObra, ...seed.documentos, ...seed.juros, ...seed.contas].reduce((a, c) => a + (c.valor || 0), 0);
+  perto(t, 194078.86, 'total:');
+});
+
+teste('aba Obras tem as 6 sub-abas', () => {
+  for (const t of ['Resumo', 'Gastos', 'Orçamento', 'Parcelas', 'Sócio', 'Diário']) {
+    if (!html.includes('>' + t + '</button>')) throw new Error('sub-aba ausente: ' + t);
+  }
+});
+
+/* ---------- 8. multi-obras ---------- */
+console.log('\n=== MULTIPLAS OBRAS ===');
+
+teste('seed tem duas obras e a de teste tem dados proprios', () => {
+  igual(seed.obras.map((o) => o.id), ['casa-caio', 'casa-odair-teste']);
+  const d = seed.dados['casa-odair-teste'];
+  const total = [...d.compras, ...d.maoDeObra, ...d.documentos, ...d.juros, ...d.contas].reduce((a, c) => a + c.valor, 0);
+  perto(total, 18875, 'total da demo:');
+  igual([d.compras.length, d.maoDeObra.length, d.documentos.length], [5, 3, 2]);
+  igual(d.diario.length, 1);
+  igual(d.orcamento.materiais, 45000);
+});
+
+teste('cada obra tem o seu proprio pacote (sem misturar)', () => {
+  const casa = { compras: seed.compras.length, mao: seed.maoDeObra.length };
+  const demo = { compras: seed.dados['casa-odair-teste'].compras.length, mao: seed.dados['casa-odair-teste'].maoDeObra.length };
+  igual(casa, { compras: 243, mao: 32 });
+  igual(demo, { compras: 5, mao: 3 });
+});
+
+teste('mesclarObra: o que foi editado no aparelho vence a nuvem', () => {
+  const nuvem = [{ id: 'a', valor: 10 }, { id: 'b', valor: 20 }];
+  const local = [{ id: 'b', valor: 99, _dirty: true }, { id: 'c', valor: 30 }];
+  const r = mesclarObra(nuvem, local);
+  igual(r.length, 3);
+  igual(r.find((x) => x.id === 'b').valor, 99);
+  igual(r.find((x) => x.id === 'c').valor, 30);
+  igual(r.find((x) => x.id === 'a').valor, 10);
+});
+
+teste('pacoteDaNuvem junta parcelas pagas sem duplicar', () => {
+  const r = pacoteDaNuvem(
+    { parcelasPagas: ['x-1', 'x-2'], compras: [] },
+    { parcelasPagas: ['x-2', 'x-3'], compras: [{ id: 'k', valor: 5 }] }
+  );
+  igual(r.parcelasPagas.slice().sort(), ['x-1', 'x-2', 'x-3']);
+  igual(r.compras.length, 1);
+  igual(r.orcamento.materiais, 0);
+});
+
+/* ---------- 9. estrutura do arquivo publicado ---------- */
 console.log('\n=== ARQUIVO PUBLICADO ===');
 
 teste('index.html registra o service worker', () => {

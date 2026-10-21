@@ -21,6 +21,7 @@ próxima geração.
 | `obra_data.json` | Dados extraídos da planilha. |
 | `_build/testes.cjs` | Testes de comportamento (datas, parcelas, sincronização). |
 | `_build/verificar.cjs` | Confere contagens, somas e sintaxe. |
+| `supabase-obras.sql` | Cria a tabela `obras` (necessária para várias obras na nuvem). |
 | `sw.js` / `manifest.webmanifest` | Fazem o app funcionar offline e ser instalável. |
 
 ### Como alterar o app
@@ -42,6 +43,10 @@ sozinho não pega erro de lógica — ele só conta registros e valida sintaxe.
 ## 📊 O que tem dentro
 
 - Painel com total investido, gráficos e alerta de parcelas atrasadas
+- **Aba Obras**: visão unificada com 6 sub-abas — Resumo, Gastos, Orçamento,
+  Parcelas, Sócio e Diário
+- **Várias obras**: cadastro, troca, edição e exclusão; cada obra tem os seus
+  próprios lançamentos, parcelas, orçamento e diário
 - 243 compras de material
 - 32 pagamentos de mão de obra (R$ 62.007,32)
 - 30 serviços de documentação
@@ -50,6 +55,34 @@ sozinho não pega erro de lógica — ele só conta registros e valida sintaxe.
 - Rateio com o Matheus
 - Backup completo em JSON (botão ⬇️ no topo)
 - Exportação CSV
+
+### Status das compras
+
+Na planilha, o que estava **em branco** na coluna de status passou a valer como
+**pendente** (antes virava "pago" por engano). São 89 compras (R$ 26.217,60) e
+3 pagamentos de mão de obra (R$ 3.597,16) — total pendente de R$ 29.814,76.
+O total gasto não mudou: R$ 194.078,86.
+
+---
+
+## 🏗️ Várias obras
+
+Na aba **Obras**, o seletor no topo troca de obra. Ao lado dele:
+
+- **➕ Nova obra** — nome, local, área (m²) e valor do m²; a obra começa vazia
+- **✏️** — edita os dados desta obra
+- **🗑️** — exclui a obra e os dados dela (pede confirmação)
+
+A **Casa Caio** continua guardada nas tabelas antigas do Supabase. As obras novas
+ficam na tabela `obras`, uma linha por obra (campo `dados` em JSON).
+
+### Para as obras novas sincronizarem entre aparelhos
+
+Rode **uma vez** o arquivo `supabase-obras.sql` no Supabase
+(SQL Editor → cole → Run). Enquanto isso não for feito, o app funciona normalmente,
+mas a obra nova mostra o selo **📱 salva só neste aparelho**.
+
+O app detecta sozinho quando a tabela existe: não precisa mudar nada no código.
 
 ---
 

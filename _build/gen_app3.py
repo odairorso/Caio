@@ -42,7 +42,7 @@ for i, c in enumerate(data.get("custos", [])):
         "id": _uid("compra:" + str(i)), "quantidade": str(c.get("qtd") or ""), "material": c.get("material") or "",
         "valor": c.get("preco") or 0, "forma": forma, "parcelas": parcelas,
         "fornecedor": c.get("local"), "data": c.get("data"), "pagador": c.get("realizou"),
-        "status": (c.get("status") or "PAGO").lower(), "categoria": "Outros"
+        "status": "pago" if str(c.get("status") or "").strip().upper() == "PAGO" else "pendente", "categoria": "Outros"
     })
 
 maoDeObra = []
@@ -50,7 +50,7 @@ for i, c in enumerate(data.get("mao_obra", [])):
     if _is_summary(c.get("data")):
         continue  # pula linhas TOTAL/SALDO da planilha
     maoDeObra.append({"id": _uid("mo:" + str(i)), "data": c.get("data") or "", "valor": c.get("valor") or 0,
-        "descricao": c.get("quem") or c.get("forma") or "", "status": (c.get("status") or "PAGO").lower()})
+        "descricao": c.get("quem") or c.get("forma") or "", "status": "pago" if str(c.get("status") or "").strip().upper() == "PAGO" else "pendente"})
 
 documentos = []
 for i, c in enumerate(data.get("documentacao", [])):
@@ -71,10 +71,62 @@ for i, r in enumerate(data.get("utilidades", [])):
     contas.append({"id": _uid("contas:" + str(i)), "item": r.get("item"), "mes": r.get("mes"),
         "valor": r.get("valor"), "status": r.get("status")})
 
+# Obra de demonstração (dados fictícios) — serve para ver como fica com mais de uma obra
+demo = {
+    "compras": [
+        {"id": _uid("demo:c1"), "quantidade": "1.000", "material": "TIJOLO 8 FUROS", "valor": 1250.00,
+         "forma": "pix", "parcelas": 1, "fornecedor": "OLARIA NAVIRAÍ", "data": "2026-09-05",
+         "pagador": "ODAIR", "status": "pago", "categoria": "Outros"},
+        {"id": _uid("demo:c2"), "quantidade": "50", "material": "CIMENTO CP-II", "valor": 2100.00,
+         "forma": "cartao", "parcelas": 6, "fornecedor": "IMPÉRIO CONSTRUÇÕES", "data": "2026-09-10",
+         "pagador": "ODAIR", "status": "pago", "categoria": "Outros"},
+        {"id": _uid("demo:c3"), "quantidade": "3 m³", "material": "AREIA MÉDIA", "valor": 480.00,
+         "forma": "dinheiro", "parcelas": 1, "fornecedor": "AREIAL NAVIRAÍ", "data": "2026-09-12",
+         "pagador": "ODAIR", "status": "pendente", "categoria": "Outros"},
+        {"id": _uid("demo:c4"), "quantidade": "120", "material": "TELHA CERÂMICA", "valor": 3480.00,
+         "forma": "cartao", "parcelas": 10, "fornecedor": "AÇO TELHAS DOURADOS", "data": "2026-09-20",
+         "pagador": "ODAIR", "status": "pendente", "categoria": "Outros"},
+        {"id": _uid("demo:c5"), "quantidade": "18 L", "material": "TINTA ACRÍLICA", "valor": 620.00,
+         "forma": "pix", "parcelas": 1, "fornecedor": "DESTRO", "data": "2026-10-02",
+         "pagador": "ODAIR", "status": "pago", "categoria": "Outros"},
+    ],
+    "maoDeObra": [
+        {"id": _uid("demo:m1"), "data": "2026-09-08", "valor": 3500.00, "descricao": "Pedreiro · alvenaria", "status": "pago"},
+        {"id": _uid("demo:m2"), "data": "2026-09-25", "valor": 2500.00, "descricao": "Equipe · laje", "status": "pago"},
+        {"id": _uid("demo:m3"), "data": "2026-10-05", "valor": 1800.00, "descricao": "Ajudante", "status": "pendente"},
+    ],
+    "documentos": [
+        {"id": _uid("demo:d1"), "servico": "ALVARÁ DE CONSTRUÇÃO", "valor": 850.00, "data": "2026-08-20", "forma": "PIX", "obs": ""},
+        {"id": _uid("demo:d2"), "servico": "ART DO ENGENHEIRO", "valor": 1200.00, "data": "2026-08-25", "forma": "PIX", "obs": ""},
+    ],
+    "parcelasPagas": [],
+    "juros": [
+        {"id": _uid("demo:j1"), "data": "2026-09-10", "valor": 410.00},
+        {"id": _uid("demo:j2"), "data": "2026-10-10", "valor": 410.00},
+    ],
+    "contas": [
+        {"id": _uid("demo:u1"), "item": "ÁGUA", "mes": "SET", "valor": 95.00, "status": "PAGO"},
+        {"id": _uid("demo:u2"), "item": "LUZ", "mes": "SET", "valor": 180.00, "status": "PAGO"},
+    ],
+    "rateio": [],
+    "resumoDivisao": {},
+    "orcamento": {"materiais": 45000, "mao": 30000, "doc": 8000, "juros": 5000, "contas": 2000},
+    "diario": [{"id": _uid("demo:n1"), "data": "2026-09-26", "titulo": "Laje concretada",
+                "texto": "Concretagem concluída com 12 m³. Próxima etapa: cura de 7 dias e início da alvenaria do pavimento superior."}],
+}
+
 seed = {"compras": compras, "maoDeObra": maoDeObra, "documentos": documentos,
     "parcelasPagas": [], "juros": juros, "contas": contas,
     "rateio": rateio, "resumoDivisao": data.get("resumo_divisao", {}),
-    "obra": {"area": 72, "valorM2": 1800}}
+    "orcamento": {"materiais": 105000, "mao": 70000, "doc": 16000, "juros": 0, "contas": 2500},
+    "diario": [],
+    "obra": {"area": 72, "valorM2": 1800},
+    "obras": [
+        {"id": "casa-caio", "nome": "Casa Caio", "local": "Naviraí · MS", "area": 72, "valorM2": 1800},
+        {"id": "casa-odair-teste", "nome": "Casa Odair Teste", "local": "Naviraí · MS", "area": 60, "valorM2": 1500},
+    ],
+    "obraAtiva": "casa-caio",
+    "dados": {"casa-odair-teste": demo}}
 
 data_js = json.dumps(seed, ensure_ascii=False)
 
@@ -237,6 +289,37 @@ tr:hover{background:rgba(139,92,246,.03)}
 .btn-pago{display:inline-flex;align-items:center;gap:5px;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:6px 13px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
 .btn-pago:hover{background:var(--green);border-color:var(--green);color:#fff}
 @media(max-width:768px){.parc-item{flex-wrap:wrap;gap:10px}.pi-main{flex:1 1 100%}.pi-valor{margin-left:auto}.parc-items{max-height:none;overflow:visible}.pmes-list,.parc-items{padding-left:16px;padding-right:16px}}
+/* OBRAS */
+.obra-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.obra-acoes{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.obra-select{background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 12px;outline:none;max-width:220px}
+.obra-select:focus{border-color:var(--accent)}
+.obra-selo{display:inline-block;margin-top:8px;font-size:11px;color:var(--text2);border:1px solid var(--border);border-radius:20px;padding:3px 9px}
+.obra-head h2{font-size:24px;font-weight:800;letter-spacing:-.5px}
+.obra-head p{font-size:12.5px;color:var(--text2);margin-top:4px}
+.subtabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:22px;overflow-x:auto;scrollbar-width:none}
+.subtabs::-webkit-scrollbar{display:none}
+.subtab{background:none;border:none;border-bottom:2px solid transparent;color:var(--text2);font-family:inherit;font-size:13.5px;font-weight:600;padding:10px 14px;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s}
+.subtab:hover{color:var(--text)}
+.subtab.active{color:var(--accent2);border-bottom-color:var(--accent)}
+.obra-pane{display:none}
+.obra-pane.active{display:block}
+.orc-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px}
+.orc-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.orc-name{font-size:14.5px;font-weight:700}
+.orc-nums{font-size:12.5px;color:var(--text2);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px}
+.orc-nums b{color:var(--text)}
+.prog{height:8px;border-radius:6px;background:var(--card3);overflow:hidden}
+.prog-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+.prog-fill.over{background:linear-gradient(90deg,#b91c1c,var(--red))}
+.diario-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px}
+.diario-data{font-size:11.5px;color:var(--text2);margin-bottom:6px}
+.diario-titulo{font-size:15px;font-weight:700;margin-bottom:6px}
+.diario-texto{font-size:13.5px;color:var(--text2);line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.gasto-acoes{display:flex;gap:4px;justify-content:flex-end;white-space:nowrap}
+.orc-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.orc-head p{font-size:12.5px;color:var(--text2)}
+@media(max-width:768px){.obra-head h2{font-size:20px}.subtab{padding:9px 10px;font-size:12.5px}.orc-card{padding:16px}.orc-head{align-items:flex-start}}
 /* JUROS & ACERTO */
 .jc-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px;min-width:0;display:flex;flex-direction:column}
 .jc-box h3{font-size:16px;font-weight:600;margin-bottom:20px}
@@ -314,6 +397,7 @@ th,td{padding:10px 12px;font-size:12px}
 <div class="nav-menu">
 <div class="section">Menu</div>
 <button class="nav-btn active" onclick="show('dashboard',this);closeMenu()"><span class="ico">📊</span>Painel</button>
+<button class="nav-btn" onclick="show('obras',this);closeMenu()"><span class="ico">🏗️</span>Obras</button>
 <button class="nav-btn" onclick="show('compras',this);closeMenu()"><span class="ico">🧱</span>Compras</button>
 <button class="nav-btn" onclick="show('parcelas',this);closeMenu()"><span class="ico">💳</span>Parcelas</button>
 <button class="nav-btn" onclick="show('maoobra',this);closeMenu()"><span class="ico">👷</span>Mão de Obra</button>
@@ -448,6 +532,79 @@ th,td{padding:10px 12px;font-size:12px}
 <thead><tr><th>Item</th><th>Valor</th><th>Data</th></tr></thead>
 <tbody id="splitBody"></tbody></table></div><div class="mobile-list" id="splitCards"></div></div>
 </div>
+
+<!-- OBRAS (visao unificada) -->
+<div id="page-obras" class="page">
+<div class="obra-head">
+<div><h2 id="obraNome">Casa Caio</h2><p id="obraResumoSub">Obra em Naviraí · MS</p><span id="obraSelo" class="obra-selo" style="display:none"></span></div>
+<div class="obra-acoes">
+<select id="obraSeletor" class="obra-select" onchange="trocarObra(this.value)" title="Trocar de obra"></select>
+<button class="btn btn-secondary" onclick="openObraNova()">➕ Nova obra</button>
+<button class="btn btn-ghost btn-icon" onclick="openObraEditar()" title="Editar esta obra">✏️</button>
+<button class="btn btn-ghost btn-icon" onclick="excluirObra()" title="Excluir esta obra">🗑️</button>
+</div>
+</div>
+<div class="subtabs">
+<button class="subtab active" onclick="obraTab('resumo',this)">Resumo</button>
+<button class="subtab" onclick="obraTab('gastos',this)">Gastos</button>
+<button class="subtab" onclick="obraTab('orcamento',this)">Orçamento</button>
+<button class="subtab" onclick="obraTab('parcelas',this)">Parcelas</button>
+<button class="subtab" onclick="obraTab('socio',this)">Sócio</button>
+<button class="subtab" onclick="obraTab('diario',this)">Diário</button>
+</div>
+
+<div id="obra-resumo" class="obra-pane active">
+<div class="stats" id="obraStats"></div>
+<div class="grid2">
+<div class="chart-box"><h3>📊 Gasto por mês</h3><canvas id="chartObraMes"></canvas></div>
+<div class="chart-box"><h3>🍩 Gasto por categoria</h3><canvas id="chartObraCat"></canvas></div>
+</div>
+<div class="chart-box" style="height:400px"><h3>🏪 Gasto por fornecedor — top 10</h3><canvas id="chartObraForn"></canvas></div>
+</div>
+
+<div id="obra-gastos" class="obra-pane">
+<div class="filters">
+<input type="text" id="gq" placeholder="🔍 Material ou fornecedor..." oninput="buscaGastos()">
+<select id="gcat" onchange="renderObraGastos()"><option value="">Todas categorias</option><option>Materiais</option><option>Mão de obra</option><option>Documentação e taxas</option><option>Financiamento</option><option>Contas de água e luz</option></select>
+<select id="gsit" onchange="renderObraGastos()"><option value="">Todas situações</option><option value="pago">Pago</option><option value="pendente">Pendente</option></select>
+<button class="btn btn-primary" onclick="openModal('compra')">➕ Novo gasto</button>
+</div>
+<div class="stats" id="gastosStats"></div>
+<div class="table-box"><div class="table-wrap"><table>
+<thead><tr><th>Item</th><th>Fornecedor</th><th>Data</th><th>Valor</th><th>Situação</th><th></th></tr></thead>
+<tbody id="gastosBody"></tbody></table></div><div class="mobile-list" id="gastosCards"></div></div>
+</div>
+
+<div id="obra-orcamento" class="obra-pane">
+<div class="orc-head">
+<p id="orcSub"></p>
+<button class="btn btn-secondary" onclick="openOrcamento()">✏️ Editar orçamento</button>
+</div>
+<div id="orcList"></div>
+</div>
+
+<div id="obra-parcelas" class="obra-pane">
+<div class="stats" id="obraParcStats"></div>
+<div class="table-box"><div class="header"><h3>💳 Parcelas em aberto</h3><span class="count" id="obraParcCount"></span></div>
+<div class="parc-items" id="obraParcList"></div></div>
+</div>
+
+<div id="obra-socio" class="obra-pane">
+<div class="stats" id="obraSocioStats"></div>
+<div class="table-box"><div class="header"><h3>🤝 Despesas divididas com Matheus</h3></div>
+<div class="table-wrap"><table>
+<thead><tr><th>Item</th><th>Valor</th><th>Data</th></tr></thead>
+<tbody id="obraSocioBody"></tbody></table></div><div class="mobile-list" id="obraSocioCards"></div></div>
+</div>
+
+<div id="obra-diario" class="obra-pane">
+<div class="filters">
+<button class="btn btn-primary" onclick="openDiario()">➕ Novo registro</button>
+<span class="parc-sub" style="margin:0">Anotações do andamento da obra (salvas neste aparelho e no backup)</span>
+</div>
+<div id="diarioList"></div>
+</div>
+</div>
 </div>
 </div>
 
@@ -474,6 +631,8 @@ const SEED=__DATA__;
 const SUPABASE_URL='https://nvzqjvltzhmbtbtwletv.supabase.co';
 const SUPABASE_KEY='sb_publishable_mLCxvus4BzQcvwc1lH2alQ_Ci9gI6Hw';
 const SB=typeof supabase!=='undefined'&&SUPABASE_URL!=='SUA_URL_SUPABASE'?supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
+// A tabela "obras" (varias obras na nuvem) pode ainda nao existir: o app detecta sozinho
+let SB_TEM_OBRAS=false;
 // ============================================
 // RELOGIO LOCAL — toISOString usa UTC e, no Brasil, vira o dia depois das 21h
 // ============================================
@@ -496,6 +655,8 @@ if(mudou)save()};
 const limparSujo=id=>{if(!id)return;for(const k of ['compras','maoDeObra','documentos','juros','contas']){for(const it of (S[k]||[])){if(it&&it.id===id)it._dirty=false}}};
 
 async function sbPush(table,payload){
+// As tabelas antigas guardam so a Casa Caio. Obras novas vao para a tabela "obras".
+if(S.obraAtiva!=='casa-caio')return null;
 const rows=Array.isArray(payload)?payload:[payload];
 if(!SB){rows.forEach(r=>r&&marcarSujo(r.id));return null}
 try{
@@ -507,10 +668,12 @@ rows.forEach(r=>r&&limparSujo(r.id));
 return data}catch(e){console.warn('Supabase push error:',e.message);rows.forEach(r=>r&&marcarSujo(r.id));marcarSinc('err');return null}}
 const cloudRow=o=>{const r={...o};delete r._new;delete r._i;delete r._dirty;return r};
 async function sbUpdate(table,id,payload){
+if(S.obraAtiva!=='casa-caio')return null;
 if(!SB){marcarSujo(id);return null}
 try{const{data,error}=await SB.from(table).update(payload).eq('id',id);if(error)throw error;limparSujo(id);return data}
 catch(e){console.warn('Supabase update error:',e.message);marcarSujo(id);return null}}
 async function sbDelete(table,id){
+if(S.obraAtiva!=='casa-caio')return null;
 if(!SB){pendDel(table,'id',id);return null}
 try{const{error}=await SB.from(table).delete().eq('id',id);if(error)throw error;pendOk(table,'id',id);return true}
 catch(e){console.warn('Supabase delete error:',e.message);pendDel(table,'id',id);return null}}
@@ -537,6 +700,7 @@ if(reenviar.length)sbPush(tabela,reenviar.map(cloudRow));
 return [...mapa.values()]}
 async function sbPullAll(silent){
 if(!SB)return false;
+if(S.obraAtiva!=='casa-caio')return false;
 try{
 const[rc,rm,rd,rp,rj,rc2]=await Promise.all([
 SB.from('compras').select('*'),SB.from('mao_de_obra').select('*'),SB.from('documentos').select('*'),
@@ -579,30 +743,133 @@ try{localStorage.setItem('obra-facil-semeado','1')}catch(e){}
 if(!silent)toast('✅ Dados enviados ao Supabase!');
 return 1;
 }catch(e){if(!silent)toast('Erro: '+e.message,true);return 0}}
+async function detectarTabelaObras(){
+if(!SB)return false;
+try{const r=await SB.from('obras').select('id').limit(1);if(r.error)throw r.error;SB_TEM_OBRAS=true}
+catch(e){SB_TEM_OBRAS=false}
+return SB_TEM_OBRAS}
+
+// Mescla por id: o que foi editado no aparelho (_dirty) vence a nuvem
+function mesclarObra(nuvem,local){
+const mapa=new Map();
+for(const r of (nuvem||[])){if(r&&r.id)mapa.set(r.id,r)}
+for(const r of (local||[])){if(!r||!r.id)continue;if(r._dirty||!mapa.has(r.id))mapa.set(r.id,r)}
+return [...mapa.values()]}
+
+function pacoteDaNuvem(d,atual){
+atual=atual||{};
+return {compras:mesclarObra(d.compras,atual.compras),
+maoDeObra:mesclarObra(d.maoDeObra,atual.maoDeObra),
+documentos:mesclarObra(d.documentos,atual.documentos),
+parcelasPagas:[...new Set([...(atual.parcelasPagas||[]),...(d.parcelasPagas||[])])],
+juros:mesclarObra(d.juros,atual.juros),
+contas:mesclarObra(d.contas,atual.contas),
+rateio:mesclarObra(d.rateio,atual.rateio),
+resumoDivisao:d.resumoDivisao||atual.resumoDivisao||{},
+orcamento:d.orcamento||atual.orcamento||ORCAMENTO_VAZIO(),
+diario:mesclarObra(d.diario,atual.diario)}}
+
+async function puxarObrasNuvem(silent){
+if(!SB||!SB_TEM_OBRAS)return false;
+try{
+const{data,error}=await SB.from('obras').select('*');if(error)throw error;
+for(const o of (data||[])){
+const local=S.obras.find(x=>x.id===o.id);
+if(!local)S.obras.push({id:o.id,nome:o.nome||'Obra',local:o.local||'',area:Number(o.area)||0,valorM2:Number(o.valor_m2)||0});
+else{local.nome=o.nome||local.nome;local.local=o.local||local.local;if(Number(o.area))local.area=Number(o.area);if(Number(o.valor_m2))local.valorM2=Number(o.valor_m2)}
+if(o.id==='casa-caio'||!o.dados)continue;
+if(o.id===S.obraAtiva)continue; // a obra aberta na tela tem prioridade
+S.dados[o.id]=pacoteDaNuvem(o.dados,S.dados[o.id]);
+}
+S.obras.forEach(o=>{if(!S.dados[o.id])S.dados[o.id]=PACOTE_VAZIO()});
+save();if(!silent)toast('☁️ Obras sincronizadas!');return true;
+}catch(e){console.warn('puxarObras:',e.message);return false}}
+
+async function puxarObraDaNuvem(id){
+if(!SB||!SB_TEM_OBRAS||id==='casa-caio')return;
+try{
+const{data,error}=await SB.from('obras').select('*').eq('id',id).limit(1);if(error)throw error;
+const o=(data||[])[0];if(!o||!o.dados)return;
+S.dados[id]=pacoteDaNuvem(o.dados,S.dados[id]);
+if(S.obraAtiva===id){aplicarObraAtiva();save();renderObras()}
+}catch(e){console.warn('puxarObra:',e.message)}}
+
+async function enviarObra(o){
+if(!SB||!SB_TEM_OBRAS||!o)return false;
+try{
+if(o.id===S.obraAtiva)sincronizarAtiva();
+const dados=o.id==='casa-caio'?{}:(S.dados[o.id]||{});
+const{error}=await SB.from('obras').upsert({id:o.id,nome:o.nome,local:o.local||'',area:o.area||0,valor_m2:o.valorM2||0,dados:dados,atualizado_em:new Date().toISOString()},{onConflict:'id'});
+if(error)throw error;
+marcarSinc('ok');return true;
+}catch(e){console.warn('enviarObra:',e.message);marcarSinc('err');return false}}
+
+let _tPushObra=null;
+function agendarPushObra(){
+if(!SB||!SB_TEM_OBRAS)return;
+const o=obraAtual();
+if(!o||o.id==='casa-caio')return;
+clearTimeout(_tPushObra);
+_tPushObra=setTimeout(()=>{sincronizarAtiva();enviarObra(o)},1200)}
+
 async function sbAutoSeed(){
 if(!SB)return;
 try{
+await detectarTabelaObras();
+if(S.obraAtiva==='casa-caio'){
 const r=await SB.from('compras').select('id',{count:'exact',head:true});
 if(r.error)throw r.error;
 const jaSemeou=localStorage.getItem('obra-facil-semeado');
 if(r.count===0&&!jaSemeou){console.log('Supabase vazio — enviando dados iniciais...');await sbSeedAll(true)}
 else{await sbPullAll(true)}
+}
+if(SB_TEM_OBRAS)await puxarObrasNuvem(true);
 await reenviarPendencias();
 }catch(e){console.warn('autoSeed:',e.message)}}
 // ============================================
+// OBRA ATIVA — cada obra tem o seu proprio conjunto de dados
+// ============================================
+const CAMPOS_OBRA=['compras','maoDeObra','documentos','parcelasPagas','juros','contas','rateio','resumoDivisao','orcamento','diario'];
+const ORCAMENTO_VAZIO=()=>({materiais:0,mao:0,doc:0,juros:0,contas:0});
+const PACOTE_VAZIO=()=>({compras:[],maoDeObra:[],documentos:[],parcelasPagas:[],juros:[],contas:[],rateio:[],resumoDivisao:{},orcamento:ORCAMENTO_VAZIO(),diario:[]});
 let S=JSON.parse(JSON.stringify(SEED));
+if(!S.obras||!S.obras.length)S.obras=[{id:'casa-caio',nome:'Casa Caio',local:'Naviraí · MS',area:(S.obra&&S.obra.area)||72,valorM2:(S.obra&&S.obra.valorM2)||1800}];
+if(!S.dados)S.dados={};
+if(!S.obraAtiva)S.obraAtiva=S.obras[0].id;
+const pacoteCasa=()=>({compras:S.compras,maoDeObra:S.maoDeObra,documentos:S.documentos,parcelasPagas:S.parcelasPagas,juros:S.juros,contas:S.contas,rateio:S.rateio,resumoDivisao:S.resumoDivisao,orcamento:S.orcamento,diario:S.diario});
+if(!S.dados['casa-caio'])S.dados['casa-caio']=pacoteCasa();
+
 let SAVED=JSON.parse(localStorage.getItem('obra-facil-v2')||'null')||{};
-if(SAVED.compras)S.compras=SAVED.compras;
-if(SAVED.maoDeObra)S.maoDeObra=SAVED.maoDeObra;
-if(SAVED.documentos)S.documentos=SAVED.documentos;
-if(SAVED.parcelasPagas)S.parcelasPagas=SAVED.parcelasPagas;
-if(SAVED.juros)S.juros=SAVED.juros;
-if(SAVED.contas)S.contas=SAVED.contas;
+if(SAVED.dados&&SAVED.obras){
+// formato novo (varias obras)
+S.obras=SAVED.obras;
+S.obraAtiva=SAVED.obraAtiva||SAVED.obras[0].id;
+S.dados=SAVED.dados;
+}else if(SAVED.compras||SAVED.maoDeObra||SAVED.documentos||SAVED.contas){
+// formato antigo (um conjunto unico de dados): vira a Casa Caio
+S.dados['casa-caio']={compras:SAVED.compras||S.compras,maoDeObra:SAVED.maoDeObra||S.maoDeObra,
+documentos:SAVED.documentos||S.documentos,parcelasPagas:SAVED.parcelasPagas||S.parcelasPagas,
+juros:SAVED.juros||S.juros,contas:SAVED.contas||S.contas,rateio:S.rateio,
+resumoDivisao:S.resumoDivisao,orcamento:SAVED.orcamento||S.orcamento,diario:SAVED.diario||S.diario};
+}
+if(!S.obras.some(o=>o.id===S.obraAtiva))S.obraAtiva=S.obras[0].id;
+S.obras.forEach(o=>{if(!S.dados[o.id])S.dados[o.id]=PACOTE_VAZIO()});
+function sincronizarAtiva(){S.dados[S.obraAtiva]={compras:S.compras,maoDeObra:S.maoDeObra,documentos:S.documentos,parcelasPagas:S.parcelasPagas,juros:S.juros,contas:S.contas,rateio:S.rateio,resumoDivisao:S.resumoDivisao,orcamento:S.orcamento,diario:S.diario}}
+function aplicarObraAtiva(){const d=S.dados[S.obraAtiva]||PACOTE_VAZIO();
+S.compras=d.compras||[];S.maoDeObra=d.maoDeObra||[];S.documentos=d.documentos||[];
+S.parcelasPagas=d.parcelasPagas||[];S.juros=d.juros||[];S.contas=d.contas||[];
+S.rateio=d.rateio||[];S.resumoDivisao=d.resumoDivisao||{};
+S.orcamento=d.orcamento||ORCAMENTO_VAZIO();S.diario=d.diario||[]}
+function obraAtual(){return (S.obras||[]).find(o=>o.id===S.obraAtiva)||S.obras[0]}
+aplicarObraAtiva();
 
 // Limpeza automatica: remove apenas linhas de resumo antigas (TOTAL/SALDO), sem tocar no resto
 const _resumo=r=>{const t=String((r&&(r.material||r.descricao||r.servico))||'').trim().toUpperCase();return /^(TOTAL|SUBTOTAL|TOTAL GERAL|SALDO|SALDO FINAL)\b/.test(t)};
 const _badRow=r=>!!(r&&_resumo(r)&&!(r.data&&/^\d{4}-\d{2}-\d{2}$/.test(String(r.data).trim())));
-['compras','maoDeObra','documentos'].forEach(k=>{S[k]=(S[k]||[]).filter(r=>!_badRow(r))});
+Object.keys(S.dados).forEach(id=>{
+['compras','maoDeObra','documentos'].forEach(k=>{S.dados[id][k]=(S.dados[id][k]||[]).filter(r=>!_badRow(r))});
+});
+aplicarObraAtiva();
 
 const CATEGORIAS=["Fundação","Estrutura","Alvenaria","Laje","Cobertura","Madeira/Formas","Elétrica","Hidráulica","Acabamento","Pintura","Serviços","Outros"];
 const FORMAS={cartao:"Cartão",pix:"PIX",dinheiro:"Dinheiro",boleto:"Boleto",outro:"Outro"};
@@ -610,7 +877,7 @@ const uid=()=>(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID
 function closeMenu(){document.querySelector('.nav-menu')?.classList.remove('open')}
 function toggleNav(){const n=document.querySelector('.nav-menu');if(n)n.classList.toggle('open')}
 let _saveAviso=false;
-const save=()=>{try{localStorage.setItem('obra-facil-v2',JSON.stringify({compras:S.compras,maoDeObra:S.maoDeObra,documentos:S.documentos,parcelasPagas:S.parcelasPagas,juros:S.juros,contas:S.contas}))}
+const save=()=>{try{sincronizarAtiva();localStorage.setItem('obra-facil-v2',JSON.stringify({versao:3,obras:S.obras,obraAtiva:S.obraAtiva,dados:S.dados}));agendarPushObra()}
 catch(e){console.warn('save:',e.message);if(!_saveAviso){_saveAviso=true;try{toast('⚠️ Não consegui salvar neste aparelho. Faça um backup!',true)}catch(_){}}}};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const brl=v=>'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -618,8 +885,8 @@ const brlS=v=>v>=1000?'R$ '+(v/1000).toLocaleString('pt-BR',{maximumFractionDigi
 const dataBR=d=>d?new Date(d+'T12:00:00').toLocaleDateString('pt-BR'):'—';
 function toast(msg,err,undo){const t=document.getElementById('toast');t.innerHTML=esc(msg)+(undo?' <button class="undo" onclick="'+undo+'()">Desfazer</button>':'');t.className='toast show'+(err?' error':'');setTimeout(()=>t.className='toast',4000)}
 function show(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
-const titles={dashboard:'Painel',compras:'Compras',parcelas:'Parcelas',maoobra:'Mão de Obra',documentos:'Documentos',financiamento:'Financiamento',juros:'Juros & acerto',divisao:'Rateio Matheus'};document.getElementById('pageTitle').textContent=titles[id]||id;
-setTimeout(()=>{destroyAll();if(id==='dashboard')renderDash();else if(id==='compras')renderCompras();else if(id==='parcelas')renderParcelas();else if(id==='maoobra')renderMO();else if(id==='documentos')renderDocs();else if(id==='financiamento')renderFin();else if(id==='juros')renderJuros();else if(id==='divisao')renderSplit()},50)}
+const titles={dashboard:'Painel',obras:'Obras',compras:'Compras',parcelas:'Parcelas',maoobra:'Mão de Obra',documentos:'Documentos',financiamento:'Financiamento',juros:'Juros & acerto',divisao:'Rateio Matheus'};document.getElementById('pageTitle').textContent=titles[id]||id;
+setTimeout(()=>{destroyAll();if(id==='dashboard')renderDash();else if(id==='obras')renderObras();else if(id==='compras')renderCompras();else if(id==='parcelas')renderParcelas();else if(id==='maoobra')renderMO();else if(id==='documentos')renderDocs();else if(id==='financiamento')renderFin();else if(id==='juros')renderJuros();else if(id==='divisao')renderSplit()},50)}
 
 // CHART MANAGEMENT
 let _ch={};
@@ -647,12 +914,13 @@ const total=mat+mao+docs+juros;
 const parc=gerarParcelas();const aPagar=parc.filter(p=>p.status!=='pago');const totPagar=aPagar.reduce((a,p)=>a+p.valor,0);
 const _hojeStr=hojeISO();
 const nAtraso=aPagar.filter(p=>p.venc<_hojeStr).length;
-const ref=S.obra.area*S.obra.valorM2;
+const _obra=obraAtual()||{};const _area=Number(_obra.area)||0;const _vm2=Number(_obra.valorM2)||0;
+const ref=_area*_vm2;
 document.getElementById('heroTotal').textContent=brl(total);
-document.getElementById('heroSub').textContent=S.obra.area+' m² · obra financiada · '+S.compras.length+' compras · '+S.maoDeObra.length+' pagamentos';
+document.getElementById('heroSub').textContent=(_obra.nome?_obra.nome+' · ':'')+(_area?_area+' m² · ':'')+S.compras.length+' compras · '+S.maoDeObra.length+' pagamentos';
 document.getElementById('statsGrid').innerHTML=`
 <div class="stat"><div class="label">🧱 Materiais</div><div class="value">${brlS(mat)}</div><div class="hint">${S.compras.length} lançamentos</div></div>
-<div class="stat ${mao>ref?'danger':''}"><div class="label">👷 Mão de obra</div><div class="value">${brlS(mao)}</div><div class="hint">Ref. ${brlS(ref)} · saldo ${brlS(ref-mao)}</div></div>
+<div class="stat ${ref&&mao>ref?'danger':''}"><div class="label">👷 Mão de obra</div><div class="value">${brlS(mao)}</div><div class="hint">${ref?('Ref. '+brlS(ref)+' · saldo '+brlS(ref-mao)):'sem referência de m²'}</div></div>
 <div class="stat primary"><div class="label">💳 A pagar no cartão</div><div class="value">${brlS(totPagar)}</div><div class="hint">${aPagar.length} em aberto${nAtraso?' · ⚠️ '+nAtraso+' atrasadas':''}</div></div>
 <div class="stat"><div class="label">📋 Docs + Juros</div><div class="value">${brlS(docs+juros)}</div><div class="hint">financiamento, taxas e contas</div></div>`;
 
@@ -761,8 +1029,8 @@ document.getElementById('parcelasList').innerHTML=abertas.length===0?'<p style="
 async function sbParcelaPaga(id){if(!SB)return null;try{const{error}=await SB.from('parcelas_pagas').upsert({parcela_id:id},{onConflict:'parcela_id'});if(error)throw error;return true}catch(e){console.warn('Supabase parcela error:',e.message);return null}}
 async function sbParcelaApagar(id){if(!SB)return null;try{const{error}=await SB.from('parcelas_pagas').delete().eq('parcela_id',id);if(error)throw error;return true}catch(e){console.warn('Supabase parcela delete:',e.message);return null}}
 let _lastParcPaga=null;
-function pagarParc(id){if(S.parcelasPagas.includes(id))return;_lastParcPaga=id;S.parcelasPagas.push(id);sbParcelaPaga(id);save();renderParcelas();toast('✅ Parcela quitada!',false,'desfazerParcela')}
-function desfazerParcela(){if(!_lastParcPaga)return;const id=_lastParcPaga;_lastParcPaga=null;S.parcelasPagas=S.parcelasPagas.filter(x=>x!==id);sbParcelaApagar(id);save();renderParcelas();toast('↩️ Parcela reaberta!')}
+function pagarParc(id){if(S.parcelasPagas.includes(id))return;_lastParcPaga=id;S.parcelasPagas.push(id);sbParcelaPaga(id);save();renderParcelas();refreshObras();toast('✅ Parcela quitada!',false,'desfazerParcela')}
+function desfazerParcela(){if(!_lastParcPaga)return;const id=_lastParcPaga;_lastParcPaga=null;S.parcelasPagas=S.parcelasPagas.filter(x=>x!==id);sbParcelaApagar(id);save();renderParcelas();refreshObras();toast('↩️ Parcela reaberta!')}
 async function sbParcelasPagasLote(ids){if(!SB||!ids.length)return null;try{const{error}=await SB.from('parcelas_pagas').upsert(ids.map(x=>({parcela_id:x})),{onConflict:'parcela_id'});if(error)throw error;return true}catch(e){console.warn('Supabase lote pago:',e.message);return null}}
 async function sbParcelasApagarLote(ids){if(!SB||!ids.length)return null;try{const{error}=await SB.from('parcelas_pagas').delete().in('parcela_id',ids);if(error)throw error;return true}catch(e){console.warn('Supabase lote apagar:',e.message);return null}}
 let _lotePago=null;
@@ -775,24 +1043,25 @@ if(!confirm('Marcar '+alvo.length+' parcelas vencidas como pagas?\n\nTotal: '+br
 const ids=alvo.map(p=>p.id);
 _lotePago=ids.slice();
 ids.forEach(id=>{if(!S.parcelasPagas.includes(id))S.parcelasPagas.push(id)});
-sbParcelasPagasLote(ids);save();renderParcelas();renderDash();
+sbParcelasPagasLote(ids);save();renderParcelas();renderDash();refreshObras();
 toast('✅ '+ids.length+' parcelas quitadas!',false,'desfazerLote')
 }
 function desfazerLote(){
 if(!_lotePago)return;
 const ids=_lotePago;_lotePago=null;
 S.parcelasPagas=S.parcelasPagas.filter(x=>!ids.includes(x));
-sbParcelasApagarLote(ids);save();renderParcelas();renderDash();
+sbParcelasApagarLote(ids);save();renderParcelas();renderDash();refreshObras();
 toast('↩️ '+ids.length+' parcelas reabertas')
 }
 
 // RENDER MÃO DE OBRA
 function renderMO(){
-const tot=S.maoDeObra.reduce((a,c)=>a+c.valor,0);const ref=S.obra.area*S.obra.valorM2;
+const tot=S.maoDeObra.reduce((a,c)=>a+c.valor,0);
+const _mo=obraAtual()||{};const _moArea=Number(_mo.area)||0;const _moVm2=Number(_mo.valorM2)||0;const ref=_moArea*_moVm2;
 document.getElementById('moStats').innerHTML=`
-<div class="stat ${tot>ref?'danger':''}"><div class="label">👷 Total pago</div><div class="value">${brlS(tot)}</div><div class="hint">${S.maoDeObra.length} pagamentos</div></div>
-<div class="stat"><div class="label">📐 Referência (m²)</div><div class="value">${brlS(ref)}</div><div class="hint">${S.obra.area}m² × ${brl(S.obra.valorM2)}</div></div>
-<div class="stat ${tot>ref?'danger':''}"><div class="label">💵 Saldo</div><div class="value">${brlS(ref-tot)}</div><div class="hint">${tot>ref?'Acima da referência':'Dentro do orçamento'}</div></div>`;
+<div class="stat ${ref&&tot>ref?'danger':''}"><div class="label">👷 Total pago</div><div class="value">${brlS(tot)}</div><div class="hint">${S.maoDeObra.length} pagamentos</div></div>
+<div class="stat"><div class="label">📐 Referência (m²)</div><div class="value">${ref?brlS(ref):'—'}</div><div class="hint">${ref?_moArea+'m² × '+brl(_moVm2):'informe a área e o valor do m²'}</div></div>
+<div class="stat ${ref&&tot>ref?'danger':''}"><div class="label">💵 Saldo</div><div class="value">${ref?brlS(ref-tot):'—'}</div><div class="hint">${ref?(tot>ref?'Acima da referência':'Dentro do orçamento'):'sem referência'}</div></div>`;
 
 const porMes=somaPor(S.maoDeObra.filter(c=>c.data),c=>c.data.slice(0,7),c=>c.valor).sort((a,b)=>a.nome.localeCompare(b.nome));
 const lbl=porMes.map(m=>{const[y,mo]=m.nome.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(mo)-1]});
@@ -875,15 +1144,262 @@ document.getElementById('despBox').innerHTML=rateio.map(c=>`
 // RENDER SPLIT (rateio Matheus)
 function renderSplit(){
 const rd=S.resumoDivisao||{};
+const ter=rd['VALOR TERRENO']||0,escD=rd['DESPESAS ESCRITURA']||0,adi=rd['ADIANTAMENTO']||0,dev=rd['VALOR DEVIDO']||0,ret=rd['RETORNO']||0;
 document.getElementById('splitBox').innerHTML=`<h3>🤝 Resumo do Rateio</h3>
-<div class="split-item"><span>💰 Valor do Terreno</span><strong>${brl(rd['VALOR TERRENO']||35000)}</strong></div>
-<div class="split-item"><span>📋 Despesas Escritura</span><strong>${brl(rd['DESPESAS ESCRITURA']||1579.66)}</strong></div>
-<div class="split-item"><span>🤝 Adiantamento</span><strong>${brl(rd['ADIANTAMENTO']||2000)}</strong></div>
-<div class="split-item"><span>💵 Caio Deve</span><strong>${brl(rd['VALOR DEVIDO']||31420.34)}</strong></div>
-<div class="split-item"><span>🔄 Retorno Matheus</span><strong style="color:var(--green)">${brl(rd['RETORNO']||579.66)}</strong></div>`;
-mk('chartSplit',{type:'doughnut',data:{labels:['Terreno (Caio)','Metade Escritura','Adiantamento'],datasets:[{data:[17500,1579.66/2,2000],backgroundColor:['#8b5cf6','#f59e0b','#10b981'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},cutout:'60%'}});
+<div class="split-item"><span>💰 Valor do Terreno</span><strong>${brl(ter)}</strong></div>
+<div class="split-item"><span>📋 Despesas Escritura</span><strong>${brl(escD)}</strong></div>
+<div class="split-item"><span>🤝 Adiantamento</span><strong>${brl(adi)}</strong></div>
+<div class="split-item"><span>💵 Caio Deve</span><strong>${brl(dev)}</strong></div>
+<div class="split-item"><span>🔄 Retorno Matheus</span><strong style="color:var(--green)">${brl(ret)}</strong></div>`;
+mk('chartSplit',{type:'doughnut',data:{labels:['Terreno (metade)','Metade Escritura','Adiantamento'],datasets:[{data:[ter/2,escD/2,adi],backgroundColor:['#8b5cf6','#f59e0b','#10b981'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},cutout:'60%'}});
 document.getElementById('splitBody').innerHTML=(S.rateio||[]).map(c=>`<tr><td>${esc(c.item||'—')}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td>${dataBR(c.data)}</td></tr>`).join('');
 document.getElementById('splitCards').innerHTML=(S.rateio||[]).map(c=>`<div class="mcard"><div class="mi"><div class="mt">${esc(c.item||'—')}</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv">${brl(c.valor||0)}</div></div></div>`).join('');
+}
+
+// ============================================
+// OBRAS — visao unificada de tudo
+// ============================================
+const CAT_OBRA=['Materiais','Mão de obra','Documentação e taxas','Financiamento','Contas de água e luz'];
+const ORC_CATS=[{k:'materiais',nome:'Materiais de construção',cat:'Materiais'},
+{k:'mao',nome:'Mão de obra',cat:'Mão de obra'},
+{k:'doc',nome:'Documentação e taxas',cat:'Documentação e taxas'},
+{k:'juros',nome:'Financiamento (juros)',cat:'Financiamento'},
+{k:'contas',nome:'Contas de água e luz',cat:'Contas de água e luz'}];
+const diasEntre=(a,b)=>Math.round((new Date(a+'T12:00:00')-new Date(b+'T12:00:00'))/864e5);
+
+let _obraAba='resumo';
+function obraTab(nome,btn){
+_obraAba=nome;
+document.querySelectorAll('.subtab').forEach(b=>b.classList.remove('active'));
+if(btn)btn.classList.add('active');
+document.querySelectorAll('.obra-pane').forEach(p=>p.classList.remove('active'));
+const p=document.getElementById('obra-'+nome);if(p)p.classList.add('active');
+renderObras();
+}
+function renderObras(){
+const o=obraAtual();
+const nomeEl=document.getElementById('obraNome');if(nomeEl)nomeEl.textContent=o?o.nome:'Obra';
+renderObraSeletor();
+const selo=document.getElementById('obraSelo');
+if(selo){
+if(!o)selo.style.display='none';
+else if(o.id==='casa-caio'){selo.style.display=SB?'inline-block':'none';selo.textContent='☁️ sincronizada na nuvem'}
+else{selo.style.display='inline-block';selo.textContent=SB_TEM_OBRAS?'☁️ sincronizada na nuvem':'📱 salva só neste aparelho';selo.title=SB_TEM_OBRAS?'Esta obra sincroniza entre aparelhos':'Para aparecer no celular, rode o arquivo supabase-obras.sql no Supabase'}
+}
+if(_obraAba==='resumo')renderObraResumo();
+else if(_obraAba==='gastos')renderObraGastos();
+else if(_obraAba==='orcamento')renderObraOrc();
+else if(_obraAba==='parcelas')renderObraParc();
+else if(_obraAba==='socio')renderObraSocio();
+else if(_obraAba==='diario')renderDiario();
+}
+
+function renderObraSeletor(){
+const sel=document.getElementById('obraSeletor');if(!sel)return;
+sel.innerHTML=(S.obras||[]).map(o=>`<option value="${esc(o.id)}"${o.id===S.obraAtiva?' selected':''}>${esc(o.nome)}</option>`).join('');
+}
+
+function trocarObra(id){
+if(!id||id===S.obraAtiva)return;
+sincronizarAtiva();
+S.obraAtiva=id;
+aplicarObraAtiva();
+save();
+destroyAll();
+renderObras();
+toast('🏗️ '+obraAtual().nome);
+if(id!=='casa-caio')puxarObraDaNuvem(id);
+}
+
+function openObraNova(){
+modalType='obra';editIdx=null;editId=null;
+document.getElementById('modalTitle').innerHTML='🏗️ Nova obra';
+document.getElementById('modalBody').innerHTML=`
+<div class="form-group"><label>Nome da obra</label><input id="o_nome" placeholder="Ex: Casa do Odair"></div>
+<div class="form-group"><label>Local (cidade · UF)</label><input id="o_local" placeholder="Ex: Naviraí · MS"></div>
+<div class="form-group"><label>Área construída (m²)</label><input id="o_area" type="number" step="0.1" min="0" placeholder="Ex: 60"></div>
+<div class="form-group"><label>Valor do m² (opcional)</label><input id="o_vm2" type="number" step="0.01" min="0" placeholder="Ex: 1500"></div>
+<p class="parc-sub" style="margin:10px 0 0">A obra nova começa vazia. Cada obra tem os seus próprios lançamentos, parcelas, orçamento e diário.</p>`;
+document.getElementById('modal').classList.add('open');
+}
+
+function openObraEditar(){
+const o=obraAtual();if(!o)return;
+modalType='obra';editIdx=null;editId=o.id;
+document.getElementById('modalTitle').innerHTML='✏️ Editar obra';
+document.getElementById('modalBody').innerHTML=`
+<div class="form-group"><label>Nome da obra</label><input id="o_nome" value="${esc(o.nome||'')}"></div>
+<div class="form-group"><label>Local (cidade · UF)</label><input id="o_local" value="${esc(o.local||'')}"></div>
+<div class="form-group"><label>Área construída (m²)</label><input id="o_area" type="number" step="0.1" min="0" value="${Number(o.area)||0}"></div>
+<div class="form-group"><label>Valor do m² (opcional)</label><input id="o_vm2" type="number" step="0.01" min="0" value="${Number(o.valorM2)||0}"></div>`;
+document.getElementById('modal').classList.add('open');
+}
+
+function excluirObra(){
+const o=obraAtual();if(!o)return;
+if((S.obras||[]).length<2)return toast('Você precisa ter pelo menos uma obra.',true);
+if(!confirm('Excluir a obra "'+o.nome+'" e todos os dados dela?\n\nEssa ação não pode ser desfeita.'))return;
+if(SB&&SB_TEM_OBRAS)SB.from('obras').delete().eq('id',o.id).then(()=>{}).catch(()=>{});
+S.obras=S.obras.filter(x=>x.id!==o.id);
+delete S.dados[o.id];
+S.obraAtiva=S.obras[0].id;
+aplicarObraAtiva();
+save();destroyAll();renderObras();
+toast('🗑️ Obra excluída');
+}
+
+// Junta compras, mao de obra, documentos, juros e contas numa lista so
+function gastosUnificados(){
+const out=[];
+S.compras.forEach((c,i)=>out.push({tipo:'compra',i,item:c.material||'Compra',forn:c.fornecedor||'',data:c.data||'',valor:Number(c.valor)||0,cat:'Materiais',status:c.status==='pago'?'pago':'pendente',det:FORMAS[c.forma]||c.forma||''}));
+S.maoDeObra.forEach((c,i)=>out.push({tipo:'maoobra',i,item:c.descricao?('Mão de obra · '+c.descricao):'Mão de obra',forn:'Equipe da obra',data:c.data||'',valor:Number(c.valor)||0,cat:'Mão de obra',status:c.status==='pago'?'pago':'pendente',det:''}));
+S.documentos.forEach((c,i)=>out.push({tipo:'doc',i,item:c.servico||'Serviço',forn:c.forma||'',data:c.data||'',valor:Number(c.valor)||0,cat:'Documentação e taxas',status:'pago',det:''}));
+(S.juros||[]).forEach((c,i)=>out.push({tipo:'juros',i,item:'Financiamento · juros',forn:'Banco',data:c.data||'',valor:Number(c.valor)||0,cat:'Financiamento',status:'pago',det:''}));
+(S.contas||[]).forEach((c,i)=>out.push({tipo:'conta',i,item:c.item||'Conta',forn:'',data:'',valor:Number(c.valor)||0,cat:'Contas de água e luz',status:String(c.status||'pago').toLowerCase()==='pago'?'pago':'pendente',det:c.mes||''}));
+return out;
+}
+
+function renderObraResumo(){
+const g=gastosUnificados();
+const total=g.reduce((a,x)=>a+x.valor,0);
+const pago=g.filter(x=>x.status==='pago').reduce((a,x)=>a+x.valor,0);
+const pend=total-pago;
+const area=Number((obraAtual()||{}).area)||0;
+document.getElementById('obraResumoSub').textContent=((obraAtual()||{}).local?obraAtual().local+' · ':'')+(area?area+' m² · ':'')+g.length+' lançamentos';
+document.getElementById('obraStats').innerHTML=`
+<div class="stat primary"><div class="label">💰 Total gasto</div><div class="value">${brl(total)}</div><div class="hint">${g.length} lançamentos</div></div>
+<div class="stat"><div class="label">✅ Pago</div><div class="value" style="color:var(--green)">${brl(pago)}</div><div class="hint">${g.filter(x=>x.status==='pago').length} quitados</div></div>
+<div class="stat ${pend>0?'danger':''}"><div class="label">⏳ Pendente</div><div class="value">${brl(pend)}</div><div class="hint">${g.filter(x=>x.status!=='pago').length} em aberto</div></div>
+<div class="stat"><div class="label">📐 Custo por m²</div><div class="value">${area?brl(total/area):'—'}</div><div class="hint">${area?area+' m² construídos':'informe a área da obra'}</div></div>`;
+
+const meses={};
+for(const x of g){if(!x.data)continue;const m=x.data.slice(0,7);meses[m]=meses[m]||{t:0,p:0};meses[m].t+=x.valor;if(x.status==='pago')meses[m].p+=x.valor}
+const ord=Object.keys(meses).sort();
+const MN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const lbl=ord.map(m=>{const[y,mo]=m.split('-');return MN[parseInt(mo)-1]+'/'+y.slice(2)});
+mk('chartObraMes',{type:'bar',data:{labels:lbl,datasets:[
+{label:'Total',data:ord.map(m=>meses[m].t),backgroundColor:barGrad('#8b5cf6'),borderRadius:[6,6,0,0]},
+{label:'Pago',data:ord.map(m=>meses[m].p),backgroundColor:barGrad('#10b981'),borderRadius:[6,6,0,0]}]},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+brl(c.parsed.y)}}},scales:{y:{ticks:{callback:v=>brlS(v)}}}}});
+
+const cats={};for(const x of g)cats[x.cat]=(cats[x.cat]||0)+x.valor;
+mk('chartObraCat',{type:'doughnut',data:{labels:Object.keys(cats),datasets:[{data:Object.values(cats),backgroundColor:['#8b5cf6','#ef4444','#3b82f6','#f59e0b','#10b981'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>' '+brl(c.parsed)}}},cutout:'60%'}});
+
+const f={};for(const x of g)f[x.forn||'Sem fornecedor']=(f[x.forn||'Sem fornecedor']||0)+x.valor;
+const top=Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,10);
+mk('chartObraForn',{type:'bar',data:{labels:top.map(x=>x[0]),datasets:[{data:top.map(x=>x[1]),backgroundColor:barGrad('#f59e0b'),borderRadius:8}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+brl(c.parsed.x)}}},scales:{x:{ticks:{callback:v=>brlS(v)}}}}});
+}
+
+let _tGastos=null;
+function buscaGastos(){clearTimeout(_tGastos);_tGastos=setTimeout(renderObraGastos,220)}
+function acoesGasto(x){
+const ed={compra:'compra',maoobra:'maoobra',doc:'doc'}[x.tipo];
+const arr={compra:'compras',maoobra:'maoDeObra',doc:'documentos',juros:'juros',conta:'contas'}[x.tipo];
+return (ed?`<button class="btn btn-ghost btn-icon" onclick="editEntry('${ed}',${x.i})" title="Editar">✏️</button>`:'')+
+`<button class="btn btn-ghost btn-icon" onclick="delEntry('${arr}',${x.i})" title="Excluir">🗑️</button>`;
+}
+function renderObraGastos(){
+const q=(document.getElementById('gq').value||'').toLowerCase();
+const cat=document.getElementById('gcat').value;
+const sit=document.getElementById('gsit').value;
+let itens=gastosUnificados().filter(x=>(!q||x.item.toLowerCase().includes(q)||x.forn.toLowerCase().includes(q))&&(!cat||x.cat===cat)&&(!sit||x.status===sit));
+itens.sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')));
+const total=itens.reduce((a,x)=>a+x.valor,0);
+const pago=itens.filter(x=>x.status==='pago').reduce((a,x)=>a+x.valor,0);
+document.getElementById('gastosStats').innerHTML=`
+<div class="stat primary"><div class="label">💰 Total filtrado</div><div class="value">${brl(total)}</div><div class="hint">${itens.length} lançamentos</div></div>
+<div class="stat"><div class="label">✅ Pago</div><div class="value" style="color:var(--green)">${brl(pago)}</div></div>
+<div class="stat ${total-pago>0?'danger':''}"><div class="label">⏳ Pendente</div><div class="value">${brl(total-pago)}</div></div>`;
+document.getElementById('gastosBody').innerHTML=itens.length?itens.map(x=>`<tr>
+<td><b>${esc(x.item)}</b>${x.det?' <span style="color:var(--text2)">· '+esc(x.det)+'</span>':''}<div style="font-size:11px;color:var(--text2);margin-top:2px">${esc(x.cat)}</div></td>
+<td>${esc(x.forn||'—')}</td><td>${x.data?dataBR(x.data):'—'}</td>
+<td style="font-weight:600;color:var(--accent2);white-space:nowrap">${brl(x.valor)}</td>
+<td style="white-space:nowrap"><span class="badge ${esc(x.status)}">${esc(x.status)}</span></td>
+<td><div class="gasto-acoes">${acoesGasto(x)}</div></td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:28px">Nenhum lançamento com esses filtros</td></tr>';
+document.getElementById('gastosCards').innerHTML=itens.map(x=>`<div class="mcard"><div class="mi"><div class="mt">${esc(x.item)}</div><div class="ms">${esc(x.cat)}${x.forn?' · '+esc(x.forn):''}${x.data?' · '+dataBR(x.data):''}</div></div><div class="mr"><div class="mv">${brl(x.valor)}</div><div class="ma"><span class="badge ${esc(x.status)}">${esc(x.status)}</span>${acoesGasto(x)}</div></div></div>`).join('');
+}
+
+function renderObraOrc(){
+const g=gastosUnificados();const o=S.orcamento||{};
+const cons={};for(const x of g)cons[x.cat]=(cons[x.cat]||0)+x.valor;
+let totP=0,totC=0;
+document.getElementById('orcList').innerHTML=ORC_CATS.map(c=>{
+const prev=Number(o[c.k])||0,real=cons[c.cat]||0;totP+=prev;totC+=real;
+const pct=prev>0?Math.min(100,real/prev*100):(real>0?100:0);
+const over=prev>0&&real>prev;
+const selo=prev>0?(over?'Acima do previsto':'Dentro do previsto'):'Sem previsão';
+return `<div class="orc-card">
+<div class="orc-top"><div class="orc-name">${c.nome}</div><span class="badge ${over?'atrasado':(prev>0?'pago':'cat')}" style="text-transform:none">${selo}</span></div>
+<div class="prog"><div class="prog-fill ${over?'over':''}" style="width:${pct}%"></div></div>
+<div class="orc-nums"><span>Consumido <b>${brl(real)}</b></span><span>${prev>0?(over?('Excedeu <b style="color:var(--red)">'+brl(real-prev)+'</b>'):('Restam <b>'+brl(prev-real)+'</b>')):''}</span></div>
+<div class="orc-nums"><span>Previsto: ${prev>0?brl(prev):'não definido'}</span></div>
+</div>`}).join('');
+document.getElementById('orcSub').innerHTML=`Previsto <b>${brl(totP)}</b> · consumido <b>${brl(totC)}</b> · saldo <b style="color:${totP-totC<0?'var(--red)':'var(--green)'}">${brl(totP-totC)}</b>`;
+}
+
+function openOrcamento(){
+modalType='orcamento';editIdx=null;editId=null;
+const o=S.orcamento||{};
+document.getElementById('modalTitle').innerHTML='✏️ Orçamento por etapa';
+document.getElementById('modalBody').innerHTML=ORC_CATS.map(c=>`<div class="form-group"><label>${c.nome}</label><input id="o_${c.k}" type="number" step="0.01" min="0" value="${Number(o[c.k])||0}"></div>`).join('')+'<p class="parc-sub" style="margin:10px 0 0">Deixe 0 nas etapas que você não quer controlar.</p>';
+document.getElementById('modal').classList.add('open');
+}
+
+function renderObraParc(){
+const parc=gerarParcelas();const hoje=hojeISO();
+const abertas=parc.filter(p=>p.status!=='pago');
+const atras=abertas.filter(p=>p.venc<hoje);
+const prox7=abertas.filter(p=>p.venc>=hoje&&p.venc<=maisDias(7));
+const tot=a=>a.reduce((s,p)=>s+p.valor,0);
+document.getElementById('obraParcStats').innerHTML=`
+<div class="stat ${atras.length?'danger':''}"><div class="label">⚠️ Vencidas</div><div class="value">${brl(tot(atras))}</div><div class="hint">${atras.length} parcelas</div></div>
+<div class="stat"><div class="label">⏰ Vencem em 7 dias</div><div class="value">${brl(tot(prox7))}</div><div class="hint">${prox7.length} parcelas</div></div>
+<div class="stat primary"><div class="label">💳 A pagar no total</div><div class="value">${brl(tot(abertas))}</div><div class="hint">${abertas.length} parcelas</div></div>`;
+document.getElementById('obraParcCount').textContent=abertas.length+' em aberto';
+document.getElementById('obraParcList').innerHTML=abertas.length?abertas.map(p=>{
+const aviso=p.status==='atrasado'?('vencida há '+diasEntre(hoje,p.venc)+' dias'):(p.venc===hoje?'vence hoje':'em dia');
+return `<div class="parc-item"><div class="pi-main"><div class="pi-title">${esc(p.desc)}</div><div class="pi-sub">${esc(p.forn||'—')} · ${p.num}/${p.total} · ${dataBR(p.venc)} · ${aviso}</div></div><div class="pi-valor">${brl(p.valor)}</div><button class="btn-pago" onclick="pagarParc('${esc(p.id)}')" title="Marcar como paga">✓ Pago</button></div>`}).join(''):'<p style="padding:16px 0;color:var(--text2)">Tudo quitado! 🎉</p>';
+}
+
+function renderObraSocio(){
+const rd=S.resumoDivisao||{},rateio=S.rateio||[];
+const totD=rateio.reduce((a,c)=>a+(c.valor||0),0);
+const ter=rd['VALOR TERRENO']||0,escD=rd['DESPESAS ESCRITURA']||0,adi=rd['ADIANTAMENTO']||0,dev=rd['VALOR DEVIDO']||0,ret=rd['RETORNO']||0;
+document.getElementById('obraSocioStats').innerHTML=`
+<div class="stat primary"><div class="label">🤝 Total dividido</div><div class="value">${brl(totD)}</div><div class="hint">${rateio.length} despesas</div></div>
+<div class="stat"><div class="label">👤 Parte de Matheus (50%)</div><div class="value">${brl(totD/2)}</div></div>
+<div class="stat"><div class="label">💰 Adiantamento</div><div class="value" style="color:var(--green)">${brl(adi)}</div></div>
+<div class="stat danger"><div class="label">📌 Você deve a Matheus</div><div class="value">${brl(dev)}</div><div class="hint">retorno ${brl(ret)}</div></div>`;
+document.getElementById('obraSocioBody').innerHTML=rateio.map(c=>`<tr><td>${esc(c.item||'—')}</td><td style="font-weight:600;color:var(--accent2)">${brl(c.valor||0)}</td><td>${dataBR(c.data)}</td></tr>`).join('');
+document.getElementById('obraSocioCards').innerHTML=rateio.map(c=>`<div class="mcard"><div class="mi"><div class="mt">${esc(c.item||'—')}</div><div class="ms">${dataBR(c.data)}</div></div><div class="mr"><div class="mv">${brl(c.valor||0)}</div></div></div>`).join('');
+}
+
+function renderDiario(){
+const d=(S.diario||[]).map((x,i)=>Object.assign({},x,{_i:i})).sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')));
+document.getElementById('diarioList').innerHTML=d.length?d.map(x=>`<div class="diario-item"><div class="diario-data">${dataBR(x.data)}</div><div class="diario-titulo">${esc(x.titulo||'Registro')}</div><div class="diario-texto">${esc(x.texto||'')}</div><div style="margin-top:12px"><button class="btn btn-ghost btn-icon" onclick="delDiario(${x._i})" title="Excluir">🗑️</button></div></div>`).join(''):'<p class="parc-sub">Nenhum registro ainda. Use o botão acima para anotar o andamento da obra.</p>';
+}
+function openDiario(){
+modalType='diario';editIdx=null;editId=null;
+document.getElementById('modalTitle').innerHTML='📝 Novo registro no diário';
+document.getElementById('modalBody').innerHTML=`
+<div class="form-group"><label>Data</label><input id="d_data" type="date" value="${hojeISO()}"></div>
+<div class="form-group"><label>Título</label><input id="d_titulo" placeholder="Ex: Laje concretada"></div>
+<div class="form-group"><label>O que aconteceu</label><textarea id="d_texto" rows="4" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:14px;font-family:inherit;outline:none;resize:vertical"></textarea></div>`;
+document.getElementById('modal').classList.add('open');
+}
+let _diarioApagado=null;
+function delDiario(i){
+const item=(S.diario||[])[i];if(!item)return;
+_diarioApagado={idx:i,item:item};
+S.diario.splice(i,1);save();renderDiario();
+toast('🗑️ Registro excluído!',false,'undoDiario');
+}
+function undoDiario(){
+if(!_diarioApagado)return;
+S.diario=S.diario||[];
+S.diario.splice(_diarioApagado.idx,0,_diarioApagado.item);
+_diarioApagado=null;save();renderDiario();
+toast('↩️ Registro restaurado!');
 }
 
 // MODAL
@@ -928,12 +1444,53 @@ else if(type==='doc'){set('servico',it.servico);set('valor',it.valor);set('data'
 function editEntry(type,idx){openModal(type,idx)}
 function closeModal(){document.getElementById('modal').classList.remove('open');modalType=null;editIdx=null;editId=null}
 function refreshPage(){let cur=((document.querySelector('.page.active')||{}).id||'').replace('page-','');
-if(cur==='compras')renderCompras();else if(cur==='maoobra')renderMO();else if(cur==='documentos')renderDocs();else if(cur==='financiamento')renderFin();else if(cur==='dashboard')renderDash();else if(cur==='parcelas')renderParcelas();else if(cur==='juros')renderJuros();else if(cur==='divisao')renderSplit()}
+if(cur==='compras')renderCompras();else if(cur==='maoobra')renderMO();else if(cur==='documentos')renderDocs();else if(cur==='financiamento')renderFin();else if(cur==='dashboard')renderDash();else if(cur==='parcelas')renderParcelas();else if(cur==='juros')renderJuros();else if(cur==='divisao')renderSplit();else if(cur==='obras')renderObras()}
+// Redesenha a aba Obras so quando ela esta visivel
+function refreshObras(){const p=document.getElementById('page-obras');if(p&&p.classList.contains('active'))renderObras()}
 
 function saveEntry(){
 const g=id=>{const e=document.getElementById('f_'+id);return e?e.value.trim():''};
 const v=id=>{const e=document.getElementById('f_'+id);return e?Number(e.value)||0:0};
 try{
+if(modalType==='obra'){
+const campo=id=>{const e=document.getElementById(id);return e?e.value.trim():''};
+const nome=campo('o_nome');
+const local=campo('o_local');
+const area=Number(campo('o_area'))||0;
+const vm2=Number(campo('o_vm2'))||0;
+if(!nome)return toast('Informe o nome da obra!',true);
+if(editId){
+const o=S.obras.find(x=>x.id===editId);
+if(o){o.nome=nome;o.local=local;o.area=area;o.valorM2=vm2}
+if(editId==='casa-caio'){S.obra.area=area||72;S.obra.valorM2=vm2||1800}
+save();closeModal();renderObras();enviarObra(o);
+toast('✅ Obra atualizada!');
+}else{
+const id=uid();
+S.obras.push({id:id,nome:nome,local:local,area:area,valorM2:vm2});
+S.dados[id]=PACOTE_VAZIO();
+sincronizarAtiva();
+S.obraAtiva=id;
+aplicarObraAtiva();
+save();closeModal();destroyAll();renderObras();enviarObra(obraAtual());
+toast('🏗️ Obra criada!');
+}
+return;
+}
+if(modalType==='orcamento'){
+const o={};ORC_CATS.forEach(c=>{const e=document.getElementById('o_'+c.k);o[c.k]=e?Math.max(0,Number(e.value)||0):0});
+S.orcamento=o;save();closeModal();
+if(document.getElementById('page-obras').classList.contains('active'))renderObraOrc();
+toast('✅ Orçamento salvo!');return;
+}
+if(modalType==='diario'){
+const tit=document.getElementById('d_titulo').value.trim();
+const txt=document.getElementById('d_texto').value.trim();
+if(!tit)return toast('Informe o título do registro!',true);
+S.diario=S.diario||[];
+S.diario.push({id:uid(),data:document.getElementById('d_data').value||hojeISO(),titulo:tit,texto:txt});
+save();closeModal();renderDiario();toast('📝 Registro salvo!');return;
+}
 if(editIdx!==null){
 const arr=MAP[modalType];
 if(editId){const achou=S[arr].findIndex(x=>x&&x.id===editId);if(achou<0){closeModal();return toast('⚠️ Este registro não existe mais. Recarregue a página.',true)}editIdx=achou}
@@ -966,15 +1523,16 @@ function delEntry(arr,i){const item=S[arr][i];_lastDeleted={arr:arr,idx:i,item:J
 const sbTable={maoDeObra:'mao_de_obra',documentos:'documentos',juros:'juros',contas:'contas',compras:'compras'};
 if(sbTable[arr]&&item.id)sbDelete(sbTable[arr],item.id);
 const renders={maoDeObra:renderMO,documentos:renderDocs,juros:renderFin,contas:renderFin};(renders[arr]||renderCompras)();
+refreshObras();
 toast('🗑️ Excluído!',false,'undoLast')}
 function undoLast(){if(!_lastDeleted)return;const{arr,item,parcelas}=_lastDeleted;if(arr==='compras')S.compras.unshift(item);else S[arr].splice(_lastDeleted.idx,0,item);
 if(parcelas&&parcelas.length){S.parcelasPagas=[...new Set([...(S.parcelasPagas||[]),...parcelas])];sbParcelasPagasLote(parcelas)}
 _lastDeleted=null;save();
 const sbTable={maoDeObra:'mao_de_obra',documentos:'documentos',juros:'juros',contas:'contas',compras:'compras'};
 const t=sbTable[arr];if(t&&item&&item.id)sbPush(t,cloudRow(item));
-const renders={maoDeObra:renderMO,documentos:renderDocs,juros:renderFin,contas:renderFin};(renders[arr]||renderCompras)();toast('↩️ Restaurado!')}
+const renders={maoDeObra:renderMO,documentos:renderDocs,juros:renderFin,contas:renderFin};(renders[arr]||renderCompras)();refreshObras();toast('↩️ Restaurado!')}
 
-function resetAll(){localStorage.removeItem('obra-facil-v2');S=JSON.parse(JSON.stringify(SEED));toast('🔄 Dados restaurados!')}
+function resetAll(){localStorage.removeItem('obra-facil-v2');S=JSON.parse(JSON.stringify(SEED));if(!S.dados)S.dados={};if(!S.dados['casa-caio'])S.dados['casa-caio']=pacoteCasa();S.obraAtiva='casa-caio';aplicarObraAtiva();save();toast('🔄 Dados restaurados!');renderObras()}
 
 // Offline: os dados continuam salvos no aparelho, só não sincroniza
 if(typeof window!=='undefined'){
@@ -1018,9 +1576,10 @@ else{el.className='sync-chip err';el.textContent='⚠️';el.title='Falha ao sin
 }
 function baixarBackup(){
 try{
-const dados={geradoEm:new Date().toISOString(),versao:2,obra:S.obra,compras:S.compras,maoDeObra:S.maoDeObra,documentos:S.documentos,parcelasPagas:S.parcelasPagas,juros:S.juros,contas:S.contas,rateio:S.rateio,resumoDivisao:S.resumoDivisao};
+sincronizarAtiva();
+const dados={geradoEm:new Date().toISOString(),versao:3,obraAtiva:S.obraAtiva,obras:S.obras,dados:S.dados,obra:S.obra,orcamento:S.orcamento,diario:S.diario,compras:S.compras,maoDeObra:S.maoDeObra,documentos:S.documentos,parcelasPagas:S.parcelasPagas,juros:S.juros,contas:S.contas,rateio:S.rateio,resumoDivisao:S.resumoDivisao};
 const blob=new Blob([JSON.stringify(dados,null,2)],{type:'application/json'});
-const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='obra-caio-backup-'+hojeISO()+'.json';
+const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='obra-facil-backup-'+hojeISO()+'.json';
 document.body.appendChild(a);a.click();a.remove();
 setTimeout(()=>URL.revokeObjectURL(a.href),3000);
 toast('⬇️ Backup baixado! Guarde este arquivo.')}
